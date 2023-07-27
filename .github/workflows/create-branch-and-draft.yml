@@ -1,0 +1,61 @@
+name: Create branch and draft
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  repository-projects: write
+  statuses: write
+
+on:
+  repository_dispatch:
+    types: [create-branch-and-draft]
+
+jobs:
+  create-branch-and-draft:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: 
+        payload: ${{ github.event.client_payload.payloads }}
+      max-parallel: 1
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Check if branch exists
+        id: check-branch-exists
+        continue-on-error: true
+        # should check if branch exists and set branchExists=true if it does, otherwise branchExists=false
+        run: |
+          git fetch --all
+          git checkout ${{ matrix.payload.headBranch }}
+          echo "branchExists=true" >> $GITHUB_OUTPUT
+          echo "Branch exists"
+
+      - name: Generate UUID
+        id: generate-uuid
+        run: |
+          echo "uuid=$(cat /proc/sys/kernel/random/uuid | sed 's/[-]//g' | head -c 20)" >> $GITHUB_OUTPUT
+
+
+      - name: Create branch
+        id: create-branch
+        # if branch does not exist, create it
+        if: steps.check-branch-exists.outputs.branchExists != 'true'
+        run: |
+          git checkout ${{ matrix.payload.baseBranch }}
+          git checkout -b ${{ matrix.payload.headBranch }}
+          git config --global user.email "ci@astrodevslabs.io" && git config --global user.name "Astrodevs CI"
+          echo "${{ env.REMOVE_UUID }}" > remove-me-${{ env.REMOVE_UUID }}.txt
+          git add remove-me-${{ env.REMOVE_UUID }}.txt
+          git commit -m "chore: create branch ${{ matrix.payload.headBranch }}"
+          git push origin ${{ matrix.payload.headBranch }}
+        env:
+          REMOVE_UUID: ${{ steps.generate-uuid.outputs.uuid }}
+
+      - name: Create pull request
+        if: steps.check-pr-exists.outputs.result.prExists != 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr create --title "${{ matrix.payload.prTitle }}" --body "Solves #${{ matrix.payload.issueNumber }}" --base ${{matrix.payload.baseBranch }} --head ${{matrix.payload.headBranch }} --repo ${{ github.event.repository.full_name }} --draft

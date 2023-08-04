@@ -1,0 +1,92 @@
+on:
+  workflow_call:
+    inputs:
+      from:
+        required: true
+        type: string
+        description: "Current commit SHA"
+      since:
+        required: true
+        type: string
+        description: "Commit SHA from since the chnages have to be detected"
+    outputs:
+      workspaces:
+        description: "Array of affected workspaces"
+        value: ${{ jobs.detect_changes.outputs.workspaces }}
+      toolchains:
+        description: "Array of affected toolchains workspaces"
+        value: ${{ jobs.detect_changes.outputs.toolchains }}
+      extensions:
+        description: "Array of affected extensions workspaces"
+        value: ${{ jobs.detect_changes.outputs.extensions }}
+
+jobs:
+  detect_changes:
+    runs-on: ubuntu-latest
+    outputs:
+      workspaces: ${{ toJson(fromJson(steps.build-array.outputs.result).affectedWorkspaces) }}
+      toolchains: ${{ toJson(fromJson(steps.build-array.outputs.result).toolchainsWorkspaces) }}
+      extensions: ${{ toJson(fromJson(steps.build-array.outputs.result).extensionsWorkspaces) }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Checkout to since commit
+        run: git checkout ${{ inputs.since }}
+      - name: Checkout to current commit
+        run: git checkout ${{ inputs.from }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.16.1'
+      - name: Setup yarn
+        id: setup-yarn
+        # Install yarn 3 & workspace-tools
+        run: |
+          corepack enable
+          corepack prepare yarn@stable --activate
+          yarn -v
+          yarn plugin import workspace-tools
+      - name: Get yarn workspaces output
+        id: raw-workspaces-list
+        run: |
+          yarn workspaces list --json --since=${{ inputs.since }}
+          echo "raw-workspaces='$(yarn workspaces list --json --since=${{ inputs.since }} | tr '\n' ' ')'" | tee output.txt >> $GITHUB_OUTPUT
+          cat output.txt
+      - name: Build array
+        id: build-array
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const rawWorkspacesLines = `${{ steps.raw-workspaces-list.outputs.raw-workspaces }}`
+            const workspacesLines = rawWorkspacesLines.replace(/'/g, '')
+            console.log(workspacesLines)
+            const workspaces = workspacesLines.trim().split(' ').map(line => {
+              console.log(line)
+              return JSON.parse(line)
+            })
+            console.log(workspaces)
+            const affectedWorkspaces = workspaces.filter(workspace => {
+              return workspace.location !== '.'
+            })
+            console.log(affectedWorkspaces)
+            const toolchainsWorkspaces = affectedWorkspaces.filter(workspace => {
+              return workspace.name.endsWith('-toolchain')
+            })
+            const extensionsWorkspaces = affectedWorkspaces.filter(workspace => {
+              return workspace.name.match(/osmium-(?!packages)(?:manager|(?:\w+-(?!toolchain)(?!\w+-\w+)))/)
+            })
+            return {
+              affectedWorkspaces,
+              toolchainsWorkspaces,
+              extensionsWorkspaces
+            }
+
+      - name: debug
+        run: |
+          echo "Affected workspaces: ${{ toJson(fromJson(steps.build-array.outputs.result).affectedWorkspaces) }}"
+          echo "------------------------------------"
+          echo "Toolchains workspaces: ${{ toJson(fromJson(steps.build-array.outputs.result).toolchainsWorkspaces) }}"
+          echo "------------------------------------"
+          echo "Extensions workspaces: ${{ toJson(fromJson(steps.build-array.outputs.result).extensionsWorkspaces) }}"
+      
+      

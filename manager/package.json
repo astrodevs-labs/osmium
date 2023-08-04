@@ -1,0 +1,11 @@
+{
+  "name": "osmium-manager",
+  "version": "0.0.1",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "echo 'building manager...'",
+    "test": "echo 'testing manager...'",
+    "publish": "echo 'publishing manager...'"
+  }
+}

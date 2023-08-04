@@ -1,0 +1,10 @@
+{
+  "name": "@osmium-packages/eslint-config",
+  "packageManager": "yarn@3.6.1",
+  "version": "1.0.0",
+  "description": "ESLint configuration for Osmium Packages",
+  "main": "index.js",
+  "devDependencies": {
+    "eslint": "^8.46.0"
+  }
+}

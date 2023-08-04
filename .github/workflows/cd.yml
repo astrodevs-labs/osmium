@@ -1,0 +1,124 @@
+name: Tag and publish
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+#  pull_request:
+#    branches: [master]
+
+jobs:
+  find-last-commit:
+    runs-on: ubuntu-latest
+    outputs:
+      commit: ${{ steps.last-commit.outputs.commit }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Get Last Commit
+        id: last-commit
+        run: echo "commit=$(git log --oneline HEAD~1 -1 --format=format:%H)" >> $GITHUB_OUTPUT
+
+  setup:
+    needs: find-last-commit
+    uses: ./.github/workflows/detect-workspace-changes.yml
+    with:
+      from: ${{ github.sha }}
+      since: ${{ needs.find-last-commit.outputs.commit }}
+
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: setup
+    strategy:
+      matrix:
+        workspace: ${{ fromJson(needs.setup.outputs.extensions)}}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.16.1'
+
+      - id: setup-yarn
+        # Install yarn 3 & workspace-tools
+        run: |
+          corepack enable
+          corepack prepare yarn@stable --activate
+          yarn -v
+          yarn plugin import workspace-tools
+
+      - uses: paulhatch/semantic-version@d43966692519e4a5d4423b3da1b4b903c58c8f6b
+        id: find-new-version
+        with:
+          # The prefix to use to identify tags
+          tag_prefix: ""
+          # A string which, if present in a git commit, indicates that a change represents a
+          # major (breaking) change, supports regular expressions wrapped with '/'
+          major_pattern: "!:"
+          # Same as above except indicating a minor change, supports regular expressions wrapped with '/'
+          minor_pattern: "/feat\\(?/"
+          # A string to determine the format of the version output
+          version_format: "${major}.${minor}.${patch}"
+          # Optional path to check for changes. If any changes are detected in the path the
+          # 'changed' output will true. Enter multiple paths separated by spaces.
+          #change_path: "src/my-service"
+          # Named version, will be used as suffix for name version tag
+          namespace: my-service
+          # If this is set to true, *every* commit will be treated as a new version.
+          bump_each_commit: false
+          # If true, the body of commits will also be searched for major/minor patterns to determine the version type.
+          search_commit_body: false
+          # The output method used to generate list of users, 'csv' or 'json'.
+          user_format_type: "csv"
+          # Prevents pre-v1.0.0 version from automatically incrementing the major version.
+          # If enabled, when the major version is 0, major releases will be treated as minor and minor as patch. Note that the version_type output is unchanged.
+          enable_prerelease_mode: true
+
+      - name: Normalize version
+        uses: actions/github-script@v6
+        id: tag
+        with:
+          result-encoding: string
+          script: |
+            const fs = require('fs')
+            console.log("Change type is : ", "${{ steps.find-new-version.outputs.version_type}}")
+
+            if (fs.existsSync('.unstable') && "${{ steps.find-new-version.outputs.version_type}}" == "patch") {
+              const patch = parseInt('${{steps.find-new-version.outputs.patch}}', 10);
+              return "${{steps.find-new-version.outputs.major}}.${{steps.find-new-version.outputs.minor}}." + (patch + 1).toString();
+            } else
+              return "${{steps.find-new-version.outputs.major}}.${{steps.find-new-version.outputs.minor}}.${{steps.find-new-version.outputs.patch}}"
+      
+      - name: Install dependencies
+        run: |
+          yarn install --immutable
+
+      - name: Build
+        run: |
+          yarn workspace ${{ matrix.workspace.name }} build
+
+      - name: Publish
+        run: yarn workspace ${{ matrix.workspace.name }} dlx @vscode/vsce publish ${{ github.ref_name == 'dev' && '--pre-release' || '' }} ${{ steps.tag.outputs.result }}
+              
+      #- name: Run latest-tag
+      #  uses: EndBug/latest-tag@latest
+      #  with:
+      #    # You can change the name of the tag or branch with this input.
+      #    # Default: 'latest'
+      #    ref: ${{ steps.tag.outputs.result }}
+      #
+      #    # If a description is provided, the action will use it to create an annotated tag. If none is given, the action will create a lightweight tag.
+      #    # Default: ''
+      #    description: Description for the tag
+
+      # - name: Create GitHub release
+      #   uses: Roang-zero1/github-create-release-action@v3
+      #   with:
+      #     created_tag: ${{ steps.find-new-version.outputs.version_tag }}
+      #     release_title: ${{ steps.find-new-version.outputs.version_tag }}
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,13 @@
+{
+  "name": "osmium-solidity-linter",
+  "version": "0.0.1",
+  "license": "MIT",
+  "workspaces": [
+    "*"
+  ],
+  "scripts": {
+    "build": "echo 'building solidity linter...'",
+    "test": "echo 'testing solidity linter...'",
+    "publish": "echo 'publishing solidity linter...'"
+  }
+}

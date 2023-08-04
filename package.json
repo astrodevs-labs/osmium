@@ -1,0 +1,22 @@
+{
+  "name": "osmium",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": [
+    "manager",
+    "packages/*",
+    "toolchains/*",
+    "libs/*"
+  ],
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "husky": "^8.0.0"
+  },
+  "scripts": {
+    "postinstall": "husky install",
+    "lint": "echo 'linting...'",
+    "format": "echo 'formatting...'",
+    "test": "echo 'testing...'"
+  }
+}

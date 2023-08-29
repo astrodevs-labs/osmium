@@ -6,8 +6,8 @@
     "*"
   ],
   "scripts": {
-    "build": "echo 'building solidity linter...'",
-    "test": "echo 'testing solidity linter...'",
+    "build": "cargo build --release",
+    "test": "cargo test",
     "publish": "echo 'publishing solidity linter...'"
   }
 }

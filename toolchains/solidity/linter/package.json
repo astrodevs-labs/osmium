@@ -1,13 +1,9 @@
 {
-  "name": "osmium-solidity-linter",
+  "name": "@solidity/linter",
   "version": "0.0.1",
   "license": "MIT",
-  "workspaces": [
-    "*"
-  ],
   "scripts": {
-    "build": "cargo build --release",
-    "test": "cargo test",
-    "publish": "echo 'publishing solidity linter...'"
+    "build": "yarn --cwd core build",
+    "test": "yarn --cwd core test"
   }
 }

@@ -106,7 +106,8 @@ impl Hash for ContractReference {
 mod tests {
     use std::cell::RefCell;
 
-    use syn_solidity::kw::function;
+    use proc_macro2::Span;
+    use syn_solidity::{kw::function, Type};
 
     use crate::types::location::Bound;
 
@@ -164,7 +165,7 @@ mod tests {
     fn add_property() {
         let file = Rc::new(RefCell::new(FileReference::new("File.test".to_string())));
         let result = Rc::new(RefCell::new(ContractReference::new("Test".to_string(), Location::new("File.test".to_string(), Bound {line: 0, column: 0}, Bound { line: 0, column: 0}), &file)));
-        let property = Rc::new(RefCell::new(PropertyReference::new("TestProperty".to_string(), "uint256".to_string(), Location::new("File.test".to_string(), Bound {line: 0, column: 0}, Bound { line: 0, column: 0}), &result)));
+        let property = Rc::new(RefCell::new(PropertyReference::new("TestProperty".to_string(), Type::Bool(Span::call_site()), Location::new("File.test".to_string(), Bound {line: 0, column: 0}, Bound { line: 0, column: 0}), &result)));
 
         (*result).borrow_mut().add_property(&property);
 

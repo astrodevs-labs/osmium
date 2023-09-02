@@ -106,6 +106,8 @@ impl Hash for ContractReference {
 mod tests {
     use std::cell::RefCell;
 
+    use syn_solidity::kw::function;
+
     use crate::types::location::Bound;
 
     use super::*;
@@ -140,7 +142,17 @@ mod tests {
     fn add_function() {
         let file = Rc::new(RefCell::new(FileReference::new("File.test".to_string())));
         let result = Rc::new(RefCell::new(ContractReference::new("Test".to_string(), Location::new("File.test".to_string(), Bound {line: 0, column: 0}, Bound { line: 0, column: 0}), &file)));
-        let function = Rc::new(RefCell::new(FunctionReference::new("TestFunction".to_string(), Location::new("File.test".to_string(), Bound {line: 0, column: 0}, Bound { line: 0, column: 0}), &result)));
+        let function = Rc::new(
+            RefCell::new(
+                FunctionReference::new(
+                    "TestFunction".to_string(), 
+                    syn_solidity::FunctionKind::Function(function(proc_macro2::Span::call_site())),
+                    Location::new(
+                        "File.test".to_string(), 
+                        Bound {line: 0, column: 0}, 
+                        Bound { line: 0, column: 0}
+                    ), 
+                    &result)));
 
         (*result).borrow_mut().add_function(&function);
 

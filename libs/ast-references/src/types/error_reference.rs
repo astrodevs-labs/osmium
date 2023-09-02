@@ -201,7 +201,7 @@ mod tests {
         result.add_value(
             String::from("TestValue"),
             Type::Uint(Span::call_site(), NonZeroU16::new(256)),
-            None, 
+            None,
             Location::new(
                 String::from("test.sol"),
                 Bound::new(0, 0),

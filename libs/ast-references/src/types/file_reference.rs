@@ -12,6 +12,9 @@ use crate::types::contract_reference::ContractReference;
 use crate::types::struct_reference::StructReference;
 use crate::types::enum_reference::EnumReference;
 
+use super::error_reference::ErrorReference;
+use super::event_reference::EventReference;
+
 /******************************************************************************
  *                                  Types                                     *
  *****************************************************************************/
@@ -21,6 +24,8 @@ pub struct FileReference {
     pub contracts: Vec<Rc<RefCell<ContractReference>>>,
     pub structs: Vec<Rc<RefCell<StructReference>>>,
     pub enums: Vec<Rc<RefCell<EnumReference>>>,
+    pub errors: Vec<Rc<RefCell<ErrorReference>>>,
+    pub events: Vec<Rc<RefCell<EventReference>>>,
 }
 
 /******************************************************************************
@@ -34,6 +39,8 @@ impl FileReference {
             contracts: Vec::new(),
             structs: Vec::new(),
             enums: Vec::new(),
+            errors: Vec::new(),
+            events: Vec::new(),
         }
     }
 
@@ -47,6 +54,14 @@ impl FileReference {
 
     pub fn add_enum(&mut self, enm: EnumReference) {
         self.enums.push(Rc::new(RefCell::new(enm)));
+    }
+
+    pub fn add_error(&mut self, error: ErrorReference) {
+        self.errors.push(Rc::new(RefCell::new(error)));
+    }
+
+    pub fn add_event(&mut self, event: EventReference) {
+        self.events.push(Rc::new(RefCell::new(event)));
     }
 }
 
@@ -120,5 +135,23 @@ impl Hash for FileReference {
         file.borrow_mut().add_enum(enm);
 
         assert_eq!(file.borrow().enums.len(), 1);
+    }
+
+    #[test]
+    fn add_error() {
+        let file = Rc::new(RefCell::new(FileReference::new("File.test".to_string())));
+        let error = ErrorReference::new("Error".to_string(), Location::new("File.test".to_string(), Bound::new(0, 0), Bound::new(0, 0)), None, None);
+        file.borrow_mut().add_error(error);
+
+        assert_eq!(file.borrow().errors.len(), 1);
+    }
+
+    #[test]
+    fn add_event() {
+        let file = Rc::new(RefCell::new(FileReference::new("File.test".to_string())));
+        let event = EventReference::new("Event".to_string(), Location::new("File.test".to_string(), Bound::new(0, 0), Bound::new(0, 0)), None, None);
+        file.borrow_mut().add_event(event);
+
+        assert_eq!(file.borrow().events.len(), 1);
     }
 }

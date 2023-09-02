@@ -1,5 +1,7 @@
 pub mod contract_reference;
 pub mod enum_reference;
+pub mod error_reference;
+pub mod event_reference;
 pub mod file_reference;
 pub mod function_reference;
 pub mod location;

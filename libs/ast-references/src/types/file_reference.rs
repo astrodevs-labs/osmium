@@ -8,12 +8,12 @@ use std::cell::RefCell;
 use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::rc::Rc;
-use crate::types::contract_reference::ContractReference;
-use crate::types::struct_reference::StructReference;
-use crate::types::enum_reference::EnumReference;
-
+use super::contract_reference::ContractReference;
+use super::struct_reference::StructReference;
+use super::enum_reference::EnumReference;
 use super::error_reference::ErrorReference;
 use super::event_reference::EventReference;
+use super::variable_reference::VariableReference;
 
 /******************************************************************************
  *                                  Types                                     *
@@ -26,6 +26,7 @@ pub struct FileReference {
     pub enums: Vec<Rc<RefCell<EnumReference>>>,
     pub errors: Vec<Rc<RefCell<ErrorReference>>>,
     pub events: Vec<Rc<RefCell<EventReference>>>,
+    pub variables: Vec<Rc<RefCell<VariableReference>>>,
 }
 
 /******************************************************************************
@@ -41,6 +42,7 @@ impl FileReference {
             enums: Vec::new(),
             errors: Vec::new(),
             events: Vec::new(),
+            variables: Vec::new(),
         }
     }
 
@@ -62,6 +64,10 @@ impl FileReference {
 
     pub fn add_event(&mut self, event: EventReference) {
         self.events.push(Rc::new(RefCell::new(event)));
+    }
+
+    pub fn add_variable(&mut self, variable: VariableReference) {
+        self.variables.push(Rc::new(RefCell::new(variable)));
     }
 }
 
@@ -99,6 +105,9 @@ impl Hash for FileReference {
  #[cfg(test)]
  mod tests {
     use std::cell::RefCell; 
+    use proc_macro2::Span;
+    use syn_solidity::Type;
+
     use crate::types::location::{Bound, Location};
 
     use super::*;
@@ -153,5 +162,14 @@ impl Hash for FileReference {
         file.borrow_mut().add_event(event);
 
         assert_eq!(file.borrow().events.len(), 1);
+    }
+
+    #[test]
+    fn add_variable() {
+        let file = Rc::new(RefCell::new(FileReference::new("File.test".to_string())));
+        let variable = VariableReference::new("Variable".to_string(), Type::Bool(Span::call_site()), Location::new("File.test".to_string(), Bound::new(0, 0), Bound::new(0, 0)), None, None);
+        file.borrow_mut().add_variable(variable);
+
+        assert_eq!(file.borrow().variables.len(), 1);
     }
 }

@@ -12,7 +12,7 @@ use crate::types::location::Location;
 use crate::types::file_reference::FileReference;
 use crate::types::struct_reference::StructReference;
 use crate::types::function_reference::FunctionReference;
-use crate::types::property_reference::PropertyReference;
+use crate::types::variable_reference::VariableReference;
 
 use super::error_reference::ErrorReference;
 use super::event_reference::EventReference;
@@ -27,7 +27,7 @@ pub struct ContractReference {
     pub file: Rc<RefCell<FileReference>>,
     pub structs: Vec<Rc<RefCell<StructReference>>>,
     pub functions: Vec<Rc<RefCell<FunctionReference>>>,
-    pub properties: Vec<Rc<RefCell<PropertyReference>>>,
+    pub properties: Vec<Rc<RefCell<VariableReference>>>,
     pub errors: Vec<Rc<RefCell<ErrorReference>>>,
     pub events: Vec<Rc<RefCell<EventReference>>>,
 }
@@ -58,7 +58,7 @@ impl ContractReference {
         self.functions.push(function.clone());
     }
 
-    pub fn add_property(&mut self, property: &Rc<RefCell<PropertyReference>>) {
+    pub fn add_property(&mut self, property: &Rc<RefCell<VariableReference>>) {
         self.properties.push(property.clone());
     }
 
@@ -165,7 +165,7 @@ mod tests {
     fn add_property() {
         let file = Rc::new(RefCell::new(FileReference::new("File.test".to_string())));
         let result = Rc::new(RefCell::new(ContractReference::new("Test".to_string(), Location::new("File.test".to_string(), Bound {line: 0, column: 0}, Bound { line: 0, column: 0}), &file)));
-        let property = Rc::new(RefCell::new(PropertyReference::new("TestProperty".to_string(), Type::Bool(Span::call_site()), Location::new("File.test".to_string(), Bound {line: 0, column: 0}, Bound { line: 0, column: 0}), &result)));
+        let property = Rc::new(RefCell::new(VariableReference::new("TestProperty".to_string(), Type::Bool(Span::call_site()), Location::new("File.test".to_string(), Bound {line: 0, column: 0}, Bound { line: 0, column: 0}), Some(&result), None)));
 
         (*result).borrow_mut().add_property(&property);
 

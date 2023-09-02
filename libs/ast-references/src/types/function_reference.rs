@@ -7,6 +7,8 @@ use std::cell::RefCell;
 
 use std::fmt;
 use std::rc::Rc;
+use syn_solidity::FunctionKind;
+
 use crate::types::location::Location;
 use crate::types::contract_reference::ContractReference;
 
@@ -16,6 +18,7 @@ use crate::types::contract_reference::ContractReference;
 
 pub struct FunctionReference {
     pub name: String,
+    pub kind: FunctionKind,
     pub location: Location,
     pub contract: Rc<RefCell<ContractReference>>,
 }
@@ -25,9 +28,10 @@ pub struct FunctionReference {
  *****************************************************************************/
 
  impl FunctionReference {
-    pub fn new(name: String, location: Location, contract: &Rc<RefCell<ContractReference>>) -> FunctionReference {
+    pub fn new(name: String, kind: FunctionKind, location: Location, contract: &Rc<RefCell<ContractReference>>) -> FunctionReference {
         FunctionReference {
             name: name,
+            kind: kind,
             location: location,
             contract: contract.clone(),
         }
@@ -59,6 +63,9 @@ impl PartialEq for FunctionReference {
  #[cfg(test)]
  mod tests {
     use std::cell::RefCell; 
+    use proc_macro2::Span;
+    use syn_solidity::kw::function;
+
     use crate::types::{location::{Bound, Location}, file_reference::FileReference};
 
     use super::*;
@@ -67,7 +74,14 @@ impl PartialEq for FunctionReference {
     fn new_good_construct() {
         let file = Rc::new(RefCell::new(FileReference::new("Test.sol".to_string())));
         let contract = Rc::new(RefCell::new(ContractReference::new("contract".to_string(), Location::new("Test.sol".to_string(), Bound::new(0, 0), Bound::new(0, 0)), &file)));
-        let function = FunctionReference::new("function".to_string(), Location::new("Test.sol".to_string(), Bound::new(0, 0), Bound::new(0, 0)), &contract);
+        let function = FunctionReference::new(
+            "function".to_string(), 
+            FunctionKind::Function(function(Span::call_site())),
+            Location::new("Test.sol".to_string(), 
+            Bound::new(0, 0), 
+            Bound::new(0, 0)), 
+            &contract
+        );
 
         assert_eq!(function.name, "function".to_string());
         assert_eq!(function.location, Location::new("Test.sol".to_string(), Bound::new(0, 0), Bound::new(0, 0)));

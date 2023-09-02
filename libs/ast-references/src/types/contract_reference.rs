@@ -14,6 +14,9 @@ use crate::types::struct_reference::StructReference;
 use crate::types::function_reference::FunctionReference;
 use crate::types::property_reference::PropertyReference;
 
+use super::error_reference::ErrorReference;
+use super::event_reference::EventReference;
+
 /******************************************************************************
  *                                  Types                                     *
  *****************************************************************************/
@@ -25,6 +28,8 @@ pub struct ContractReference {
     pub structs: Vec<Rc<RefCell<StructReference>>>,
     pub functions: Vec<Rc<RefCell<FunctionReference>>>,
     pub properties: Vec<Rc<RefCell<PropertyReference>>>,
+    pub errors: Vec<Rc<RefCell<ErrorReference>>>,
+    pub events: Vec<Rc<RefCell<EventReference>>>,
 }
 
 /******************************************************************************
@@ -40,6 +45,8 @@ impl ContractReference {
             structs: Vec::new(),
             functions: Vec::new(),
             properties: Vec::new(),
+            errors: Vec::new(),
+            events: Vec::new(),
         }
     }
 
@@ -53,6 +60,14 @@ impl ContractReference {
 
     pub fn add_property(&mut self, property: &Rc<RefCell<PropertyReference>>) {
         self.properties.push(property.clone());
+    }
+
+    pub fn add_error(&mut self, error: &Rc<RefCell<ErrorReference>>) {
+        self.errors.push(error.clone());
+    }
+
+    pub fn add_event(&mut self, event: &Rc<RefCell<EventReference>>) {
+        self.events.push(event.clone());
     }
 }
 
@@ -143,5 +158,29 @@ mod tests {
 
         assert_eq!(result.borrow().properties.len(), 1);
         assert_eq!(result.borrow().properties[0], property);
+    }
+
+    #[test]
+    fn add_error() {
+        let file = Rc::new(RefCell::new(FileReference::new("File.test".to_string())));
+        let result = Rc::new(RefCell::new(ContractReference::new("Test".to_string(), Location::new("File.test".to_string(), Bound {line: 0, column: 0}, Bound { line: 0, column: 0}), &file)));
+        let error = Rc::new(RefCell::new(ErrorReference::new("TestError".to_string(), Location::new("File.test".to_string(), Bound {line: 0, column: 0}, Bound { line: 0, column: 0}), Some(&result), None)));
+
+        (*result).borrow_mut().add_error(&error);
+
+        assert_eq!(result.borrow().errors.len(), 1);
+        assert_eq!(result.borrow().errors[0], error);
+    }
+
+    #[test]
+    fn add_event() {
+        let file = Rc::new(RefCell::new(FileReference::new("File.test".to_string())));
+        let result = Rc::new(RefCell::new(ContractReference::new("Test".to_string(), Location::new("File.test".to_string(), Bound {line: 0, column: 0}, Bound { line: 0, column: 0}), &file)));
+        let event = Rc::new(RefCell::new(EventReference::new("TestEvent".to_string(), Location::new("File.test".to_string(), Bound {line: 0, column: 0}, Bound { line: 0, column: 0}), Some(&result), None)));
+
+        (*result).borrow_mut().add_event(&event);
+
+        assert_eq!(result.borrow().events.len(), 1);
+        assert_eq!(result.borrow().events[0], event);
     }
 }

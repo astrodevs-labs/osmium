@@ -1,12 +1,13 @@
 /**
- * EnumReference.rs
- * Definition of EnumReference struct
+ * EventReference.rs
+ * Definition of EventReference struct
  * author: 0xMemoryGrinder
  */
 
 use std::fmt;
 use std::rc::Rc;
 use std::cell::RefCell;
+use syn_solidity::{Type, Storage};
 use crate::types::location::Location;
 use crate::types::file_reference::FileReference;
 use crate::types::contract_reference::ContractReference;
@@ -15,15 +16,17 @@ use crate::types::contract_reference::ContractReference;
  *                                  Types                                     *
  *****************************************************************************/
 
-pub struct EnumValueReference {
+pub struct EventParameterReference {
     pub name: String,
+    pub ty: Type,
+    pub storage: Option<Storage>,
     pub location: Location,
 }
 
-pub struct EnumReference {
+pub struct EventReference {
     pub name: String,
     pub location: Location,
-    pub values : Vec<EnumValueReference>,
+    pub parameters : Vec<EventParameterReference>,
     pub contract: Option<Rc<RefCell<ContractReference>>>,
     pub file: Option<Rc<RefCell<FileReference>>>,
 }
@@ -32,12 +35,12 @@ pub struct EnumReference {
  *                        Methods / Trait implementation                      *
  *****************************************************************************/
 
- impl EnumReference {
-    pub fn new(name: String, location: Location, contract: Option<&Rc<RefCell<ContractReference>>>, file: Option<&Rc<RefCell<FileReference>>>) -> EnumReference {
-        EnumReference {
+ impl EventReference {
+    pub fn new(name: String, location: Location, contract: Option<&Rc<RefCell<ContractReference>>>, file: Option<&Rc<RefCell<FileReference>>>) -> EventReference {
+        EventReference {
             name: name,
             location: location,
-            values: Vec::new(),
+            parameters: Vec::new(),
             contract: match contract {
                 Some(c) => Some(c.clone()),
                 None => None,
@@ -49,35 +52,37 @@ pub struct EnumReference {
         }
     }
 
-    pub fn add_value(&mut self, name: String, location: Location) {
-        self.values.push(EnumValueReference {
+    pub fn add_value(&mut self, name: String, ty: Type, storage: Option<Storage>, location: Location) {
+        self.parameters.push(EventParameterReference {
             name: name,
+            ty: ty,
+            storage: storage,
             location: location,
         });
     }
  }
 
-impl fmt::Display for EnumReference {
+impl fmt::Display for EventReference {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Enum {} at {}", self.name, self.location)
+        write!(f, "Event {} at {}", self.name, self.location)
     }
 }
 
-impl fmt::Debug for EnumReference {
+impl fmt::Debug for EventReference {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Enum {} at {}", self.name, self.location)
+        write!(f, "Event {} at {}", self.name, self.location)
     }
 }
 
-impl PartialEq for EnumReference {
-    fn eq(&self, other: &EnumReference) -> bool {
-        self.name == other.name && self.location == other.location && self.values == other.values && self.file == other.file
+impl PartialEq for EventReference {
+    fn eq(&self, other: &EventReference) -> bool {
+        self.name == other.name && self.location == other.location && self.parameters == other.parameters && self.file == other.file
     }
 }
 
-impl PartialEq for EnumValueReference {
-    fn eq(&self, other: &EnumValueReference) -> bool {
-        self.name == other.name && self.location == other.location
+impl PartialEq for EventParameterReference {
+    fn eq(&self, other: &EventParameterReference) -> bool {
+        self.name == other.name && self.location == other.location && self.ty == other.ty && self.storage == other.storage
     }
 }
 
@@ -87,13 +92,16 @@ impl PartialEq for EnumValueReference {
 
 #[cfg(test)]
 mod tests {
+    use std::num::NonZeroU16;
+    use proc_macro2::Span;
+
     use crate::types::location::Bound;
 
     use super::*;
 
     #[test]
     fn new_good_construct() {
-        let result = EnumReference::new(
+        let result = EventReference::new(
             String::from("Test"),
             Location::new(
                 String::from("test.sol"),
@@ -110,7 +118,7 @@ mod tests {
         assert_eq!(result.location.start.column, 0);
         assert_eq!(result.location.end.line, 0);
         assert_eq!(result.location.end.column, 0);
-        assert!(result.values.is_empty());
+        assert!(result.parameters.is_empty());
     }
 
     #[test]
@@ -125,7 +133,7 @@ mod tests {
             ),
             &file,
         );
-        let result = EnumReference::new(
+        let result = EventReference::new(
             String::from("Test"),
             Location::new(
                 String::from("test.sol"),
@@ -142,7 +150,7 @@ mod tests {
         assert_eq!(result.location.start.column, 0);
         assert_eq!(result.location.end.line, 0);
         assert_eq!(result.location.end.column, 0);
-        assert!(result.values.is_empty());
+        assert!(result.parameters.is_empty());
 
         assert_eq!(result.contract.as_ref().unwrap().borrow().name, "Contract");
         assert_eq!(result.contract.as_ref().unwrap().borrow().location.file, "File.test".to_string());
@@ -155,7 +163,7 @@ mod tests {
     #[test]
     fn new_standalone_enum() {
         let file = Rc::new(RefCell::new(FileReference::new("File.test".to_string())));
-        let result = EnumReference::new(
+        let result = EventReference::new(
             String::from("Test"),
             Location::new(
                 String::from("test.sol"),
@@ -172,14 +180,14 @@ mod tests {
         assert_eq!(result.location.start.column, 0);
         assert_eq!(result.location.end.line, 0);
         assert_eq!(result.location.end.column, 0);
-        assert!(result.values.is_empty());
+        assert!(result.parameters.is_empty());
 
         assert_eq!(result.file.as_ref().unwrap().borrow().path, "File.test");
     }
 
     #[test]
     fn add_value() {
-        let mut result = EnumReference::new(
+        let mut result = EventReference::new(
             String::from("Test"),
             Location::new(
                 String::from("test.sol"),
@@ -192,6 +200,8 @@ mod tests {
 
         result.add_value(
             String::from("TestValue"),
+            Type::Uint(Span::call_site(), NonZeroU16::new(256)),
+            None, 
             Location::new(
                 String::from("test.sol"),
                 Bound::new(0, 0),
@@ -199,12 +209,12 @@ mod tests {
             ),
         );
 
-        assert_eq!(result.values.len(), 1);
-        assert_eq!(result.values[0].name, "TestValue");
-        assert_eq!(result.values[0].location.file, "test.sol");
-        assert_eq!(result.values[0].location.start.line, 0);
-        assert_eq!(result.values[0].location.start.column, 0);
-        assert_eq!(result.values[0].location.end.line, 0);
-        assert_eq!(result.values[0].location.end.column, 0);
+        assert_eq!(result.parameters.len(), 1);
+        assert_eq!(result.parameters[0].name, "TestValue");
+        assert_eq!(result.parameters[0].location.file, "test.sol");
+        assert_eq!(result.parameters[0].location.start.line, 0);
+        assert_eq!(result.parameters[0].location.start.column, 0);
+        assert_eq!(result.parameters[0].location.end.line, 0);
+        assert_eq!(result.parameters[0].location.end.column, 0);
     }
 }

@@ -30,7 +30,7 @@ impl RuleType for ImportOnTop {
                 SourceUnitChildNodes::ImportDirective(import) => {
                     if i > last_import_location {
                         let location = decode_location(&import.src, &file.content);
-                        
+
                         res.push(LintDiag {
                             range: Range {
                                 start: Position { line: location.0.line as u64, character: location.0.column as u64 },

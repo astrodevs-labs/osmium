@@ -79,7 +79,7 @@ impl SolidLinter {
 
     pub fn parse_file(&mut self, filepath: String) -> LintResult{
         let res = Solc::default().extract_ast_file(filepath.clone());
-        
+
         if res.is_err() {
             println!("{:?}", res);
             return Err(LintError::SolcError(res.err().unwrap()));

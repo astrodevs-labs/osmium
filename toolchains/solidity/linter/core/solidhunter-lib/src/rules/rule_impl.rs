@@ -3,6 +3,7 @@ use crate::rules::types::*;
 
 /*
 // Untested
+/*
 fn merge_rules(rules: &mut Vec<RuleEntry>, new_rules: &Vec<RuleEntry>) {
     let mut new_rules_map = HashMap::new();
     for rule in new_rules {

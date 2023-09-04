@@ -74,7 +74,6 @@ pub struct Range {
     pub length: u64,
 }
 
-
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub enum NumberOrString {
     Number(i32),

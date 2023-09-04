@@ -82,7 +82,7 @@ fn print_diag(diag: &solidhunter_lib::types::LintDiag) {
     } else if diag.range.start.line > 9 {
         padding = " ".to_string();
     } else {
-        padding = " ".repeat(2).to_string();
+        padding = " ".repeat(2);
     }
     let line = diag
         .source_file_content

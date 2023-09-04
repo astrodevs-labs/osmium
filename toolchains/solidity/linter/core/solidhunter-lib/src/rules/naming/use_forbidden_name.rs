@@ -41,8 +41,8 @@ impl RuleType for UseForbiddenName {
         res
     }
 
-    
-} 
+
+}
 
 impl UseForbiddenName {
 
@@ -54,7 +54,7 @@ impl UseForbiddenName {
         };
         Box::new(rule)
     }
-    
+
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
             id: UseForbiddenName::RULE_ID.to_string(),

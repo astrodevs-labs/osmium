@@ -1,4 +1,4 @@
-use crate::types::{Range};
+use crate::types::Range;
 use solc_wrapper::ast::ast::{CodeLocation, offset_from_location};
 
 pub mod linter;

@@ -106,6 +106,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@osmium-libs/ast-extractor@workspace:libs/ast-extractor":
+  version: 0.0.0-use.local
+  resolution: "@osmium-libs/ast-extractor@workspace:libs/ast-extractor"
+  languageName: unknown
+  linkType: soft
+
 "@osmium-libs/lsp-launcher@workspace:libs/lsp-launcher":
   version: 0.0.0-use.local
   resolution: "@osmium-libs/lsp-launcher@workspace:libs/lsp-launcher"
@@ -125,36 +131,6 @@ __metadata:
   resolution: "@osmium-packages/prettier-config@workspace:packages/prettier-config"
   dependencies:
     prettier: ^3.0.0
-  languageName: unknown
-  linkType: soft
-
-"@osmium-toolchains/solidity@workspace:toolchains/solidity":
-  version: 0.0.0-use.local
-  resolution: "@osmium-toolchains/solidity@workspace:toolchains/solidity"
-  languageName: unknown
-  linkType: soft
-
-"@osmium/manager@workspace:manager":
-  version: 0.0.0-use.local
-  resolution: "@osmium/manager@workspace:manager"
-  languageName: unknown
-  linkType: soft
-
-"@osmium/solidity-linter-core@workspace:toolchains/solidity/linter/core":
-  version: 0.0.0-use.local
-  resolution: "@osmium/solidity-linter-core@workspace:toolchains/solidity/linter/core"
-  languageName: unknown
-  linkType: soft
-
-"@osmium/solidity-linter@workspace:toolchains/solidity/linter":
-  version: 0.0.0-use.local
-  resolution: "@osmium/solidity-linter@workspace:toolchains/solidity/linter"
-  languageName: unknown
-  linkType: soft
-
-"@osmium/solidity-lsp@workspace:toolchains/solidity/lsp":
-  version: 0.0.0-use.local
-  resolution: "@osmium/solidity-lsp@workspace:toolchains/solidity/lsp"
   languageName: unknown
   linkType: soft
 
@@ -716,6 +692,30 @@ __metadata:
   checksum: 09281999441f2fe9c33a5eeab76700795365a061563d66b098923eb719251a42bdbe432790d35064d0816ead9296dbeb1ad51a733edf4167c96bd5d0882e428a
   languageName: node
   linkType: hard
+
+"osmium-manager@workspace:manager":
+  version: 0.0.0-use.local
+  resolution: "osmium-manager@workspace:manager"
+  languageName: unknown
+  linkType: soft
+
+"osmium-solidity-linter@workspace:toolchains/solidity/linter":
+  version: 0.0.0-use.local
+  resolution: "osmium-solidity-linter@workspace:toolchains/solidity/linter"
+  languageName: unknown
+  linkType: soft
+
+"osmium-solidity-lsp@workspace:toolchains/solidity/lsp":
+  version: 0.0.0-use.local
+  resolution: "osmium-solidity-lsp@workspace:toolchains/solidity/lsp"
+  languageName: unknown
+  linkType: soft
+
+"osmium-solidity-toolchain@workspace:toolchains/solidity":
+  version: 0.0.0-use.local
+  resolution: "osmium-solidity-toolchain@workspace:toolchains/solidity"
+  languageName: unknown
+  linkType: soft
 
 "osmium@workspace:.":
   version: 0.0.0-use.local

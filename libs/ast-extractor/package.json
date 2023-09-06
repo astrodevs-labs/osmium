@@ -1,0 +1,9 @@
+{
+  "name": "@osmium-libs/ast-extractor",
+  "packageManager": "yarn@3.6.1",
+  "scripts": {
+    "build": "cargo build --release",
+    "test": "cargo test",
+    "lint": "cargo clippy --all-targets --all-features -- -D warnings"
+  }
+}

@@ -106,8 +106,7 @@ fn print_diag(diag: &solidhunter_lib::types::LintDiag) {
 }
 
 fn lint_folder(args: Args) {
-    let mut linter: SolidLinter = SolidLinter::new();
-    linter.initalize(&args.rules_file);
+    let mut linter: SolidLinter = SolidLinter::new(&args.rules_file);
     let mut result = Vec::new();
     for path in args.project_path {
         result.append(&mut linter.parse_folder(path));
@@ -158,8 +157,7 @@ fn main() {
     if !args.to_json && args.file_to_lint.is_empty() {
         lint_folder(args);
     } else if !args.file_to_lint.is_empty() {
-        let mut linter: SolidLinter = SolidLinter::new();
-        linter.initalize(&args.rules_file);
+        let mut linter: SolidLinter = SolidLinter::new(&args.rules_file);
 
         let result = linter.parse_file(args.file_to_lint);
         if !args.to_json {

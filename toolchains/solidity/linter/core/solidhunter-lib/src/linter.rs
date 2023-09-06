@@ -19,8 +19,30 @@ pub struct SolidLinter {
     rules: Vec<Box<dyn RuleType>>,
 }
 
+impl Default for SolidLinter {
+
+    fn default() -> Self
+    {
+        let linter = SolidLinter::new(&String::new());
+        linter
+    }
+}
+
 impl SolidLinter {
-    fn _create_rules(&mut self, rules_config: &String, _first: bool) {
+
+    pub fn new(rules_config: &String) -> Self {
+        let mut linter = SolidLinter {
+            files: Vec::new(),
+            rule_factory: RuleFactory::new(),
+            rules: Vec::new(),
+        };
+        linter.rule_factory.register_rules();
+        linter._create_rules(&rules_config, true);
+        return linter;
+    }
+
+    fn _create_rules(&mut self, rules_config: &String, first: bool)
+    {
         let res = parse_rules(rules_config.as_str());
         match res {
             Ok(rules) => {
@@ -30,26 +52,14 @@ impl SolidLinter {
             }
             Err(_) => {
                 create_rules_file(rules_config.as_str());
-                if _first {
+                if first {
                     self._create_rules(rules_config, false);
                 }
             }
         }
     }
-    pub fn initalize(&mut self, rules_config: &String) {
-        self.rule_factory.register_rules();
-        self._create_rules(&rules_config, true);
-    }
-    pub fn new() -> SolidLinter {
-        let linter : SolidLinter = SolidLinter {
-            files: Vec::new(),
-            rule_factory: RuleFactory::new(),
-            rules: Vec::new(),
-        };
-        return linter;
-    }
 
-    fn file_exists(&self, path: &str) -> bool {
+    fn _file_exists(&self, path: &str) -> bool {
         for file in &self.files {
             if file.path == path {
                 return true;
@@ -58,7 +68,7 @@ impl SolidLinter {
         false
     }
 
-    fn update_file_ast(&mut self, path: &str, ast: SourceUnit) {
+    fn _update_file_ast(&mut self, path: &str, ast: SourceUnit) {
         for file in &mut self.files {
             if file.path == path {
                 file.data = ast.clone();
@@ -66,7 +76,7 @@ impl SolidLinter {
         }
     }
 
-    fn add_file(&mut self, path: &str, ast: SourceUnit, content: &str) {
+    fn _add_file(&mut self, path: &str, ast: SourceUnit, content: &str) {
         let file = SolidFile {
             data: ast,
             path: String::from(path),
@@ -82,16 +92,11 @@ impl SolidLinter {
             println!("{:?}", res);
             return Err(SolidHunterError::SolcError(res.err().unwrap()));
         }
-        if self.file_exists(filepath.as_str()) {
-            self.update_file_ast(filepath.as_str(), res.expect("ast not found"));
+        if self._file_exists(filepath.as_str()) {
+            self._update_file_ast(filepath.as_str(), res.expect("ast not found"));
         } else {
-            let content = fs::read_to_string(filepath.clone())
-                .map_err(|e| SolidHunterError::ParsingError(e))?;
-            self.add_file(
-                filepath.as_str(),
-                res.expect("ast not found"),
-                content.as_str(),
-            );
+            let content = fs::read_to_string(filepath.clone()).map_err(|e| LintError::IoError(e))?;
+            self._add_file(filepath.as_str(), res.expect("ast not found"), content.as_str());
         }
         let mut res: Vec<LintDiag> = Vec::new();
 
@@ -110,14 +115,10 @@ impl SolidLinter {
             return Err(SolidHunterError::SolcError(res.err().unwrap()));
         }
 
-        if self.file_exists(filepath.as_str()) {
-            self.update_file_ast(filepath.as_str(), res.expect("ast not found"));
+        if self._file_exists(filepath.as_str()) {
+            self._update_file_ast(filepath.as_str(), res.expect("ast not found"));
         } else {
-            self.add_file(
-                filepath.as_str(),
-                res.expect("ast not found"),
-                content.as_str(),
-            );
+            self._add_file(filepath.as_str(), res.expect("ast not found"), content.as_str());
         }
 
         let mut res: Vec<LintDiag> = Vec::new();
@@ -140,6 +141,7 @@ impl SolidLinter {
         }
         result
     }
+
     pub fn delete_file(&mut self, path: String) {
         loop {
             let idx = self.files.iter().position(|x| x.path == path);

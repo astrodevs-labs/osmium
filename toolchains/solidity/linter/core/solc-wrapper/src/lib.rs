@@ -15,7 +15,6 @@ pub use error::SolcError;
 use crate::solc::parsing_error::ParsingError;
 use crate::utils::{get_error_location, get_error_message};
 
-
 pub enum ExecuteResult {
     Ast(String),
     ParsingError(ParsingError),

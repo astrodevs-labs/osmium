@@ -1,0 +1,11 @@
+[package]
+name = "ast-extractor"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+quote = "1.0.33"
+proc-macro2 = { version = "1.0.66", features = ["span-locations"]}
+syn-solidity =  { version = "0.3.1", features = ["visit"] }

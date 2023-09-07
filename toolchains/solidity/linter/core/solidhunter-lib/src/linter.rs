@@ -1,3 +1,4 @@
+use crate::errors::SolidHunterError;
 use crate::rules::factory::RuleFactory;
 use crate::rules::rule_impl::{create_rules_file, parse_rules};
 use crate::rules::types::*;
@@ -20,16 +21,13 @@ pub struct SolidLinter {
 }
 
 impl Default for SolidLinter {
-
-    fn default() -> Self
-    {
+    fn default() -> Self {
         let linter = SolidLinter::new(&String::new());
         linter
     }
 }
 
 impl SolidLinter {
-
     pub fn new(rules_config: &String) -> Self {
         let mut linter = SolidLinter {
             files: Vec::new(),
@@ -40,8 +38,7 @@ impl SolidLinter {
         return linter;
     }
 
-    fn _create_rules(&mut self, rules_config: &String, first: bool)
-    {
+    fn _create_rules(&mut self, rules_config: &String, first: bool) {
         let res = parse_rules(rules_config.as_str());
         match res {
             Ok(rules) => {
@@ -94,8 +91,13 @@ impl SolidLinter {
         if self._file_exists(filepath.as_str()) {
             self._update_file_ast(filepath.as_str(), res.expect("ast not found"));
         } else {
-            let content = fs::read_to_string(filepath.clone()).map_err(|e| SolidHunterError::IoError(e))?;
-            self._add_file(filepath.as_str(), res.expect("ast not found"), content.as_str());
+            let content =
+                fs::read_to_string(filepath.clone()).map_err(|e| SolidHunterError::IoError(e))?;
+            self._add_file(
+                filepath.as_str(),
+                res.expect("ast not found"),
+                content.as_str(),
+            );
         }
         let mut res: Vec<LintDiag> = Vec::new();
 
@@ -117,7 +119,11 @@ impl SolidLinter {
         if self._file_exists(filepath.as_str()) {
             self._update_file_ast(filepath.as_str(), res.expect("ast not found"));
         } else {
-            self._add_file(filepath.as_str(), res.expect("ast not found"), content.as_str());
+            self._add_file(
+                filepath.as_str(),
+                res.expect("ast not found"),
+                content.as_str(),
+            );
         }
 
         let mut res: Vec<LintDiag> = Vec::new();

@@ -11,11 +11,10 @@ pub const DEFAULT_MAX_LINES: usize = 20;
 
 pub struct FunctionMaxLines {
     number_max_lines: usize,
-    _data: RuleEntry
+    _data: RuleEntry,
 }
 
 impl RuleType for FunctionMaxLines {
-
     fn diagnose(&self, _file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
 
@@ -30,7 +29,7 @@ impl RuleType for FunctionMaxLines {
                     source: None,
                     message: DEFAULT_MESSAGE.to_string(),
                     uri: _file.path.clone(),
-                    source_file_content: _file.content.clone()
+                    source_file_content: _file.content.clone(),
                 });
             }
         }
@@ -38,17 +37,24 @@ impl RuleType for FunctionMaxLines {
     }
 }
 
-
 // returns a struct containing the line number of the start and end of the function if it is too long
-fn check_function_lines(_file: &SolidFile, function: Box<FunctionDefinition>, nb_max_line: usize) ->  Option<Range> {
+fn check_function_lines(
+    _file: &SolidFile,
+    function: Box<FunctionDefinition>,
+    nb_max_line: usize,
+) -> Option<Range> {
     let mut res: Option<Range> = None;
     let function_copy_name_location = &function.src;
     let (_start, _) = decode_location(function_copy_name_location.as_str(), _file.content.as_str());
-    let index = function_copy_name_location.split(":").collect::<Vec<&str>>()[0].parse::<usize>().unwrap();
-    let mut function_lines:usize = 0;
-    let mut left_bracket:usize = 0;
-    let mut right_bracket:usize = 0;
-    let mut last_bracket_line:usize = 0;
+    let index = function_copy_name_location
+        .split(":")
+        .collect::<Vec<&str>>()[0]
+        .parse::<usize>()
+        .unwrap();
+    let mut function_lines: usize = 0;
+    let mut left_bracket: usize = 0;
+    let mut right_bracket: usize = 0;
+    let mut last_bracket_line: usize = 0;
 
     for (_, c) in _file.content.chars().enumerate().skip(index) {
         if c == '{' {
@@ -75,13 +81,15 @@ fn check_function_lines(_file: &SolidFile, function: Box<FunctionDefinition>, nb
                 line: last_bracket_line as u64,
                 character: 1,
             },
-            length: _file.content.lines().nth(_start.line - 1)?.len() as u64
+            length: _file.content.lines().nth(_start.line - 1)?.len() as u64,
         });
     }
     res
 }
 
-fn get_all_functions_from_ast(ast_nodes: &Vec<SourceUnitChildNodes>) -> Vec<Box<FunctionDefinition>> {
+fn get_all_functions_from_ast(
+    ast_nodes: &Vec<SourceUnitChildNodes>,
+) -> Vec<Box<FunctionDefinition>> {
     let mut res = Vec::new();
 
     for node in ast_nodes {
@@ -100,20 +108,18 @@ fn get_all_functions_from_ast(ast_nodes: &Vec<SourceUnitChildNodes>) -> Vec<Box<
     res
 }
 
-
 impl FunctionMaxLines {
-
     pub(crate) const RULE_ID: &'static str = "function-max-lines";
 
     pub fn create(data: RuleEntry) -> Box<dyn RuleType> {
         let max_number_lines = match data.data[0].parse::<usize>() {
             Ok(v) => v,
-            Err(_) => DEFAULT_MAX_LINES
+            Err(_) => DEFAULT_MAX_LINES,
         };
 
-        let rule  = FunctionMaxLines {
+        let rule = FunctionMaxLines {
             number_max_lines: max_number_lines,
-            _data: data
+            _data: data,
         };
         Box::new(rule)
     }
@@ -122,8 +128,7 @@ impl FunctionMaxLines {
         RuleEntry {
             id: FunctionMaxLines::RULE_ID.to_string(),
             severity: Severity::WARNING,
-            data: vec![DEFAULT_MAX_LINES.to_string()]
-
+            data: vec![DEFAULT_MAX_LINES.to_string()],
         }
     }
 }

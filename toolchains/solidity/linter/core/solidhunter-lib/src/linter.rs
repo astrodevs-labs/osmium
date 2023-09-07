@@ -86,7 +86,7 @@ impl SolidLinter {
 
         if res.is_err() {
             println!("{:?}", res);
-            return Err(SolidHunterError::SolcError(res.err().unwrap()));
+            return Err(SolidHunterError::SolcError(res.unwrap_err()));
         }
         if self._file_exists(filepath.as_str()) {
             self._update_file_ast(filepath.as_str(), res.expect("ast not found"));
@@ -113,7 +113,7 @@ impl SolidLinter {
 
         if res.is_err() {
             println!("{:?}", res);
-            return Err(SolidHunterError::SolcError(res.err().unwrap()));
+            return Err(SolidHunterError::SolcError(res.unwrap_err()));
         }
 
         if self._file_exists(filepath.as_str()) {

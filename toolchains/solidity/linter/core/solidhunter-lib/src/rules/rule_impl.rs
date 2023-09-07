@@ -44,8 +44,8 @@ pub fn parse_rules(path: &str) -> Result<Rules, SolidHunterError> {
             "Rules file not found".to_string(),
         ));
     }
-    let file = std::fs::read_to_string(path).unwrap();
-    let parsed: Rules = serde_json::from_str(&file).unwrap();
+    let file = std::fs::read_to_string(path)?;
+    let parsed: Rules = serde_json::from_str(&file)?;
 
     /*
     // Danger zone

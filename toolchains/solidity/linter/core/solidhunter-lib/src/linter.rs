@@ -33,10 +33,9 @@ impl SolidLinter {
     pub fn new(rules_config: &String) -> Self {
         let mut linter = SolidLinter {
             files: Vec::new(),
-            rule_factory: RuleFactory::new(),
+            rule_factory: RuleFactory::default(),
             rules: Vec::new(),
         };
-        linter.rule_factory.register_rules();
         linter._create_rules(&rules_config, true);
         return linter;
     }

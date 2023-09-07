@@ -1,6 +1,6 @@
 use clap::Parser;
 use solidhunter_lib::linter::SolidLinter;
-use solidhunter_lib::rules::rule_impl::{create_rules_file};
+use solidhunter_lib::rules::rule_impl::create_rules_file;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]

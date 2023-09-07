@@ -31,10 +31,9 @@ pub fn create_rules_file(path: &str) {
     std::fs::write(path, serialized).unwrap();
 }
 
-type RulesResult = Result<Rules, SolidHunterError>;
-
-pub fn parse_rules(path: &str) -> RulesResult {
-    /*let mut rules = Rules {
+pub fn parse_rules(path: &str) -> Result<Rules, SolidHunterError> {
+    /*
+    let rules = Rules {
         name: String::new(),
         includes: Vec::new(),
         plugins: Vec::new(),

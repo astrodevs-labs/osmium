@@ -7,17 +7,21 @@ pub struct RuleFactory {
     _rules : Vec<Box<dyn RuleType>>,
 }
 
+impl Default for RuleFactory {
+    fn default() -> Self {
+        RuleFactory {
+            _buildables: create_rules(),
+            _rules: Vec::new(),
+        }
+    }
+}
+
 impl RuleFactory {
     pub fn new() -> RuleFactory {
         RuleFactory {
             _buildables: HashMap::new(),
             _rules: Vec::new(),
         }
-    }
-
-    pub fn register_rules(&mut self)
-    {
-        self._buildables = create_rules()
     }
 
     pub fn create_rule(&self, rule: RuleEntry) -> Box<dyn RuleType>

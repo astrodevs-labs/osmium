@@ -6,10 +6,15 @@ pub enum SolidHunterError {
     // Linter errors
     #[error("SolidHunterError: Solc error occured")]
     SolcError(#[from] solc_wrapper::SolcError),
-    #[error("SolidHunterError: Something went wrong with the file")]
-    IoError(#[from] std::io::Error),
+    #[error("SolidHunterError: Something went wrong with the file during parsing")]
+    ParsingError(#[from] std::io::Error),
     #[error("SolidHunterError: Something went wrong")]
     LinterError(String),
+    //
+
+    // RulesError
+    #[error("SolidHunterError: IO error occured with Rules")]
+    IoError(std::io::Error),
     //
 }
 

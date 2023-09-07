@@ -1,7 +1,7 @@
 use crate::rules::create_default_rules;
 use crate::rules::types::*;
+use crate::types::*;
 
-/*
 // Untested
 /*
 fn merge_rules(rules: &mut Vec<RuleEntry>, new_rules: &Vec<RuleEntry>) {
@@ -31,7 +31,7 @@ pub fn create_rules_file(path: &str) {
     std::fs::write(path, serialized).unwrap();
 }
 
-type RulesResult = Result<Rules, RulesError>;
+type RulesResult = Result<Rules, SolidHunterError>;
 
 pub fn parse_rules(path: &str) -> RulesResult {
     /*let mut rules = Rules {
@@ -42,7 +42,10 @@ pub fn parse_rules(path: &str) -> RulesResult {
     };*/
 
     if !std::path::Path::new(&path).is_file() {
-        return Err(RulesError::IoError(std::io::Error::new(std::io::ErrorKind::NotFound, "Rules file not found")));
+        return Err(SolidHunterError::IoError(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            "Rules file not found",
+        )));
     }
     let file = std::fs::read_to_string(path).unwrap();
     let parsed: Rules = serde_json::from_str(&file).unwrap();
@@ -60,7 +63,6 @@ pub fn parse_rules(path: &str) -> RulesResult {
 
     Ok(parsed)
 }
-
 
 // create rules
 /*

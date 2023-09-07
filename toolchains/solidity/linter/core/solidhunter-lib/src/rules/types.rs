@@ -1,11 +1,9 @@
-use serde::{Serialize, Deserialize};
 use crate::linter::SolidFile;
 use crate::types::*;
-
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct RuleEntry
-{
+pub struct RuleEntry {
     pub id: String,
     pub severity: Severity,
     pub data: Vec<String>,
@@ -16,15 +14,9 @@ pub struct Rules {
     pub name: String,
     pub includes: Vec<String>,
     pub plugins: Vec<String>,
-    pub rules: Vec<RuleEntry>
-}
-
-#[derive(Debug)]
-pub enum RulesError {
-    IoError(std::io::Error),
+    pub rules: Vec<RuleEntry>,
 }
 
 pub trait RuleType: Send + Sync + 'static {
-
     fn diagnose(&self, file: &SolidFile, files: &Vec<SolidFile>) -> Vec<LintDiag>;
 }

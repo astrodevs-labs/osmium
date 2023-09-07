@@ -12,5 +12,5 @@ pub enum SolidHunterError {
 
     // RulesError
     #[error("SolidHunterError: IO error occured with Rules")]
-    IoError(std::io::Error),
+    IoError(String),
 }

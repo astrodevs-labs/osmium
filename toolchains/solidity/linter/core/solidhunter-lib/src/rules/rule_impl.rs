@@ -40,10 +40,9 @@ pub fn parse_rules(path: &str) -> Result<Rules, SolidHunterError> {
     };*/
 
     if !std::path::Path::new(&path).is_file() {
-        return Err(SolidHunterError::IoError(std::io::Error::new(
-            std::io::ErrorKind::NotFound,
-            "Rules file not found",
-        )));
+        return Err(SolidHunterError::IoError(
+            "Rules file not found".to_string(),
+        ));
     }
     let file = std::fs::read_to_string(path).unwrap();
     let parsed: Rules = serde_json::from_str(&file).unwrap();

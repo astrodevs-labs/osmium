@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use crate::rules::types::{RuleEntry, RuleType};
+use std::collections::HashMap;
 
 #[macro_use]
 pub mod quotes;
@@ -18,7 +18,7 @@ pub fn create_default_rules() -> Vec<RuleEntry> {
 }
 
 pub fn create_rules() -> HashMap<String, fn(RuleEntry) -> Box<dyn RuleType>> {
-    let mut rules :  HashMap<String, RuleBuilder> = HashMap::new();
+    let mut rules: HashMap<String, RuleBuilder> = HashMap::new();
 
     rules.insert("quotes".to_string(), Quotes::create);
 

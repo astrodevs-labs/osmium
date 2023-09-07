@@ -1,24 +1,7 @@
-use serde::{Deserialize, Serialize};
-use thiserror::Error;
-use std::fmt;
+use crate::errors::SolidHunterError;
 use colored::Colorize;
-
-#[derive(Error, Debug)]
-pub enum SolidHunterError {
-    // Linter errors
-    #[error("SolidHunterError: Solc error occured")]
-    SolcError(#[from] solc_wrapper::SolcError),
-    #[error("SolidHunterError: Something went wrong with the file during parsing")]
-    ParsingError(#[from] std::io::Error),
-    #[error("SolidHunterError: Something went wrong")]
-    LinterError(String),
-    //
-
-    // RulesError
-    #[error("SolidHunterError: IO error occured with Rules")]
-    IoError(std::io::Error),
-    //
-}
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
 pub type LintResult = Result<Vec<LintDiag>, SolidHunterError>;
 
@@ -77,11 +60,22 @@ impl fmt::Display for LintDiag {
             .nth((self.range.start.line - 1) as usize)
             .unwrap();
 
-        write!(f, "\n{}: {}\n  --> {}:{}:{}\n   |\n{}{}|{}\n   |{}{}", severity_to_string(self.severity), self.message, self.uri, self.range.start.line, self.range.start.character, self.range.start.line, padding, line, " ".repeat(self.range.start.character as usize),
-        "^".repeat(self.range.length as usize))
+        write!(
+            f,
+            "\n{}: {}\n  --> {}:{}:{}\n   |\n{}{}|{}\n   |{}{}",
+            severity_to_string(self.severity),
+            self.message,
+            self.uri,
+            self.range.start.line,
+            self.range.start.character,
+            self.range.start.line,
+            padding,
+            line,
+            " ".repeat(self.range.start.character as usize),
+            "^".repeat(self.range.length as usize)
+        )
     }
 }
-
 
 ////////////////////////////////////////////////////////////
 /////////////////// RELATED TYPES: /////////////////////////

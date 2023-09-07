@@ -4,13 +4,11 @@ use crate::types::*;
 use solc_wrapper::{decode_location, SourceUnitChildNodes};
 
 pub struct ImportOnTop {
-    data: RuleEntry
+    data: RuleEntry,
 }
 
 impl RuleType for ImportOnTop {
-
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
-
         let mut res = Vec::new();
         let mut last_import_location = 0;
 
@@ -33,9 +31,15 @@ impl RuleType for ImportOnTop {
 
                         res.push(LintDiag {
                             range: Range {
-                                start: Position { line: location.0.line as u64, character: location.0.column as u64 },
-                                end: Position { line: location.1.line as u64, character: location.1.column as u64 },
-                                length: location.0.length as u64
+                                start: Position {
+                                    line: location.0.line as u64,
+                                    character: location.0.column as u64,
+                                },
+                                end: Position {
+                                    line: location.1.line as u64,
+                                    character: location.1.column as u64,
+                                },
+                                length: location.0.length as u64,
                             },
                             message: format!("Import must be on top in the file"),
                             severity: Some(self.data.severity),
@@ -56,9 +60,7 @@ impl RuleType for ImportOnTop {
 
 impl ImportOnTop {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let rule  = ImportOnTop {
-            data
-        };
+        let rule = ImportOnTop { data };
         Box::new(rule)
     }
 
@@ -66,7 +68,7 @@ impl ImportOnTop {
         RuleEntry {
             id: "import-on-top".to_string(),
             severity: Severity::WARNING,
-            data: vec![]
+            data: vec![],
         }
     }
 }

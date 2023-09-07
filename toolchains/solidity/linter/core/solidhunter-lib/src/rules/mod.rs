@@ -1,9 +1,9 @@
-use std::collections::HashMap;
 use crate::rules::types::{RuleEntry, RuleType};
+use std::collections::HashMap;
 
-pub mod types;
-pub mod rule_impl;
 pub mod factory;
+pub mod rule_impl;
+pub mod types;
 
 // List all rules
 pub mod best_practises;
@@ -24,7 +24,7 @@ pub fn create_default_rules() -> Vec<RuleEntry> {
 
 type RuleBuilder = fn(RuleEntry) -> Box<dyn RuleType>;
 
-pub fn add_rules(rules : &mut HashMap<String, RuleBuilder>, to_add: HashMap<String, RuleBuilder>) {
+pub fn add_rules(rules: &mut HashMap<String, RuleBuilder>, to_add: HashMap<String, RuleBuilder>) {
     for (key, value) in to_add {
         rules.insert(key, value);
     }

@@ -1,6 +1,5 @@
 use crate::rules::create_default_rules;
 use crate::rules::types::*;
-use crate::types::*;
 
 // Untested
 /*

@@ -1,12 +1,12 @@
+pub mod errors;
 pub mod linter;
-pub mod types;
 pub mod rules;
+pub mod types;
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn it_works() {
-    }
+    fn it_works() {}
 }

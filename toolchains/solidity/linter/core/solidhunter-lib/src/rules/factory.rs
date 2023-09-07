@@ -14,12 +14,12 @@ impl RuleFactory {
             _rules: Vec::new(),
         }
     }
-    
+
     pub fn register_rules(&mut self)
     {
         self._buildables = create_rules()
     }
-    
+
     pub fn create_rule(&self, rule: RuleEntry) -> Box<dyn RuleType>
     {
         let rule_type = self._buildables.get(&rule.id);

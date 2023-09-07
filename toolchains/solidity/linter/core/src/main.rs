@@ -1,9 +1,6 @@
 use clap::Parser;
-use colored::Colorize;
 use solidhunter_lib::linter::SolidLinter;
-
-use solidhunter_lib::rules::rule_impl::create_rules_file;
-use solidhunter_lib::types::Severity;
+use solidhunter_lib::rules::rule_impl::{create_rules_file};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -64,47 +61,6 @@ struct Args {
     init: bool,
 }
 
-pub fn severity_to_string(severity: Option<Severity>) -> String {
-    match severity {
-        Some(Severity::ERROR) => "error".to_string().red(),
-        Some(Severity::WARNING) => "warning".to_string().yellow(),
-        Some(Severity::INFO) => "info".to_string().blue(),
-        Some(Severity::HINT) => "hint".to_string().green(),
-        _ => "error".to_string().red(),
-    }
-    .to_string()
-}
-
-fn print_diag(diag: &solidhunter_lib::types::LintDiag) {
-    let padding: String;
-    if diag.range.start.line > 99 {
-        padding = "".to_string();
-    } else if diag.range.start.line > 9 {
-        padding = " ".to_string();
-    } else {
-        padding = " ".repeat(2);
-    }
-    let line = diag
-        .source_file_content
-        .lines()
-        .nth((diag.range.start.line - 1) as usize)
-        .unwrap();
-
-    println!("\n{}: {}", severity_to_string(diag.severity), diag.message);
-    println!(
-        "  --> {}:{}:{}",
-        diag.uri, diag.range.start.line, diag.range.start.character,
-    );
-    println!("   |");
-    //TODO: add code to print
-    println!("{}{}|{}", diag.range.start.line, padding, line);
-    println!(
-        "   |{}{}",
-        " ".repeat(diag.range.start.character as usize),
-        "^".repeat(diag.range.length as usize)
-    );
-}
-
 fn lint_folder(args: Args) {
     let mut linter: SolidLinter = SolidLinter::new(&args.rules_file);
     let mut result = Vec::new();
@@ -115,7 +71,7 @@ fn lint_folder(args: Args) {
         match res {
             Ok(diags) => {
                 for diag in diags {
-                    print_diag(&diag);
+                    println!("{}", &diag);
                 }
             }
             Err(e) => {
@@ -164,7 +120,7 @@ fn main() {
             match result {
                 Ok(diags) => {
                     for diag in diags {
-                        print_diag(&diag);
+                        println!("{}", &diag);
                     }
                 }
                 Err(e) => {

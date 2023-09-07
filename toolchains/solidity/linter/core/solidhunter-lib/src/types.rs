@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
+use std::fmt;
+use colored::Colorize;
 
 #[derive(Error, Debug)]
 pub enum SolidHunterError {
@@ -47,6 +49,39 @@ pub struct LintDiag {
     #[serde(rename = "sourceFileContent")]
     pub source_file_content: String,
 }
+
+fn severity_to_string(severity: Option<Severity>) -> String {
+    match severity {
+        Some(Severity::ERROR) => "error".to_string().red(),
+        Some(Severity::WARNING) => "warning".to_string().yellow(),
+        Some(Severity::INFO) => "info".to_string().blue(),
+        Some(Severity::HINT) => "hint".to_string().green(),
+        _ => "error".to_string().red(),
+    }
+    .to_string()
+}
+
+impl fmt::Display for LintDiag {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let padding: String;
+        if self.range.start.line > 99 {
+            padding = " ".repeat(0);
+        } else if self.range.start.line > 9 {
+            padding = " ".to_string();
+        } else {
+            padding = " ".repeat(2);
+        }
+        let line = self
+            .source_file_content
+            .lines()
+            .nth((self.range.start.line - 1) as usize)
+            .unwrap();
+
+        write!(f, "\n{}: {}\n  --> {}:{}:{}\n   |\n{}{}|{}\n   |{}{}", severity_to_string(self.severity), self.message, self.uri, self.range.start.line, self.range.start.character, self.range.start.line, padding, line, " ".repeat(self.range.start.character as usize),
+        "^".repeat(self.range.length as usize))
+    }
+}
+
 
 ////////////////////////////////////////////////////////////
 /////////////////// RELATED TYPES: /////////////////////////

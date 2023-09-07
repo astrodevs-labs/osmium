@@ -117,13 +117,13 @@ impl FunctionMaxLines {
         };
         Box::new(rule)
     }
-    
+
     pub fn create_default() -> RuleEntry {
         RuleEntry {
             id: FunctionMaxLines::RULE_ID.to_string(),
             severity: Severity::WARNING,
             data: vec![DEFAULT_MAX_LINES.to_string()]
-            
+
         }
     }
 }

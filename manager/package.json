@@ -5,6 +5,8 @@
   "license": "MIT",
   "scripts": {
     "build": "echo 'building manager...'",
+    "lint": "echo 'linting manager...'",
+    "format": "echo 'formatting manager...'",
     "test": "echo 'testing manager...'",
     "publish": "echo 'publishing manager...'"
   }

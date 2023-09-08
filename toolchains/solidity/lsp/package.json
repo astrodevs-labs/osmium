@@ -7,6 +7,8 @@
   ],
   "scripts": {
     "build": "echo 'building solidity lsp...'",
+    "lint": "echo 'linting solidity lsp...'",
+    "format": "echo 'formatting solidity lsp...'",
     "test": "echo 'testing solidity lsp...'",
     "publish": "echo 'publishing solidity lsp...'"
   }

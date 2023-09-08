@@ -8,7 +8,9 @@ version = "0.1.0"
 dependencies = [
  "proc-macro2",
  "quote",
+ "syn",
  "syn-solidity",
+ "thiserror",
 ]
 
 [[package]]
@@ -53,6 +55,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "397f229dc34c7b8231b6ef85502f9ca4e3425b8625e6d403bb74779e6b1917b5"
 dependencies = [
  "paste",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "thiserror"
+version = "1.0.48"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9d6d7a740b8a666a7e828dd00da9c0dc290dff53154ea77ac109281de90589b7"
+dependencies = [
+ "thiserror-impl",
+]
+
+[[package]]
+name = "thiserror-impl"
+version = "1.0.48"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "49922ecae66cc8a249b77e68d1d0623c1b2c514f0060c27cdc68bd62a1219d35"
+dependencies = [
  "proc-macro2",
  "quote",
  "syn",

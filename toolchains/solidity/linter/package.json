@@ -4,6 +4,8 @@
   "license": "MIT",
   "scripts": {
     "build": "yarn --cwd core build",
+    "lint": "yarn --cwd core lint",
+    "format": "yarn --cwd core format",
     "test": "yarn --cwd core test"
   }
 }

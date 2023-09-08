@@ -1,5 +1,5 @@
 {
-  "name": "@solidity/linter-core",
+  "name": "@osmium/solidity-linter-core",
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {

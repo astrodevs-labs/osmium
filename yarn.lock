@@ -128,9 +128,33 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@solidity/linter@workspace:toolchains/solidity/linter":
+"@osmium-toolchains/solidity@workspace:toolchains/solidity":
   version: 0.0.0-use.local
-  resolution: "@solidity/linter@workspace:toolchains/solidity/linter"
+  resolution: "@osmium-toolchains/solidity@workspace:toolchains/solidity"
+  languageName: unknown
+  linkType: soft
+
+"@osmium/manager@workspace:manager":
+  version: 0.0.0-use.local
+  resolution: "@osmium/manager@workspace:manager"
+  languageName: unknown
+  linkType: soft
+
+"@osmium/solidity-linter-core@workspace:toolchains/solidity/linter/core":
+  version: 0.0.0-use.local
+  resolution: "@osmium/solidity-linter-core@workspace:toolchains/solidity/linter/core"
+  languageName: unknown
+  linkType: soft
+
+"@osmium/solidity-linter@workspace:toolchains/solidity/linter":
+  version: 0.0.0-use.local
+  resolution: "@osmium/solidity-linter@workspace:toolchains/solidity/linter"
+  languageName: unknown
+  linkType: soft
+
+"@osmium/solidity-lsp@workspace:toolchains/solidity/lsp":
+  version: 0.0.0-use.local
+  resolution: "@osmium/solidity-lsp@workspace:toolchains/solidity/lsp"
   languageName: unknown
   linkType: soft
 
@@ -243,12 +267,6 @@ __metadata:
   checksum: 902a9f5d8967a3e2faf138d5cb784b9979bad2e6db5357c5b21c568df4ebe62bcb15108af1b2253744844eb964fc023fbd9afbbbb6ddd0bcc204c6fb5b7bf3af
   languageName: node
   linkType: hard
-
-"core@workspace:toolchains/solidity/linter/core":
-  version: 0.0.0-use.local
-  resolution: "core@workspace:toolchains/solidity/linter/core"
-  languageName: unknown
-  linkType: soft
 
 "cross-spawn@npm:^7.0.2":
   version: 7.0.3
@@ -698,24 +716,6 @@ __metadata:
   checksum: 09281999441f2fe9c33a5eeab76700795365a061563d66b098923eb719251a42bdbe432790d35064d0816ead9296dbeb1ad51a733edf4167c96bd5d0882e428a
   languageName: node
   linkType: hard
-
-"osmium-manager@workspace:manager":
-  version: 0.0.0-use.local
-  resolution: "osmium-manager@workspace:manager"
-  languageName: unknown
-  linkType: soft
-
-"osmium-solidity-lsp@workspace:toolchains/solidity/lsp":
-  version: 0.0.0-use.local
-  resolution: "osmium-solidity-lsp@workspace:toolchains/solidity/lsp"
-  languageName: unknown
-  linkType: soft
-
-"osmium-solidity-toolchain@workspace:toolchains/solidity":
-  version: 0.0.0-use.local
-  resolution: "osmium-solidity-toolchain@workspace:toolchains/solidity"
-  languageName: unknown
-  linkType: soft
 
 "osmium@workspace:.":
   version: 0.0.0-use.local

@@ -70,10 +70,10 @@ jobs:
             })
             console.log(affectedWorkspaces)
             const toolchainsWorkspaces = affectedWorkspaces.filter(workspace => {
-              return workspace.name.endsWith('-toolchain')
+              return workspace.name.endsWith('@osmium-toolchains/')
             })
             const extensionsWorkspaces = affectedWorkspaces.filter(workspace => {
-              return workspace.name.match(/osmium-(?!packages)(?:manager|(?:\w+-(?!toolchain)(?!\w+-\w+)))/)
+              return workspace.name.match(/@osmium\/(?:manager|(?!\w+-\w+-\w+)(?:\w+-\w+))/)
             })
             return {
               affectedWorkspaces,

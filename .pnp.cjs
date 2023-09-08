@@ -20,7 +20,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:libs/lsp-launcher"\
       },\
       {\
-        "name": "osmium-manager",\
+        "name": "@osmium/manager",\
         "reference": "workspace:manager"\
       },\
       {\
@@ -32,19 +32,19 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:packages/prettier-config"\
       },\
       {\
-        "name": "osmium-solidity-toolchain",\
+        "name": "@osmium-toolchains/solidity",\
         "reference": "workspace:toolchains/solidity"\
       },\
       {\
-        "name": "@solidity/linter",\
+        "name": "@osmium/solidity-linter",\
         "reference": "workspace:toolchains/solidity/linter"\
       },\
       {\
-        "name": "core",\
+        "name": "@osmium/solidity-linter-core",\
         "reference": "workspace:toolchains/solidity/linter/core"\
       },\
       {\
-        "name": "osmium-solidity-lsp",\
+        "name": "@osmium/solidity-lsp",\
         "reference": "workspace:toolchains/solidity/lsp"\
       }\
     ],\
@@ -54,12 +54,12 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ["@osmium-libs/lsp-launcher", ["workspace:libs/lsp-launcher"]],\
       ["@osmium-packages/eslint-config", ["workspace:packages/eslint-config"]],\
       ["@osmium-packages/prettier-config", ["workspace:packages/prettier-config"]],\
-      ["@solidity/linter", ["workspace:toolchains/solidity/linter"]],\
-      ["core", ["workspace:toolchains/solidity/linter/core"]],\
-      ["osmium", ["workspace:."]],\
-      ["osmium-manager", ["workspace:manager"]],\
-      ["osmium-solidity-lsp", ["workspace:toolchains/solidity/lsp"]],\
-      ["osmium-solidity-toolchain", ["workspace:toolchains/solidity"]]\
+      ["@osmium-toolchains/solidity", ["workspace:toolchains/solidity"]],\
+      ["@osmium/manager", ["workspace:manager"]],\
+      ["@osmium/solidity-linter", ["workspace:toolchains/solidity/linter"]],\
+      ["@osmium/solidity-linter-core", ["workspace:toolchains/solidity/linter/core"]],\
+      ["@osmium/solidity-lsp", ["workspace:toolchains/solidity/lsp"]],\
+      ["osmium", ["workspace:."]]\
     ],\
     "fallbackPool": [\
     ],\
@@ -231,11 +231,47 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "SOFT"\
         }]\
       ]],\
-      ["@solidity/linter", [\
+      ["@osmium-toolchains/solidity", [\
+        ["workspace:toolchains/solidity", {\
+          "packageLocation": "./toolchains/solidity/",\
+          "packageDependencies": [\
+            ["@osmium-toolchains/solidity", "workspace:toolchains/solidity"]\
+          ],\
+          "linkType": "SOFT"\
+        }]\
+      ]],\
+      ["@osmium/manager", [\
+        ["workspace:manager", {\
+          "packageLocation": "./manager/",\
+          "packageDependencies": [\
+            ["@osmium/manager", "workspace:manager"]\
+          ],\
+          "linkType": "SOFT"\
+        }]\
+      ]],\
+      ["@osmium/solidity-linter", [\
         ["workspace:toolchains/solidity/linter", {\
           "packageLocation": "./toolchains/solidity/linter/",\
           "packageDependencies": [\
-            ["@solidity/linter", "workspace:toolchains/solidity/linter"]\
+            ["@osmium/solidity-linter", "workspace:toolchains/solidity/linter"]\
+          ],\
+          "linkType": "SOFT"\
+        }]\
+      ]],\
+      ["@osmium/solidity-linter-core", [\
+        ["workspace:toolchains/solidity/linter/core", {\
+          "packageLocation": "./toolchains/solidity/linter/core/",\
+          "packageDependencies": [\
+            ["@osmium/solidity-linter-core", "workspace:toolchains/solidity/linter/core"]\
+          ],\
+          "linkType": "SOFT"\
+        }]\
+      ]],\
+      ["@osmium/solidity-lsp", [\
+        ["workspace:toolchains/solidity/lsp", {\
+          "packageLocation": "./toolchains/solidity/lsp/",\
+          "packageDependencies": [\
+            ["@osmium/solidity-lsp", "workspace:toolchains/solidity/lsp"]\
           ],\
           "linkType": "SOFT"\
         }]\
@@ -378,15 +414,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["concat-map", "npm:0.0.1"]\
           ],\
           "linkType": "HARD"\
-        }]\
-      ]],\
-      ["core", [\
-        ["workspace:toolchains/solidity/linter/core", {\
-          "packageLocation": "./toolchains/solidity/linter/core/",\
-          "packageDependencies": [\
-            ["core", "workspace:toolchains/solidity/linter/core"]\
-          ],\
-          "linkType": "SOFT"\
         }]\
       ]],\
       ["cross-spawn", [\
@@ -920,33 +947,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["osmium", "workspace:."],\
             ["husky", "npm:8.0.3"]\
-          ],\
-          "linkType": "SOFT"\
-        }]\
-      ]],\
-      ["osmium-manager", [\
-        ["workspace:manager", {\
-          "packageLocation": "./manager/",\
-          "packageDependencies": [\
-            ["osmium-manager", "workspace:manager"]\
-          ],\
-          "linkType": "SOFT"\
-        }]\
-      ]],\
-      ["osmium-solidity-lsp", [\
-        ["workspace:toolchains/solidity/lsp", {\
-          "packageLocation": "./toolchains/solidity/lsp/",\
-          "packageDependencies": [\
-            ["osmium-solidity-lsp", "workspace:toolchains/solidity/lsp"]\
-          ],\
-          "linkType": "SOFT"\
-        }]\
-      ]],\
-      ["osmium-solidity-toolchain", [\
-        ["workspace:toolchains/solidity", {\
-          "packageLocation": "./toolchains/solidity/",\
-          "packageDependencies": [\
-            ["osmium-solidity-toolchain", "workspace:toolchains/solidity"]\
           ],\
           "linkType": "SOFT"\
         }]\

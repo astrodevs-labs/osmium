@@ -1,8 +1,7 @@
-use clap::builder::Str;
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
-use solc_wrapper::{ContractDefinitionChildNodes, decode_location, SourceUnit, SourceUnitChildNodes};
+use solc_wrapper::{decode_location, SourceUnitChildNodes};
 
 pub struct ImportOnTop {
     data: RuleEntry
@@ -10,7 +9,7 @@ pub struct ImportOnTop {
 
 impl RuleType for ImportOnTop {
 
-    fn diagnose(&self, file: &SolidFile, files: &Vec<SolidFile>) -> Vec<LintDiag> {
+    fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
 
         let mut res = Vec::new();
         let mut last_import_location = 0;
@@ -57,7 +56,7 @@ impl RuleType for ImportOnTop {
 
 impl ImportOnTop {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let mut rule  = ImportOnTop {
+        let rule  = ImportOnTop {
             data
         };
         Box::new(rule)

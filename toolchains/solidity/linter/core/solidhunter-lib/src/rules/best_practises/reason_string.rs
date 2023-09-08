@@ -19,7 +19,7 @@ pub struct ReasonString {
 
 impl RuleType for ReasonString {
 
-    fn diagnose(&self, file: &SolidFile, files: &Vec<SolidFile>) -> Vec<LintDiag> {
+    fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
 
         let nodes = get_all_nodes_by_type(file.data.clone(), NodeType::FunctionCall);
@@ -127,7 +127,7 @@ impl RuleType for ReasonString {
 
 impl ReasonString {
     pub fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let mut rule  = ReasonString {
+        let rule  = ReasonString {
             max_length: data.data[0].parse::<u32>().unwrap(),
             data
         };

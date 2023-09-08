@@ -1,8 +1,7 @@
-use std::collections::HashMap;
 use crate::rules::create_default_rules;
 use crate::rules::types::*;
 
-
+/*
 // Untested
 fn merge_rules(rules: &mut Vec<RuleEntry>, new_rules: &Vec<RuleEntry>) {
     let mut new_rules_map = HashMap::new();
@@ -17,9 +16,10 @@ fn merge_rules(rules: &mut Vec<RuleEntry>, new_rules: &Vec<RuleEntry>) {
         }
     }
 }
+*/
 
 pub fn create_rules_file(path: &str) {
-    let mut rules = Rules {
+    let rules = Rules {
         name: "solidhunter".to_string(),
         includes: vec![],
         plugins: vec![],
@@ -33,12 +33,12 @@ pub fn create_rules_file(path: &str) {
 type RulesResult = Result<Rules, RulesError>;
 
 pub fn parse_rules(path: &str) -> RulesResult {
-    let mut rules = Rules {
+    /*let mut rules = Rules {
         name: String::new(),
         includes: Vec::new(),
         plugins: Vec::new(),
         rules: Vec::new(),
-    };
+    };*/
 
     if !std::path::Path::new(&path).is_file() {
         return Err(RulesError::IoError(std::io::Error::new(std::io::ErrorKind::NotFound, "Rules file not found")));

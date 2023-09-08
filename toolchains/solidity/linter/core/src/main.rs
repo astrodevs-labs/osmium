@@ -1,72 +1,108 @@
 use clap::Parser;
 use colored::Colorize;
 use solidhunter_lib::linter::SolidLinter;
-use solidhunter_lib::offset_from_range;
 
-use solidhunter_lib::rules::rule_impl::{create_rules_file, parse_rules};
+use solidhunter_lib::rules::rule_impl::create_rules_file;
 use solidhunter_lib::types::Severity;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    #[arg(short = 'p', long = "path", default_value = ".", help = "Specify project path")]
+    #[arg(
+        short = 'p',
+        long = "path",
+        default_value = ".",
+        help = "Specify project path"
+    )]
     project_path: Vec<String>,
 
-    #[arg(short = 'f', long = "file", default_value = "", help = "Specify a single file to lint")]
+    #[arg(
+        short = 'f',
+        long = "file",
+        default_value = "",
+        help = "Specify a single file to lint"
+    )]
     file_to_lint: String,
 
-    #[arg(short = 'e', long = "exclude", help = "Exclude part of the project path")]
+    #[arg(
+        short = 'e',
+        long = "exclude",
+        help = "Exclude part of the project path"
+    )]
     ignore_path: Vec<String>,
 
-    #[arg(short = 'r', long = "rules", default_value = ".solidhunter.json", help = "Specify rules file")]
+    #[arg(
+        short = 'r',
+        long = "rules",
+        default_value = ".solidhunter.json",
+        help = "Specify rules file"
+    )]
     rules_file: String,
 
-    #[arg(short = 'j', long = "json_output", default_value = "false", help = "Outputs a json format instead")]
+    #[arg(
+        short = 'j',
+        long = "json_output",
+        default_value = "false",
+        help = "Outputs a json format instead"
+    )]
     to_json: bool,
 
-    #[arg(short = 'v', long = "verbose", default_value = "false", help = "Verbose output")]
+    #[arg(
+        short = 'v',
+        long = "verbose",
+        default_value = "false",
+        help = "Verbose output"
+    )]
     verbose: bool,
 
-    #[arg(short = 'i', long = "init", default_value = "false", help = "Initialize rules file")]
+    #[arg(
+        short = 'i',
+        long = "init",
+        default_value = "false",
+        help = "Initialize rules file"
+    )]
     init: bool,
 }
 
 pub fn severity_to_string(severity: Option<Severity>) -> String {
     match severity {
-        Some(Severity::ERROR) => format!("error").red(),
-        Some(Severity::WARNING) => format!("warning").yellow(),
-        Some(Severity::INFO) => format!("info").blue(),
-        Some(Severity::HINT) => format!("hint").green(),
-        _ => format!("error").red(),
+        Some(Severity::ERROR) => "error".to_string().red(),
+        Some(Severity::WARNING) => "warning".to_string().yellow(),
+        Some(Severity::INFO) => "info".to_string().blue(),
+        Some(Severity::HINT) => "hint".to_string().green(),
+        _ => "error".to_string().red(),
     }
     .to_string()
 }
 
 fn print_diag(diag: &solidhunter_lib::types::LintDiag) {
-    let mut padding : String = String::new();
+    let padding: String;
     if diag.range.start.line > 99 {
-        padding = " ".repeat(0).to_string();
+        padding = "".to_string();
     } else if diag.range.start.line > 9 {
-        padding = " ".repeat(1).to_string();
+        padding = " ".to_string();
     } else {
         padding = " ".repeat(2).to_string();
     }
-    let line = diag.source_file_content.lines().nth((diag.range.start.line - 1) as usize).unwrap();
+    let line = diag
+        .source_file_content
+        .lines()
+        .nth((diag.range.start.line - 1) as usize)
+        .unwrap();
 
     println!("\n{}: {}", severity_to_string(diag.severity), diag.message);
     println!(
         "  --> {}:{}:{}",
-        diag.uri,
-        diag.range.start.line,
-        diag.range.start.character,
+        diag.uri, diag.range.start.line, diag.range.start.character,
     );
-    println!(
-        "   |");
+    println!("   |");
     //TODO: add code to print
+    println!("{}{}|{}", diag.range.start.line, padding, line);
     println!(
-        "{}{}|{}", diag.range.start.line,padding, line);
-    println!(
-        "   |{}{}", " ".repeat(diag.range.start.character as usize), "^".repeat(diag.range.length as usize));
+        "   |{}{}",
+        " ".repeat(diag.range.start.character as usize),
+        "^".repeat(diag.range.length as usize)
+    );
 }
 
 fn lint_folder(args: Args) {
@@ -96,7 +132,11 @@ fn main() {
     if !args.to_json {
         println!();
         println!("SolidHunter: Fast and efficient Solidity linter");
-        println!("By {} - v{} - GNU GPL v3", env!("CARGO_PKG_AUTHORS"), env!("CARGO_PKG_VERSION"));
+        println!(
+            "By {} - v{} - GNU GPL v3",
+            env!("CARGO_PKG_AUTHORS"),
+            env!("CARGO_PKG_VERSION")
+        );
         println!();
     }
 
@@ -115,13 +155,12 @@ fn main() {
         return;
     }
 
-    if !args.to_json && args.file_to_lint == "" {
+    if !args.to_json && args.file_to_lint.is_empty() {
         lint_folder(args);
-    }
-    else if args.file_to_lint != "" {
+    } else if !args.file_to_lint.is_empty() {
         let mut linter: SolidLinter = SolidLinter::new();
         linter.initalize(&args.rules_file);
-        
+
         let result = linter.parse_file(args.file_to_lint);
         if !args.to_json {
             match result {

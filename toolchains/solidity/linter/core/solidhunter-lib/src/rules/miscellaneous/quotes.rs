@@ -1,6 +1,4 @@
-use std::ops::Index;
 use crate::linter::SolidFile;
-use solc_wrapper::*;
 use crate::rules::types::*;
 use crate::types::*;
 
@@ -11,7 +9,7 @@ pub struct Quotes {
 
 impl RuleType for Quotes {
 
-    fn diagnose(&self, file: &SolidFile, files: &Vec<SolidFile>) -> Vec<LintDiag> {
+    fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let mut line_idx = 1;
 
@@ -42,7 +40,7 @@ impl RuleType for Quotes {
 
 impl Quotes {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let mut rule  = Quotes {
+        let rule  = Quotes {
             data
         };
         Box::new(rule)

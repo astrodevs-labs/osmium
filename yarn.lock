@@ -244,6 +244,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"core@workspace:toolchains/solidity/linter/core":
+  version: 0.0.0-use.local
+  resolution: "core@workspace:toolchains/solidity/linter/core"
+  languageName: unknown
+  linkType: soft
+
 "cross-spawn@npm:^7.0.2":
   version: 7.0.3
   resolution: "cross-spawn@npm:7.0.3"

@@ -1,4 +1,3 @@
-use std::ops::Index;
 use crate::linter::SolidFile;
 use solc_wrapper::*;
 use crate::rules::types::*;
@@ -12,7 +11,7 @@ pub struct MaxStatesCount {
 
 impl RuleType for MaxStatesCount {
 
-    fn diagnose(&self, file: &SolidFile, files: &Vec<SolidFile>) -> Vec<LintDiag> {
+    fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
 
         let mut count = 0;
@@ -56,7 +55,7 @@ impl MaxStatesCount {
     pub(crate) const RULE_ID: &'static str = "max-states-count";
 
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let mut rule  = MaxStatesCount {
+        let rule  = MaxStatesCount {
             max_states: data.data[0].parse::<usize>().unwrap(),
             data
         };

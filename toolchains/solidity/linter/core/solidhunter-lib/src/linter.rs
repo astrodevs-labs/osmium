@@ -43,7 +43,7 @@ impl SolidLinter {
         self._create_rules(&rules_config, true);
     }
     pub fn new() -> SolidLinter {
-        let mut linter : SolidLinter = SolidLinter {
+        let linter : SolidLinter = SolidLinter {
             files: Vec::new(),
             rule_factory: RuleFactory::new(),
             rules: Vec::new(),
@@ -124,10 +124,11 @@ impl SolidLinter {
 
     pub fn parse_folder(&mut self, folder: String) -> Vec<LintResult> {
         let mut result: Vec<LintResult> = Vec::new();
-
-        for entry in glob(&*(folder + "/**/*.sol")) {
-            for path in entry {
-                result.push(self.parse_file(String::from(path.unwrap().into_os_string().into_string().unwrap())));
+        if let Ok(entries) = glob(&*(folder + "/**/*.sol")) {
+            for entry in entries {
+                if let Ok(path) = entry {
+                    result.push(self.parse_file(String::from(path.into_os_string().into_string().unwrap())));
+                }
             }
         }
         result

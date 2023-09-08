@@ -1,4 +1,3 @@
-use std::ops::Index;
 use crate::linter::SolidFile;
 use solc_wrapper::*;
 use solc_wrapper::ast::utils::{get_all_nodes_by_type, Nodes};
@@ -11,7 +10,7 @@ pub struct UseForbiddenName {
 
 impl RuleType for UseForbiddenName {
 
-    fn diagnose(&self, file: &SolidFile, files: &Vec<SolidFile>) -> Vec<LintDiag> {
+    fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let blacklist = vec!['I', 'l', 'O'];
 
@@ -50,7 +49,7 @@ impl UseForbiddenName {
     pub const RULE_ID : &'static str = "use-forbidden-name";
 
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let mut rule  = UseForbiddenName {
+        let rule  = UseForbiddenName {
             data
         };
         Box::new(rule)

@@ -40,6 +40,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:toolchains/solidity/linter"\
       },\
       {\
+        "name": "core",\
+        "reference": "workspace:toolchains/solidity/linter/core"\
+      },\
+      {\
         "name": "osmium-solidity-lsp",\
         "reference": "workspace:toolchains/solidity/lsp"\
       }\
@@ -51,6 +55,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ["@osmium-packages/eslint-config", ["workspace:packages/eslint-config"]],\
       ["@osmium-packages/prettier-config", ["workspace:packages/prettier-config"]],\
       ["@solidity/linter", ["workspace:toolchains/solidity/linter"]],\
+      ["core", ["workspace:toolchains/solidity/linter/core"]],\
       ["osmium", ["workspace:."]],\
       ["osmium-manager", ["workspace:manager"]],\
       ["osmium-solidity-lsp", ["workspace:toolchains/solidity/lsp"]],\
@@ -373,6 +378,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["concat-map", "npm:0.0.1"]\
           ],\
           "linkType": "HARD"\
+        }]\
+      ]],\
+      ["core", [\
+        ["workspace:toolchains/solidity/linter/core", {\
+          "packageLocation": "./toolchains/solidity/linter/core/",\
+          "packageDependencies": [\
+            ["core", "workspace:toolchains/solidity/linter/core"]\
+          ],\
+          "linkType": "SOFT"\
         }]\
       ]],\
       ["cross-spawn", [\

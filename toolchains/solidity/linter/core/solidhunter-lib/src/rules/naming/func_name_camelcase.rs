@@ -1,8 +1,7 @@
-use clap::builder::Str;
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
-use solc_wrapper::{ContractDefinitionChildNodes, decode_location, FunctionDefinitionKind, SourceUnit, SourceUnitChildNodes};
+use solc_wrapper::{ContractDefinitionChildNodes, decode_location, FunctionDefinitionKind, SourceUnitChildNodes};
 
 pub struct FuncNameCamelCase {
     data: RuleEntry
@@ -10,7 +9,7 @@ pub struct FuncNameCamelCase {
 
 impl RuleType for FuncNameCamelCase {
 
-    fn diagnose(&self, file: &SolidFile, files: &Vec<SolidFile>) -> Vec<LintDiag> {
+    fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
 
         let mut res = Vec::new();
 
@@ -54,7 +53,7 @@ impl RuleType for FuncNameCamelCase {
 
 impl FuncNameCamelCase {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let mut rule  = FuncNameCamelCase {
+        let rule  = FuncNameCamelCase {
             data
         };
         Box::new(rule)

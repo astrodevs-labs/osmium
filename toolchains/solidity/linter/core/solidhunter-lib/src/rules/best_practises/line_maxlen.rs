@@ -1,6 +1,4 @@
-use std::ops::Index;
 use crate::linter::SolidFile;
-use solc_wrapper::*;
 use crate::rules::types::*;
 use crate::types::*;
 
@@ -11,7 +9,7 @@ pub struct LineMaxLen {
 
 impl RuleType for LineMaxLen {
 
-    fn diagnose(&self, file: &SolidFile, files: &Vec<SolidFile>) -> Vec<LintDiag> {
+    fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let mut line_idx = 1;
 
@@ -41,7 +39,7 @@ impl RuleType for LineMaxLen {
 
 impl LineMaxLen {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let mut rule  = LineMaxLen {
+        let rule  = LineMaxLen {
             max_len: data.data[0].parse::<usize>().unwrap(),
             data
         };

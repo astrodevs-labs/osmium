@@ -41,7 +41,7 @@ mod tests {
     use std::str::FromStr;
 
     #[test]
-    fn test_retrieve_sruct_nodes_empty() {
+    fn test_retrieve_struct_nodes_empty() {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path.push("tests");
         path.push("files");

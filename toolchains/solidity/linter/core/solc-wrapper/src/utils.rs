@@ -65,7 +65,7 @@ pub fn get_error_location(stderr: &str) -> Result<ErrorLocation, ()> {
             file,
             line: line.parse().unwrap(), //unwrap is safe due to the regex that matches only number
             column: column.parse().unwrap(), //unwrap is safe due to the regex that matches only number
-            length: length
+            length
         }
     )
 }

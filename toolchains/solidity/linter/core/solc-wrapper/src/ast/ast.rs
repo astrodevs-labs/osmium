@@ -1571,7 +1571,7 @@ mod tests {
         assert_eq!(res.src, "33:23:0".to_string());
         assert_eq!(res.literals, vec!["solidity".to_string(),
                                       "0.8".to_string(),
-                                      ".16".to_string()] as Vec<String>);
+                                      ".16".to_string()]);
         Ok(assert_eq!(res.node_type, NodeType::PragmaDirective))
     }
 
@@ -2045,7 +2045,7 @@ mod tests {
 
         assert_eq!(res.id, 21);
         assert_eq!(res.src, "236:36:0".to_string());
-        assert_eq!(res.names, vec!["value".to_string()] as Vec<String>);
+        assert_eq!(res.names, vec!["value".to_string()]);
         assert_eq!(res.node_type, NodeType::FunctionCallOptions);
         Ok(())
     }

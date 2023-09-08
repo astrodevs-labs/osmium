@@ -1,6 +1,7 @@
 use clap::Parser;
 use solidhunter_lib::linter::SolidLinter;
 use solidhunter_lib::rules::rule_impl::create_rules_file;
+use solidhunter_lib::types::LintResult;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -68,15 +69,19 @@ fn lint_folder(args: Args) {
         result.append(&mut linter.parse_folder(path));
     }
     for res in result {
-        match res {
-            Ok(diags) => {
-                for diag in diags {
-                    println!("{}", &diag);
-                }
+        print_result(res);
+    }
+}
+
+fn print_result(result: LintResult) {
+    match result {
+        Ok(diags) => {
+            for diag in diags {
+                println!("{}", &diag);
             }
-            Err(e) => {
-                println!("{}", e);
-            }
+        }
+        Err(e) => {
+            println!("{}", e);
         }
     }
 }
@@ -117,16 +122,7 @@ fn main() {
 
         let result = linter.parse_file(args.file_to_lint);
         if !args.to_json {
-            match result {
-                Ok(diags) => {
-                    for diag in diags {
-                        println!("{}", &diag);
-                    }
-                }
-                Err(e) => {
-                    println!("{}", e);
-                }
-            }
+          print_result(result);
         } else {
             match result {
                 Ok(diags) => {

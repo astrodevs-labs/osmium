@@ -19,6 +19,12 @@ on:
       extensions:
         description: "Array of affected extensions workspaces"
         value: ${{ jobs.detect_changes.outputs.extensions }}
+      libraries:
+        description: "Array of affected libraries workspaces"
+        value: ${{ jobs.detect_changes.outputs.libraries }}
+      packages:
+        description: "Array of affected packages workspaces"
+        value: ${{ jobs.detect_changes.outputs.packages }}
 
 jobs:
   detect_changes:
@@ -27,6 +33,8 @@ jobs:
       workspaces: ${{ toJson(fromJson(steps.build-array.outputs.result).affectedWorkspaces) }}
       toolchains: ${{ toJson(fromJson(steps.build-array.outputs.result).toolchainsWorkspaces) }}
       extensions: ${{ toJson(fromJson(steps.build-array.outputs.result).extensionsWorkspaces) }}
+      libraries: ${{ toJson(fromJson(steps.build-array.outputs.result).librariesWorkspaces) }}
+      packages: ${{ toJson(fromJson(steps.build-array.outputs.result).packagesWorkspaces) }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -70,7 +78,13 @@ jobs:
             })
             console.log(affectedWorkspaces)
             const toolchainsWorkspaces = affectedWorkspaces.filter(workspace => {
-              return workspace.name.endsWith('@osmium-toolchains/')
+              return workspace.name.startsWith('@osmium-toolchains/')
+            })
+            const librariesWorkspaces = affectedWorkspaces.filter(workspace => {
+              return workspace.name.startsWith('@osmium-libs/')
+            })
+            const packagesWorkspaces = affectedWorkspaces.filter(workspace => {
+              return workspace.name.startsWith('@osmium-packages/')
             })
             const extensionsWorkspaces = affectedWorkspaces.filter(workspace => {
               return workspace.name.match(/@osmium\/(?:manager|(?!\w+-\w+-\w+)(?:\w+-\w+))/)
@@ -78,7 +92,9 @@ jobs:
             return {
               affectedWorkspaces,
               toolchainsWorkspaces,
-              extensionsWorkspaces
+              extensionsWorkspaces,
+              librariesWorkspaces,
+              packagesWorkspaces
             }
 
       - name: debug
@@ -88,5 +104,9 @@ jobs:
           echo "Toolchains workspaces: ${{ toJson(fromJson(steps.build-array.outputs.result).toolchainsWorkspaces) }}"
           echo "------------------------------------"
           echo "Extensions workspaces: ${{ toJson(fromJson(steps.build-array.outputs.result).extensionsWorkspaces) }}"
+          echo "------------------------------------"
+          echo "Libraries workspaces: ${{ toJson(fromJson(steps.build-array.outputs.result).librariesWorkspaces) }}"
+          echo "------------------------------------"
+          echo "Packages workspaces: ${{ toJson(fromJson(steps.build-array.outputs.result).packagesWorkspaces) }}"
       
       

@@ -1,13 +1,38 @@
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
-use solc_wrapper::{decode_location, ContractDefinitionChildNodes, SourceUnitChildNodes};
+use solc_wrapper::{decode_location, ContractDefinitionChildNodes, SourceUnitChildNodes, CodeLocation};
 
 pub struct FuncParamNameCamelcase {
     data: RuleEntry,
 }
 
 impl RuleType for FuncParamNameCamelcase {
+
+    fn create_diag(&self, location: (CodeLocation, CodeLocation), file: SolidFile) {
+        LintDiag {
+            range: Range {
+                start: Position {
+                    line: location.0.line as u64,
+                    character: location.0.column as u64,
+                },
+                end: Position {
+                    line: location.1.line as u64,
+                    character: location.1.column as u64,
+                },
+                length: location.0.length as u64,
+            },
+            message: format!(
+                "Parameter name need to be in camel case"
+            ),
+            severity: Some(self.data.severity),
+            code: None,
+            source: None,
+            uri: file.path.clone(),
+            source_file_content: file.content.clone(),
+        }
+    }
+
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
 
@@ -28,27 +53,7 @@ impl RuleType for FuncParamNameCamelcase {
                                             parameter.name_location.as_ref().unwrap(),
                                             &file.content,
                                         );
-                                        res.push(LintDiag {
-                                            range: Range {
-                                                start: Position {
-                                                    line: location.0.line as u64,
-                                                    character: location.0.column as u64,
-                                                },
-                                                end: Position {
-                                                    line: location.1.line as u64,
-                                                    character: location.1.column as u64,
-                                                },
-                                                length: location.0.length as u64,
-                                            },
-                                            message: format!(
-                                                "Parameter name need to be in camel case"
-                                            ),
-                                            severity: Some(self.data.severity),
-                                            code: None,
-                                            source: None,
-                                            uri: file.path.clone(),
-                                            source_file_content: file.content.clone(),
-                                        });
+                                        res.push(self.create_diag(location, file));
                                     }
                                 }
                             }

@@ -1,15 +1,35 @@
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
-use solc_wrapper::{
-    decode_location, ContractDefinitionChildNodes, FunctionDefinitionKind, SourceUnitChildNodes,
-};
+use solc_wrapper::{decode_location, ContractDefinitionChildNodes, FunctionDefinitionKind, SourceUnitChildNodes, CodeLocation};
 
 pub struct FuncNameCamelCase {
     data: RuleEntry,
 }
 
 impl RuleType for FuncNameCamelCase {
+    fn create_diag(&self, location: (CodeLocation, CodeLocation), file: SolidFile) {
+        LintDiag {
+            range: Range {
+                start: Position {
+                    line: location.0.line as u64,
+                    character: location.0.column as u64,
+                },
+                end: Position {
+                    line: location.1.line as u64,
+                    character: location.1.column as u64,
+                },
+                length: location.0.length as u64,
+            },
+            message: format!("Function name need to be in camel case"),
+            severity: Some(self.data.severity),
+            code: None,
+            source: None,
+            uri: file.path.clone(),
+            source_file_content: file.content.clone(),
+        }
+    }
+
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
 
@@ -30,25 +50,7 @@ impl RuleType for FuncNameCamelCase {
                                         function.name_location.as_ref().unwrap(),
                                         &file.content,
                                     );
-                                    res.push(LintDiag {
-                                        range: Range {
-                                            start: Position {
-                                                line: location.0.line as u64,
-                                                character: location.0.column as u64,
-                                            },
-                                            end: Position {
-                                                line: location.1.line as u64,
-                                                character: location.1.column as u64,
-                                            },
-                                            length: location.0.length as u64,
-                                        },
-                                        message: format!("Function name need to be in camel case"),
-                                        severity: Some(self.data.severity),
-                                        code: None,
-                                        source: None,
-                                        uri: file.path.clone(),
-                                        source_file_content: file.content.clone(),
-                                    });
+                                    res.push(self.create_diag(location, file));
                                 }
                             }
                             _ => {

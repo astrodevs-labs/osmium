@@ -17,6 +17,29 @@ pub struct ReasonString {
 }
 
 impl RuleType for ReasonString {
+
+    fn create_diag(&self, file: &SolidFile, location: (CodeLocation, CodeLocation), message: String) -> LintDiag {
+        LintDiag {
+            range: Range {
+                start: Position {
+                    line: location.0.line as u64,
+                    character: location.0.column as u64,
+                },
+                end: Position {
+                    line: location.1.line as u64,
+                    character: location.1.column as u64,
+                },
+                length: location.0.length as u64,
+            },
+            message: message,
+            severity: Some(self.data.severity),
+            code: None,
+            source: None,
+            uri: file.path.clone(),
+            source_file_content: file.content.clone(),
+        }
+    }
+
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
 
@@ -28,20 +51,7 @@ impl RuleType for ReasonString {
                         if v.name == "require" {
                             if j.arguments.len() != 2 {
                                 let location = decode_location(&j.src, &file.content);
-                                let diag = LintDiag {
-                                        range: Range {
-                                            start: Position { line: location.0.line as u64, character: location.0.column as u64 },
-                                            end: Position { line: location.1.line as u64, character: location.1.column as u64 },
-                                            length: location.0.length as u64
-                                        },
-                                        message: format!("reason-string: A require statement must have a reason string"),
-                                        severity: Some(self.data.severity),
-                                        code: None,
-                                        source: None,
-                                        uri: file.path.clone(),
-                                        source_file_content: file.content.clone(),
-                                    };
-                                res.push(diag);
+                                res.push(self.create_diag(file, location, format!("reason-string: A require statement must have a reason string")));
                             } else {
                                 for nj in &j.arguments {
                                     match nj {
@@ -51,20 +61,7 @@ impl RuleType for ReasonString {
                                             {
                                                 let location =
                                                     decode_location(&z.src, &file.content);
-                                                let diag = LintDiag {
-                                                        range: Range {
-                                                            start: Position { line: location.0.line as u64, character: location.0.column as u64 },
-                                                            end: Position { line: location.1.line as u64, character: location.1.column as u64 },
-                                                            length: location.0.length as u64
-                                                        },
-                                                        message: format!("reason-string: A revert statement must have a reason string of length less than {}", self.max_length),
-                                                        severity: Some(self.data.severity),
-                                                        code: None,
-                                                        source: None,
-                                                        uri: file.path.clone(),
-                                                        source_file_content: file.content.clone(),
-                                                    };
-                                                res.push(diag);
+                                                res.push(self.create_diag(file, location, format!("reason-string: A revert statement must have a reason string of length less than {}", self.max_length)));
                                             }
                                         }
                                         _ => {}
@@ -74,40 +71,14 @@ impl RuleType for ReasonString {
                         } else if v.name == "revert" {
                             if j.arguments.len() == 0 {
                                 let location = decode_location(&j.src, &file.content);
-                                let diag = LintDiag {
-                                        range: Range {
-                                            start: Position { line: location.0.line as u64, character: location.0.column as u64 },
-                                            end: Position { line: location.1.line as u64, character: location.1.column as u64 },
-                                            length: location.0.length as u64
-                                        },
-                                        message: format!("reason-string: A revert statement must have a reason string"),
-                                        severity: Some(self.data.severity),
-                                        code: None,
-                                        source: None,
-                                        uri: file.path.clone(),
-                                        source_file_content: file.content.clone(),
-                                    };
-                                res.push(diag);
+                                res.push(self.create_diag(file, location, format!("reason-string: A revert statement must have a reason string")));
                             } else {
                                 match &j.arguments[0] {
                                     Expression::Literal(z) => {
                                         if z.value.clone().unwrap().len() > self.max_length as usize
                                         {
                                             let location = decode_location(&z.src, &file.content);
-                                            let diag = LintDiag {
-                                                    range: Range {
-                                                        start: Position { line: location.0.line as u64, character: location.0.column as u64 },
-                                                        end: Position { line: location.1.line as u64, character: location.1.column as u64 },
-                                                        length: location.0.length as u64
-                                                    },
-                                                    message: format!("reason-string: A revert statement must have a reason string of length less than {}", self.max_length),
-                                                    severity: Some(self.data.severity),
-                                                    code: None,
-                                                    source: None,
-                                                    uri: file.path.clone(),
-                                                    source_file_content: file.content.clone(),
-                                                };
-                                            res.push(diag);
+                                            res.push(self.create_diag(file, location, format!("reason-string: A revert statement must have a reason string of length less than {}", self.max_length)));
                                         }
                                     }
                                     _ => {}

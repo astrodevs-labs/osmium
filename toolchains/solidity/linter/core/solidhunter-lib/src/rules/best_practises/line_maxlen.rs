@@ -8,31 +8,36 @@ pub struct LineMaxLen {
 }
 
 impl RuleType for LineMaxLen {
+
+    fn create_diag(&self, file: &SolidFile, line_idx: usize, line: &str) -> LintDiag {
+        LintDiag {
+            range: Range {
+                start: Position {
+                    line: line_idx as u64,
+                    character: self.max_len as u64,
+                },
+                end: Position {
+                    line: line_idx as u64,
+                    character: line.len() as u64,
+                },
+                length: (line.len() - self.max_len) as u64,
+            },
+            message: format!("Line is too long: {}", line.len()),
+            severity: Some(self.data.severity),
+            code: None,
+            source: None,
+            uri: file.path.clone(),
+            source_file_content: file.content.clone(),
+        }
+    }
+
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let mut line_idx = 1;
 
         for line in file.content.lines() {
             if line.len() > self.max_len {
-                res.push(LintDiag {
-                    range: Range {
-                        start: Position {
-                            line: line_idx,
-                            character: self.max_len as u64,
-                        },
-                        end: Position {
-                            line: line_idx,
-                            character: line.len() as u64,
-                        },
-                        length: (line.len() - self.max_len) as u64,
-                    },
-                    message: format!("Line is too long: {}", line.len()),
-                    severity: Some(self.data.severity),
-                    code: None,
-                    source: None,
-                    uri: file.path.clone(),
-                    source_file_content: file.content.clone(),
-                });
+                res.push(self.create_diag(file, line_idx, line));
             }
             line_idx += 1;
         }

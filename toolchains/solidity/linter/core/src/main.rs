@@ -122,7 +122,7 @@ fn main() {
 
         let result = linter.parse_file(args.file_to_lint);
         if !args.to_json {
-          print_result(result);
+            print_result(result);
         } else {
             match result {
                 Ok(diags) => {

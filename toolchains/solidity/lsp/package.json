@@ -1,5 +1,5 @@
 {
-  "name": "osmium-solidity-lsp",
+  "name": "@osmium/solidity-lsp",
   "version": "0.0.1",
   "license": "MIT",
   "workspaces": [
@@ -7,6 +7,8 @@
   ],
   "scripts": {
     "build": "echo 'building solidity lsp...'",
+    "lint": "echo 'linting solidity lsp...'",
+    "format": "echo 'formatting solidity lsp...'",
     "test": "echo 'testing solidity lsp...'",
     "publish": "echo 'publishing solidity lsp...'"
   }

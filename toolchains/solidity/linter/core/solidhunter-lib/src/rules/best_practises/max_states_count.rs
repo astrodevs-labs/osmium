@@ -8,10 +8,8 @@ pub struct MaxStatesCount {
     data: RuleEntry,
 }
 
-impl RuleType for MaxStatesCount {
-
-    fn create_diag(&self, file: &SolidFile, var: &ContractDefinitionChildNodes,
-        location: (CodeLocation, CodeLocation)) -> LintDiag {
+impl MaxStatesCount {
+    fn create_diag(&self, file: &SolidFile, location: (CodeLocation, CodeLocation), count: usize) -> LintDiag {
         LintDiag {
             range: Range {
                 start: Position {
@@ -32,6 +30,9 @@ impl RuleType for MaxStatesCount {
             source_file_content: file.content.clone(),
         }
     }
+}
+
+impl RuleType for MaxStatesCount {
 
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
@@ -52,7 +53,7 @@ impl RuleType for MaxStatesCount {
                 count += 1;
                 if count > self.max_states {
                     let location = decode_location(&var.src, &file.content);
-                    res.push(self.create_diag(file, var, location));
+                    res.push(self.create_diag(file, location, count));
                 }
             }
         }

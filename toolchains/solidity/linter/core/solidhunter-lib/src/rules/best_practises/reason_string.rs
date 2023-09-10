@@ -1,5 +1,5 @@
 use solc_wrapper::ast::utils::{self, get_all_nodes_by_type};
-use solc_wrapper::{decode_location, Expression, NodeType};
+use solc_wrapper::{decode_location, Expression, NodeType, CodeLocation};
 
 use crate::linter::SolidFile;
 use crate::rules::types::{RuleEntry, RuleType};
@@ -16,8 +16,7 @@ pub struct ReasonString {
     data: RuleEntry,
 }
 
-impl RuleType for ReasonString {
-
+impl ReasonString {
     fn create_diag(&self, file: &SolidFile, location: (CodeLocation, CodeLocation), message: String) -> LintDiag {
         LintDiag {
             range: Range {
@@ -39,6 +38,9 @@ impl RuleType for ReasonString {
             source_file_content: file.content.clone(),
         }
     }
+}
+
+impl RuleType for ReasonString {
 
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();

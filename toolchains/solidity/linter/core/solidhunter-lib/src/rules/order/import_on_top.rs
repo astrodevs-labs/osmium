@@ -1,16 +1,14 @@
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
-use solc_wrapper::{decode_location, SourceUnitChildNodes};
+use solc_wrapper::{decode_location, SourceUnitChildNodes, CodeLocation};
 
 pub struct ImportOnTop {
     data: RuleEntry,
 }
 
-impl RuleType for ImportOnTop {
-
-    fn create_diag(&self, file: &SolidFile, import: &SourceUnitChildNodes,
-        location: (CodeLocation, CodeLocation)) -> LintDiag {
+impl ImportOnTop {
+    fn create_diag(&self, file: &SolidFile, location: (CodeLocation, CodeLocation)) -> LintDiag {
         LintDiag {
             range: Range {
                 start: Position {
@@ -23,7 +21,7 @@ impl RuleType for ImportOnTop {
                 },
                 length: location.0.length as u64,
             },
-            message: String("Import must be on top in the file"),
+            message: String::from("Import must be on top in the file"),
             severity: Some(self.data.severity),
             code: None,
             source: None,
@@ -31,6 +29,11 @@ impl RuleType for ImportOnTop {
             source_file_content: file.content.clone(),
         }
     }
+}
+
+impl RuleType for ImportOnTop {
+
+    
 
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
@@ -52,7 +55,7 @@ impl RuleType for ImportOnTop {
                 SourceUnitChildNodes::ImportDirective(import) => {
                     if i > last_import_location {
                         let location = decode_location(&import.src, &file.content);
-                        res.push(self.generate_diagnostic(file, import));
+                        res.push(self.create_diag(file, location));
                     }
                 }
                 _ => {}

@@ -7,8 +7,8 @@ pub struct FuncNameCamelCase {
     data: RuleEntry,
 }
 
-impl RuleType for FuncNameCamelCase {
-    fn create_diag(&self, location: (CodeLocation, CodeLocation), file: SolidFile) {
+impl FuncNameCamelCase {
+    fn create_diag(&self, location: (CodeLocation, CodeLocation), file: &SolidFile) -> LintDiag {
         LintDiag {
             range: Range {
                 start: Position {
@@ -29,6 +29,10 @@ impl RuleType for FuncNameCamelCase {
             source_file_content: file.content.clone(),
         }
     }
+}
+
+impl RuleType for FuncNameCamelCase {
+    
 
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();

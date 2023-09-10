@@ -7,8 +7,7 @@ pub struct LineMaxLen {
     data: RuleEntry,
 }
 
-impl RuleType for LineMaxLen {
-
+impl LineMaxLen {
     fn create_diag(&self, file: &SolidFile, line_idx: usize, line: &str) -> LintDiag {
         LintDiag {
             range: Range {
@@ -30,7 +29,10 @@ impl RuleType for LineMaxLen {
             source_file_content: file.content.clone(),
         }
     }
+}
 
+impl RuleType for LineMaxLen {
+    
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let mut line_idx = 1;

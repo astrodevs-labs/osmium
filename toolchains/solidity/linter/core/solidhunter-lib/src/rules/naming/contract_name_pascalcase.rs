@@ -7,9 +7,8 @@ pub struct ContractNamePascalCase {
     data: RuleEntry,
 }
 
-impl RuleType for ContractNamePascalCase {
-
-    fn create_diag(&self, location: (CodeLocation, CodeLocation), file: SolidFile) {
+impl ContractNamePascalCase {
+    fn create_diag(&self, location: (CodeLocation, CodeLocation), file: &SolidFile) -> LintDiag {
         LintDiag {
             range: Range {
                 start: Position {
@@ -30,6 +29,9 @@ impl RuleType for ContractNamePascalCase {
             source_file_content: file.content.clone(),
         }
     }
+}
+
+impl RuleType for ContractNamePascalCase {
 
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();

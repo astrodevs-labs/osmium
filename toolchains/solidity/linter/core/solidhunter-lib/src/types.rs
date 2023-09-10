@@ -1,4 +1,4 @@
-use crate::errors::SolidHunterError;
+use crate::error::SolidHunterError;
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
 use std::fmt;

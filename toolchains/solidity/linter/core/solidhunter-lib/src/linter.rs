@@ -1,4 +1,4 @@
-use crate::errors::SolidHunterError;
+use crate::error::SolidHunterError;
 use crate::rules::factory::RuleFactory;
 use crate::rules::rule_impl::{create_rules_file, parse_rules};
 use crate::rules::types::*;

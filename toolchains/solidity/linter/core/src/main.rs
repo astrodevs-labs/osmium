@@ -3,6 +3,9 @@ use solidhunter_lib::linter::SolidLinter;
 use solidhunter_lib::rules::rule_impl::create_rules_file;
 use solidhunter_lib::types::LintResult;
 
+mod lsp_server;
+use lsp_server::run_server;
+
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
@@ -60,6 +63,14 @@ struct Args {
         help = "Initialize rules file"
     )]
     init: bool,
+
+    #[arg(
+        short = 'l',
+        long = "lsp",
+        default_value = "false",
+        help = "Starts the language server instead of linting"
+    )]
+    lsp: bool,
 }
 
 fn lint_folder(args: Args) {
@@ -88,6 +99,12 @@ fn print_result(result: LintResult) {
 
 fn main() {
     let args = Args::parse();
+
+    if args.lsp {
+        println!("Starting language server...");
+        run_server();
+        return;
+    }
 
     if !args.to_json {
         println!();

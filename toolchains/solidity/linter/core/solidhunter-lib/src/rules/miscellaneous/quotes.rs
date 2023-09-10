@@ -1,4 +1,3 @@
-use solc_wrapper::{CodeLocation, decode_location};
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
@@ -7,9 +6,8 @@ pub struct Quotes {
     data: RuleEntry,
 }
 
-impl RuleType for Quotes {
-
-    fn create_diag(&self, file: SolidFile, idx: usize, line_idx: u32) {
+impl Quotes {
+    fn create_diag(&self, file: &SolidFile, idx: usize, line_idx: u64) -> LintDiag {
         LintDiag {
             range: Range {
                 start: Position {
@@ -30,6 +28,9 @@ impl RuleType for Quotes {
             source_file_content: file.content.clone(),
         }
     }
+}
+
+impl RuleType for Quotes {
 
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();

@@ -8,9 +8,8 @@ pub struct UseForbiddenName {
     data: RuleEntry,
 }
 
-impl RuleType for UseForbiddenName {
-
-    fn create_diag(&self, location: (CodeLocation, CodeLocation), var: Box<VariableDeclaration>, file: SolidFile) {
+impl UseForbiddenName {
+    fn create_diag(&self, location: (CodeLocation, CodeLocation), var: Box<VariableDeclaration>, file: &SolidFile) -> LintDiag {
         LintDiag {
             range: Range {
                 start: Position {
@@ -31,6 +30,11 @@ impl RuleType for UseForbiddenName {
             source_file_content: file.content.clone(),
         }
     }
+}
+
+impl RuleType for UseForbiddenName {
+
+    
 
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();

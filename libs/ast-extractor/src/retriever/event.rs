@@ -43,7 +43,7 @@ mod tests {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path.push("tests");
         path.push("files");
-        path.push("events");
+        path.push("event");
         path.push("empty.sol");
         let source = fs::read_to_string(path).unwrap();
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
@@ -63,7 +63,7 @@ mod tests {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path.push("tests");
         path.push("files");
-        path.push("events");
+        path.push("event");
         path.push("one.sol");
         let source = fs::read_to_string(path).unwrap();
         let tokens = TokenStream::from_str(source.as_str()).unwrap();

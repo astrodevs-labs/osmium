@@ -68,13 +68,16 @@ mod tests {
         let source = fs::read_to_string(path).unwrap();
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = syn_solidity::parse2(tokens).unwrap();
-        let item = ast.items.first().unwrap().clone();
+        let contract = ast.items.iter().find(|i| match i {
+            Item::Contract(_) => true,
+            _ => false,
+        }).unwrap().clone();
 
-        if let Item::Contract(contract) = item {
+        if let Item::Contract(contract) = contract {
             let res = retrieve_enums_nodes(contract);
             assert_eq!(res.len(), 1);
         } else {
-            panic!("Item should have an enum");
+            panic!("Item should have a contract");
         }
     }
 }

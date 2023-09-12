@@ -3,10 +3,10 @@
  * Functions to retrieve using nodes from contract AST
  * author: Leon
 */
-use syn_solidity::{ItemUsing, Visit};
+use syn_solidity::{UsingDirective, Visit};
 
 struct UsingVisitor {
-    usings: Vec<ItemUsing>,
+    usings: Vec<UsingDirective>,
 }
 
 impl UsingVisitor {
@@ -16,13 +16,13 @@ impl UsingVisitor {
 }
 
 impl<'ast> Visit<'ast> for UsingVisitor {
-    fn visit_item_using(&mut self, i: &ItemUsing) {
+    fn visit_using_directive(&mut self, i: &UsingDirective) {
         self.usings.push(i.clone());
-        syn_solidity::visit::visit_item_using(self, i);
+        syn_solidity::visit::visit_using_directive(self, i);
     }
 }
 
-pub fn retrieve_usings_nodes(ast: syn_solidity::ItemContract) -> Vec<ItemUsing> {
+pub fn retrieve_usings_nodes(ast: syn_solidity::ItemContract) -> Vec<UsingDirective> {
     let mut visitor = UsingVisitor::new();
     visitor.visit_item_contract(&ast);
     visitor.usings
@@ -69,7 +69,10 @@ mod tests {
         let source = fs::read_to_string(path).unwrap();
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = syn_solidity::parse2(tokens).unwrap();
-        let item = ast.items.first().unwrap().clone();
+        let item = ast.items.iter().find(|i| match i {
+            Item::Contract(ctr) => ctr.name == "Wallet",
+            _ => false,
+        }).unwrap().clone();
 
         if let Item::Contract(contract) = item {
             let res = retrieve_usings_nodes(contract);

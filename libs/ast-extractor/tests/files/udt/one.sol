@@ -1,4 +1,1 @@
-struct Person {
-    string name;
-    uint age;
-}
+type Test is uint256;

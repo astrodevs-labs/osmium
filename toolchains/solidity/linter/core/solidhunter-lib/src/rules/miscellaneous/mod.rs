@@ -10,11 +10,7 @@ use crate::rules::miscellaneous::quotes::Quotes;
 use crate::rules::RuleBuilder;
 
 pub fn create_default_rules() -> Vec<RuleEntry> {
-    let mut rules = Vec::new();
-
-    rules.push(Quotes::create_default());
-
-    rules
+    vec![Quotes::create_default()]
 }
 
 pub fn create_rules() -> HashMap<String, fn(RuleEntry) -> Box<dyn RuleType>> {

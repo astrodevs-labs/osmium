@@ -41,7 +41,7 @@ impl UseForbiddenName {
 impl RuleType for UseForbiddenName {
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
-        let blacklist = vec!['I', 'l', 'O'];
+        let blacklist = ['I', 'l', 'O'];
 
         let nodes = get_all_nodes_by_type(file.data.clone(), NodeType::VariableDeclaration);
 

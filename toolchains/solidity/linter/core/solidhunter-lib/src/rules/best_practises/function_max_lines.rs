@@ -23,6 +23,7 @@ impl RuleType for FunctionMaxLines {
             let _report = check_function_lines(_file, function, self.number_max_lines);
             if let Some(report) = _report {
                 res.push(LintDiag {
+                    id: Self::RULE_ID.to_string(),
                     range: report,
                     severity: Some(Severity::WARNING),
                     code: None,

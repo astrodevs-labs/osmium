@@ -9,6 +9,7 @@ pub struct Quotes {
 impl Quotes {
     fn create_diag(&self, file: &SolidFile, idx: usize, line_idx: u64) -> LintDiag {
         LintDiag {
+            id: "quotes".to_string(),
             range: Range {
                 start: Position {
                     line: line_idx,
@@ -31,7 +32,6 @@ impl Quotes {
 }
 
 impl RuleType for Quotes {
-
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let mut line_idx = 1;

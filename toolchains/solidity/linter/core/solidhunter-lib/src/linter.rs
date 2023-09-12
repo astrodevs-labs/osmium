@@ -140,7 +140,9 @@ impl SolidLinter {
         if let Ok(entries) = glob(&*(folder + "/**/*.sol")) {
             for entry in entries {
                 if let Ok(path) = entry {
-                    result.push(self.parse_file(String::from(path.into_os_string().into_string().unwrap())));
+                    result.push(
+                        self.parse_file(String::from(path.into_os_string().into_string().unwrap())),
+                    );
                 }
             }
         }

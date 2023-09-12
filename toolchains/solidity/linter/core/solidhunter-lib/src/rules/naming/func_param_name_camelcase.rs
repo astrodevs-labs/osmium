@@ -24,7 +24,7 @@ impl FuncParamNameCamelcase {
                 },
                 length: location.0.length as u64,
             },
-            message: format!("Parameter name need to be in camel case"),
+            message: "Parameter name need to be in camel case".to_string(),
             severity: Some(self.data.severity),
             code: None,
             source: None,
@@ -47,8 +47,8 @@ impl RuleType for FuncParamNameCamelcase {
                                 for parameter in &function.parameters.parameters {
                                     if !(parameter.name.chars().nth(0).unwrap() >= 'a'
                                         && parameter.name.chars().nth(0).unwrap() <= 'z')
-                                        || parameter.name.contains("_")
-                                        || parameter.name.contains("-")
+                                        || parameter.name.contains('_')
+                                        || parameter.name.contains('-')
                                     {
                                         //Untested
                                         let location = decode_location(

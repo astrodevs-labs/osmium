@@ -22,8 +22,7 @@ pub struct SolidLinter {
 
 impl Default for SolidLinter {
     fn default() -> Self {
-        let linter = SolidLinter::new(&String::new());
-        linter
+        SolidLinter::new(&String::new())
     }
 }
 
@@ -34,8 +33,8 @@ impl SolidLinter {
             rule_factory: RuleFactory::default(),
             rules: Vec::new(),
         };
-        linter._create_rules(&rules_config, true);
-        return linter;
+        linter._create_rules(rules_config, true);
+        linter
     }
 
     fn _create_rules(&mut self, rules_config: &String, first: bool) {
@@ -84,9 +83,9 @@ impl SolidLinter {
     pub fn parse_file(&mut self, filepath: String) -> LintResult {
         let res = Solc::default().extract_ast_file(filepath.clone());
 
-        if res.is_err() {
+        if let Err(res) = res {
             println!("{:?}", res);
-            return Err(SolidHunterError::SolcError(res.unwrap_err()));
+            return Err(SolidHunterError::SolcError(res));
         }
         if self._file_exists(filepath.as_str()) {
             self._update_file_ast(filepath.as_str(), res.expect("ast not found"));
@@ -111,9 +110,9 @@ impl SolidLinter {
     pub fn parse_content(&mut self, filepath: String, content: &String) -> LintResult {
         let res = Solc::default().extract_ast_content(content.to_string());
 
-        if res.is_err() {
+        if let Err(res) = res {
             println!("{:?}", res);
-            return Err(SolidHunterError::SolcError(res.unwrap_err()));
+            return Err(SolidHunterError::SolcError(res));
         }
 
         if self._file_exists(filepath.as_str()) {
@@ -137,13 +136,9 @@ impl SolidLinter {
 
     pub fn parse_folder(&mut self, folder: String) -> Vec<LintResult> {
         let mut result: Vec<LintResult> = Vec::new();
-        if let Ok(entries) = glob(&*(folder + "/**/*.sol")) {
-            for entry in entries {
-                if let Ok(path) = entry {
-                    result.push(
-                        self.parse_file(String::from(path.into_os_string().into_string().unwrap())),
-                    );
-                }
+        if let Ok(entries) = glob(&(folder + "/**/*.sol")) {
+            for entry in entries.flatten() {
+                result.push(self.parse_file(entry.into_os_string().into_string().unwrap()));
             }
         }
         result

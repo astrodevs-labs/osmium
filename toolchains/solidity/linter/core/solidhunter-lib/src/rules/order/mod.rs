@@ -10,11 +10,7 @@ use crate::rules::order::import_on_top::ImportOnTop;
 use crate::rules::RuleBuilder;
 
 pub fn create_default_rules() -> Vec<RuleEntry> {
-    let mut rules = Vec::new();
-
-    rules.push(ImportOnTop::create_default());
-
-    rules
+    vec![ImportOnTop::create_default()]
 }
 
 pub fn create_rules() -> HashMap<String, fn(RuleEntry) -> Box<dyn RuleType>> {

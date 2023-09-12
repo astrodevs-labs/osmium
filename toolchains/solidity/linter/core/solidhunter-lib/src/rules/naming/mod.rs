@@ -15,14 +15,12 @@ pub(crate) mod use_forbidden_name;
 // List all rules
 
 pub fn create_default_rules() -> Vec<RuleEntry> {
-    let mut rules = Vec::new();
-
-    rules.push(FuncParamNameCamelcase::create_default());
-    rules.push(ContractNamePascalCase::create_default());
-    rules.push(FuncNameCamelCase::create_default());
-    rules.push(UseForbiddenName::create_default());
-
-    rules
+    vec![
+        FuncParamNameCamelcase::create_default(),
+        ContractNamePascalCase::create_default(),
+        FuncNameCamelCase::create_default(),
+        UseForbiddenName::create_default(),
+    ]
 }
 
 pub fn create_rules() -> HashMap<String, fn(RuleEntry) -> Box<dyn RuleType>> {

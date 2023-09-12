@@ -16,14 +16,12 @@ use crate::rules::best_practises::reason_string::ReasonString;
 use crate::rules::RuleBuilder;
 
 pub fn create_default_rules() -> Vec<RuleEntry> {
-    let mut rules = Vec::new();
-
-    rules.push(LineMaxLen::create_default());
-    rules.push(MaxStatesCount::create_default());
-    rules.push(FunctionMaxLines::create_default());
-    rules.push(ReasonString::create_default());
-
-    rules
+    vec![
+        LineMaxLen::create_default(),
+        MaxStatesCount::create_default(),
+        FunctionMaxLines::create_default(),
+        ReasonString::create_default(),
+    ]
 }
 
 pub fn create_rules() -> HashMap<String, fn(RuleEntry) -> Box<dyn RuleType>> {

@@ -36,7 +36,7 @@ impl ReasonString {
                 },
                 length: location.0.length as u64,
             },
-            message: message,
+            message,
             severity: Some(self.data.severity),
             code: None,
             source: None,
@@ -58,7 +58,7 @@ impl RuleType for ReasonString {
                         if v.name == "require" {
                             if j.arguments.len() != 2 {
                                 let location = decode_location(&j.src, &file.content);
-                                res.push(self.create_diag(file, location, format!("reason-string: A require statement must have a reason string")));
+                                res.push(self.create_diag(file, location, "reason-string: A require statement must have a reason string".to_string()));
                             } else {
                                 for nj in &j.arguments {
                                     match nj {
@@ -76,9 +76,9 @@ impl RuleType for ReasonString {
                                 }
                             }
                         } else if v.name == "revert" {
-                            if j.arguments.len() == 0 {
+                            if j.arguments.is_empty() {
                                 let location = decode_location(&j.src, &file.content);
-                                res.push(self.create_diag(file, location, format!("reason-string: A revert statement must have a reason string")));
+                                res.push(self.create_diag(file, location, "reason-string: A revert statement must have a reason string".to_string()));
                             } else {
                                 match &j.arguments[0] {
                                     Expression::Literal(z) => {

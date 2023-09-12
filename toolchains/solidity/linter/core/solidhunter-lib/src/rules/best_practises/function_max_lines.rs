@@ -20,7 +20,7 @@ impl RuleType for FunctionMaxLines {
 
         let functions = get_all_functions_from_ast(&_file.data.nodes);
         for function in functions {
-            let _report = check_function_lines(_file, function, self.number_max_lines);
+            let _report = check_function_lines(_file, Box::new(function), self.number_max_lines);
             if let Some(report) = _report {
                 res.push(LintDiag {
                     id: Self::RULE_ID.to_string(),
@@ -48,7 +48,7 @@ fn check_function_lines(
     let function_copy_name_location = &function.src;
     let (_start, _) = decode_location(function_copy_name_location.as_str(), _file.content.as_str());
     let index = function_copy_name_location
-        .split(":")
+        .split(':')
         .collect::<Vec<&str>>()[0]
         .parse::<usize>()
         .unwrap();
@@ -88,9 +88,7 @@ fn check_function_lines(
     res
 }
 
-fn get_all_functions_from_ast(
-    ast_nodes: &Vec<SourceUnitChildNodes>,
-) -> Vec<Box<FunctionDefinition>> {
+fn get_all_functions_from_ast(ast_nodes: &Vec<SourceUnitChildNodes>) -> Vec<FunctionDefinition> {
     let mut res = Vec::new();
 
     for node in ast_nodes {
@@ -103,7 +101,7 @@ fn get_all_functions_from_ast(
                 ContractDefinitionChildNodes::FunctionDefinition(function) => function,
                 _ => continue,
             };
-            res.push(function.clone());
+            res.push(*function.clone());
         }
     }
     res

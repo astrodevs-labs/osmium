@@ -25,7 +25,7 @@ impl FuncNameCamelCase {
                 },
                 length: location.0.length as u64,
             },
-            message: format!("Function name need to be in camel case"),
+            message: "Function name need to be in camel case".to_string(),
             severity: Some(self.data.severity),
             code: None,
             source: None,

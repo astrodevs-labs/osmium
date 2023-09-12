@@ -22,7 +22,7 @@ impl ContractNamePascalCase {
                 },
                 length: location.0.length as u64,
             },
-            message: format!("Contract name need to be in pascal case"),
+            message: "Contract name need to be in pascal case".to_string(),
             severity: Some(self.data.severity),
             code: None,
             source: None,
@@ -41,8 +41,8 @@ impl RuleType for ContractNamePascalCase {
                 SourceUnitChildNodes::ContractDefinition(contract) => {
                     if (contract.name.chars().nth(0).unwrap() >= 'a'
                         && contract.name.chars().nth(0).unwrap() <= 'z')
-                        || contract.name.contains("_")
-                        || contract.name.contains("-")
+                        || contract.name.contains('_')
+                        || contract.name.contains('-')
                     {
                         //Untested
                         let location = decode_location(

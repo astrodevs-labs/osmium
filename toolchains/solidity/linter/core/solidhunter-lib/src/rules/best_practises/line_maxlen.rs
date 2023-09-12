@@ -21,6 +21,7 @@ impl LineMaxLen {
                 },
                 length: (line.len() - self.max_len) as u64,
             },
+            id: "line-max-len".to_string(),
             message: format!("Line is too long: {}", line.len()),
             severity: Some(self.data.severity),
             code: None,
@@ -32,7 +33,6 @@ impl LineMaxLen {
 }
 
 impl RuleType for LineMaxLen {
-    
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let mut line_idx = 1;

@@ -9,8 +9,14 @@ pub struct UseForbiddenName {
 }
 
 impl UseForbiddenName {
-    fn create_diag(&self, location: (CodeLocation, CodeLocation), var: Box<VariableDeclaration>, file: &SolidFile) -> LintDiag {
+    fn create_diag(
+        &self,
+        location: (CodeLocation, CodeLocation),
+        var: Box<VariableDeclaration>,
+        file: &SolidFile,
+    ) -> LintDiag {
         LintDiag {
+            id: "use-forbidden-name".to_string(),
             range: Range {
                 start: Position {
                     line: location.0.line as u64,
@@ -33,9 +39,6 @@ impl UseForbiddenName {
 }
 
 impl RuleType for UseForbiddenName {
-
-    
-
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let blacklist = vec!['I', 'l', 'O'];

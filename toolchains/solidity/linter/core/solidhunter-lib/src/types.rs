@@ -27,6 +27,8 @@ pub struct LintDiag {
     /// The diagnostic's message.
     pub message: String,
 
+    pub id: String,
+
     pub uri: Uri,
 
     #[serde(rename = "sourceFileContent")]
@@ -80,6 +82,12 @@ impl fmt::Display for LintDiag {
 ////////////////////////////////////////////////////////////
 /////////////////// RELATED TYPES: /////////////////////////
 ////////////////////////////////////////////////////////////
+
+impl PartialEq for Position {
+    fn eq(&self, other: &Self) -> bool {
+        self.line == other.line && self.character == other.character
+    }
+}
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Position {

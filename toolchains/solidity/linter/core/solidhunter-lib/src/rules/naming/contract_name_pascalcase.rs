@@ -1,7 +1,7 @@
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
-use solc_wrapper::{CodeLocation, decode_location, SourceUnitChildNodes};
+use solc_wrapper::{decode_location, CodeLocation, SourceUnitChildNodes};
 
 pub struct ContractNamePascalCase {
     data: RuleEntry,
@@ -10,6 +10,7 @@ pub struct ContractNamePascalCase {
 impl ContractNamePascalCase {
     fn create_diag(&self, location: (CodeLocation, CodeLocation), file: &SolidFile) -> LintDiag {
         LintDiag {
+            id: "contract-name-pascalcase".to_string(),
             range: Range {
                 start: Position {
                     line: location.0.line as u64,
@@ -32,7 +33,6 @@ impl ContractNamePascalCase {
 }
 
 impl RuleType for ContractNamePascalCase {
-
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
 

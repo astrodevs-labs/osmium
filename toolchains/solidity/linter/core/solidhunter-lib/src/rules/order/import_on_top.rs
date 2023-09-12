@@ -1,7 +1,7 @@
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
-use solc_wrapper::{decode_location, SourceUnitChildNodes, CodeLocation};
+use solc_wrapper::{decode_location, CodeLocation, SourceUnitChildNodes};
 
 pub struct ImportOnTop {
     data: RuleEntry,
@@ -10,6 +10,7 @@ pub struct ImportOnTop {
 impl ImportOnTop {
     fn create_diag(&self, file: &SolidFile, location: (CodeLocation, CodeLocation)) -> LintDiag {
         LintDiag {
+            id: "import-on-top".to_string(),
             range: Range {
                 start: Position {
                     line: location.0.line as u64,
@@ -32,9 +33,6 @@ impl ImportOnTop {
 }
 
 impl RuleType for ImportOnTop {
-
-    
-
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let mut last_import_location = 0;

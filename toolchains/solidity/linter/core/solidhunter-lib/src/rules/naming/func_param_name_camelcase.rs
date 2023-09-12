@@ -1,7 +1,9 @@
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
-use solc_wrapper::{decode_location, ContractDefinitionChildNodes, SourceUnitChildNodes, CodeLocation};
+use solc_wrapper::{
+    decode_location, CodeLocation, ContractDefinitionChildNodes, SourceUnitChildNodes,
+};
 
 pub struct FuncParamNameCamelcase {
     data: RuleEntry,
@@ -10,6 +12,7 @@ pub struct FuncParamNameCamelcase {
 impl FuncParamNameCamelcase {
     fn create_diag(&self, location: (CodeLocation, CodeLocation), file: &SolidFile) -> LintDiag {
         LintDiag {
+            id: "func-param-name-camelcase".to_string(),
             range: Range {
                 start: Position {
                     line: location.0.line as u64,
@@ -21,9 +24,7 @@ impl FuncParamNameCamelcase {
                 },
                 length: location.0.length as u64,
             },
-            message: format!(
-                "Parameter name need to be in camel case"
-            ),
+            message: format!("Parameter name need to be in camel case"),
             severity: Some(self.data.severity),
             code: None,
             source: None,
@@ -34,7 +35,6 @@ impl FuncParamNameCamelcase {
 }
 
 impl RuleType for FuncParamNameCamelcase {
-
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
 

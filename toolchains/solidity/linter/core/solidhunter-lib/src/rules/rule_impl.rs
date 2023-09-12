@@ -2,7 +2,6 @@ use crate::error::SolidHunterError;
 use crate::rules::create_default_rules;
 use crate::rules::types::*;
 
-
 pub fn create_rules_file(path: &str) {
     let rules = Rules {
         name: "solidhunter".to_string(),

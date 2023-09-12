@@ -9,8 +9,14 @@ pub struct MaxStatesCount {
 }
 
 impl MaxStatesCount {
-    fn create_diag(&self, file: &SolidFile, location: (CodeLocation, CodeLocation), count: usize) -> LintDiag {
+    fn create_diag(
+        &self,
+        file: &SolidFile,
+        location: (CodeLocation, CodeLocation),
+        count: usize,
+    ) -> LintDiag {
         LintDiag {
+            id: Self::RULE_ID.to_string(),
             range: Range {
                 start: Position {
                     line: location.0.line as u64,
@@ -33,7 +39,6 @@ impl MaxStatesCount {
 }
 
 impl RuleType for MaxStatesCount {
-
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
 

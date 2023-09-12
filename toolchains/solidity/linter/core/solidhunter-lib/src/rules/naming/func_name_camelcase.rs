@@ -1,7 +1,10 @@
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
-use solc_wrapper::{decode_location, ContractDefinitionChildNodes, FunctionDefinitionKind, SourceUnitChildNodes, CodeLocation};
+use solc_wrapper::{
+    decode_location, CodeLocation, ContractDefinitionChildNodes, FunctionDefinitionKind,
+    SourceUnitChildNodes,
+};
 
 pub struct FuncNameCamelCase {
     data: RuleEntry,
@@ -10,6 +13,7 @@ pub struct FuncNameCamelCase {
 impl FuncNameCamelCase {
     fn create_diag(&self, location: (CodeLocation, CodeLocation), file: &SolidFile) -> LintDiag {
         LintDiag {
+            id: "func-name-camelcase".to_string(),
             range: Range {
                 start: Position {
                     line: location.0.line as u64,
@@ -32,8 +36,6 @@ impl FuncNameCamelCase {
 }
 
 impl RuleType for FuncNameCamelCase {
-    
-
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
 

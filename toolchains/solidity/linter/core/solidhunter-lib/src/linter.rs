@@ -91,7 +91,7 @@ impl SolidLinter {
             self._update_file_ast(filepath.as_str(), res.expect("ast not found"));
         } else {
             let content = fs::read_to_string(filepath.clone())
-                .map_err(|e| SolidHunterError::IoError(e.to_string()))?;
+                .map_err(|e| SolidHunterError::IoError(e))?;
             self._add_file(
                 filepath.as_str(),
                 res.expect("ast not found"),

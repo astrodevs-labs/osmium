@@ -31,7 +31,6 @@ pub fn retrieve_udts_nodes(ast: syn_solidity::File) -> Vec<ItemUdt> {
 #[cfg(test)]
 mod tests {
     use proc_macro2::TokenStream;
-    use syn_solidity::Item;
 
     use super::*;
     use std::fs;

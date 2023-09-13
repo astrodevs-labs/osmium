@@ -92,10 +92,7 @@ mod tests {
         let item = ast
             .items
             .iter()
-            .find(|i| match i {
-                Item::Contract(_) => true,
-                _ => false,
-            })
+            .find(|i| matches!(i, Item::Contract(_)))
             .unwrap()
             .clone();
 

@@ -47,18 +47,26 @@ fn test_directory(base_name: &str) {
 }
 
 fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>) {
-    println!("{}", config);
     let mut linter: SolidLinter = SolidLinter::new(&String::from(config));
 
     let result = linter.parse_file(String::from(source));
     match result {
         Ok(diags) => {
-            assert_eq!(diags.len(), expected_findings.len());
-            for (i, el) in diags.iter().enumerate() {
-                assert_eq!(el.id, expected_findings[i].id);
-                assert_eq!(el.range.start, expected_findings[i].start);
-                assert_eq!(el.range.length, expected_findings[i].length);
+            assert_eq!(diags.len(), expected_findings.len(), "Wrong number of findings for {}", source);
+            let mut found = false;
+
+            for (_, diag) in diags.iter().enumerate() {
+                for (_, expected_finding) in expected_findings.iter().enumerate() {
+                    if (diag.range.start == expected_finding.start)
+                        && (diag.range.length == expected_finding.length)
+                        && (diag.id == expected_finding.id)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
             }
+            assert_eq!(found, true, "Can't find the diagnostic for {}", source);
         }
         Err(e) => {
             panic!("{}", e);

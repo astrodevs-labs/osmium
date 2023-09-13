@@ -16,6 +16,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:."\
       },\
       {\
+        "name": "@osmium-libs/ast-extractor",\
+        "reference": "workspace:libs/ast-extractor"\
+      },\
+      {\
         "name": "@osmium-libs/lsp-launcher",\
         "reference": "workspace:libs/lsp-launcher"\
       },\
@@ -51,6 +55,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
     "enableTopLevelFallback": true,\
     "ignorePatternData": "(^(?:\\\\.yarn\\\\/sdks(?:\\\\/(?!\\\\.{1,2}(?:\\\\/|$))(?:(?:(?!(?:^|\\\\/)\\\\.{1,2}(?:\\\\/|$)).)*?)|$))$)",\
     "fallbackExclusionList": [\
+      ["@osmium-libs/ast-extractor", ["workspace:libs/ast-extractor"]],\
       ["@osmium-libs/lsp-launcher", ["workspace:libs/lsp-launcher"]],\
       ["@osmium-packages/eslint-config", ["workspace:packages/eslint-config"]],\
       ["@osmium-packages/prettier-config", ["workspace:packages/prettier-config"]],\
@@ -200,6 +205,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["fastq", "npm:1.15.0"]\
           ],\
           "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@osmium-libs/ast-extractor", [\
+        ["workspace:libs/ast-extractor", {\
+          "packageLocation": "./libs/ast-extractor/",\
+          "packageDependencies": [\
+            ["@osmium-libs/ast-extractor", "workspace:libs/ast-extractor"]\
+          ],\
+          "linkType": "SOFT"\
         }]\
       ]],\
       ["@osmium-libs/lsp-launcher", [\

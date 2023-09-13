@@ -106,6 +106,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@osmium-libs/ast-extractor@workspace:libs/ast-extractor":
+  version: 0.0.0-use.local
+  resolution: "@osmium-libs/ast-extractor@workspace:libs/ast-extractor"
+  languageName: unknown
+  linkType: soft
+
 "@osmium-libs/lsp-launcher@workspace:libs/lsp-launcher":
   version: 0.0.0-use.local
   resolution: "@osmium-libs/lsp-launcher@workspace:libs/lsp-launcher"

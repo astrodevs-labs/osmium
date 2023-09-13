@@ -1,13 +1,12 @@
+use proc_macro2::{LexError, TokenStream};
 /**
  * extract.rs
  * Extract AST from solidity source code
  * author: 0xMemoryGrinder
 */
-
 use std::str::FromStr;
-use proc_macro2::{TokenStream, LexError};
-use thiserror::Error;
 use syn::Error;
+use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum ExtractError {
@@ -45,7 +44,10 @@ mod tests {
         let source = String::from("contract test { function test() public | uint a = 1 } }");
         let result = extract_ast_from(source);
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err().to_string(), "Tokenization error: cannot parse string into token stream");
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            "Tokenization error: cannot parse string into token stream"
+        );
     }
 
     #[test]

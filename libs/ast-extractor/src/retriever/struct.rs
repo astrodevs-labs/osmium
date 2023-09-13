@@ -89,10 +89,15 @@ mod tests {
         let source = fs::read_to_string(path).unwrap();
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = syn_solidity::parse2(tokens).unwrap();
-        let item = ast.items.iter().find(|i| match i {
-            Item::Contract(_) => true,
-            _ => false,
-        }).unwrap().clone();
+        let item = ast
+            .items
+            .iter()
+            .find(|i| match i {
+                Item::Contract(_) => true,
+                _ => false,
+            })
+            .unwrap()
+            .clone();
 
         if let Item::Contract(contract) = item {
             let res = retrieve_structs_contract_nodes(contract);

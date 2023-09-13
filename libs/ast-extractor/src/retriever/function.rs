@@ -3,8 +3,7 @@
  * Function to retrieve function nodes from contract AST
  * author: 0xMemoryGrinder
 */
-
-use syn_solidity::{Visit, ItemFunction};
+use syn_solidity::{ItemFunction, Visit};
 
 struct FunctionVisitor {
     functions: Vec<ItemFunction>,
@@ -30,7 +29,6 @@ pub fn retrieve_functions_nodes(ast: syn_solidity::ItemContract) -> Vec<ItemFunc
     visitor.visit_item_contract(&ast);
     visitor.functions
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -101,6 +99,4 @@ mod tests {
             panic!("Item is not a contract");
         }
     }
-
-
 }

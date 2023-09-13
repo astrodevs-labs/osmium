@@ -3,7 +3,6 @@
  * Function to retrieve contract nodes from AST
  * author: 0xMemoryGrinder
 */
-
 use syn_solidity::{ItemContract, Visit};
 
 struct ContractVisitor {
@@ -30,7 +29,6 @@ pub fn retrieve_contract_nodes(ast: syn_solidity::File) -> Vec<ItemContract> {
     visitor.visit_file(&ast);
     visitor.contracts
 }
-
 
 #[cfg(test)]
 mod tests {

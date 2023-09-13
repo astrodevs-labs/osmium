@@ -13,7 +13,7 @@ struct EnumVisitor {
 
 impl EnumVisitor {
     pub fn new() -> Self {
-        Self { 
+        Self {
             contract_enums: Vec::new(),
             file_enums: Vec::new(),
             inside_contract: false,
@@ -90,10 +90,15 @@ mod tests {
         let source = fs::read_to_string(path).unwrap();
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = syn_solidity::parse2(tokens).unwrap();
-        let contract = ast.items.iter().find(|i| match i {
-            Item::Contract(_) => true,
-            _ => false,
-        }).unwrap().clone();
+        let contract = ast
+            .items
+            .iter()
+            .find(|i| match i {
+                Item::Contract(_) => true,
+                _ => false,
+            })
+            .unwrap()
+            .clone();
 
         if let Item::Contract(contract) = contract {
             let res = retrieve_enums_contract_nodes(contract);

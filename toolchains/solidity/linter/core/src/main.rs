@@ -8,7 +8,7 @@ use lsp_server::run_server;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
-struct Args {
+pub struct Args {
     #[arg(
         short = 'p',
         long = "path",
@@ -65,8 +65,8 @@ struct Args {
     init: bool,
 
     #[arg(
-        short = 'l',
-        long = "lsp",
+        short = 's',
+        long = "stdio",
         default_value = "false",
         help = "Starts the language server instead of linting"
     )]
@@ -101,8 +101,9 @@ fn main() {
     let args = Args::parse();
 
     if args.lsp {
-        println!("Starting language server...");
-        run_server();
+        //println!("Starting language server...");
+        run_server(args);
+        //println!("Done!");
         return;
     }
 

@@ -3,8 +3,8 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum SolidHunterError {
     // Linter errors
-    #[error("SolidHunterError: Solc error occured")]
-    SolcError(#[from] solc_wrapper::SolcError),
+    #[error("SolidHunterError: Ast Extractor error occured")]
+    AstError(#[from] ast_extractor::errors::ExtractError),
     #[error("SolidHunterError: Something went wrong with the file during parsing")]
     ParsingError(#[from] std::io::Error),
     #[error("SolidHunterError: Serde error occured")]

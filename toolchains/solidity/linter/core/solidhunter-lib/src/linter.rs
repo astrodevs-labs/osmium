@@ -1,4 +1,3 @@
-use crate::error::SolidHunterError;
 use crate::rules::factory::RuleFactory;
 use crate::rules::rule_impl::{create_rules_file, parse_rules};
 use crate::rules::types::*;
@@ -6,10 +5,9 @@ use crate::types::*;
 use std::fs;
 
 use glob::glob;
-use solc_wrapper::{Solc, SourceUnit};
 
 pub struct SolidFile {
-    pub data: SourceUnit,
+    pub data: ast_extractor::File,
     pub path: String,
     pub content: String,
 }
@@ -63,41 +61,33 @@ impl SolidLinter {
         false
     }
 
-    fn _update_file_ast(&mut self, path: &str, ast: SourceUnit) {
-        for file in &mut self.files {
-            if file.path == path {
-                file.data = ast.clone();
+    fn _add_file(&mut self, path: &str, ast: ast_extractor::File, content: &str) {
+        if self._file_exists(path) {
+            for file in &mut self.files {
+                if file.path == path {
+                    file.data = ast.clone();
+                    file.content = String::from(content);
+                }
             }
+        } else {
+            let file = SolidFile {
+                data: ast,
+                path: String::from(path),
+                content: String::from(content),
+            };
+            self.files.push(file);
         }
-    }
-
-    fn _add_file(&mut self, path: &str, ast: SourceUnit, content: &str) {
-        let file = SolidFile {
-            data: ast,
-            path: String::from(path),
-            content: String::from(content),
-        };
-        self.files.push(file);
     }
 
     pub fn parse_file(&mut self, filepath: String) -> LintResult {
-        let res = Solc::default().extract_ast_file(filepath.clone());
+        let content = fs::read_to_string(filepath.clone())?;
+        let res = ast_extractor::extract::extract_ast_from_content(content)?;
 
-        if let Err(res) = res {
-            println!("{:?}", res);
-            return Err(SolidHunterError::SolcError(res));
-        }
-        if self._file_exists(filepath.as_str()) {
-            self._update_file_ast(filepath.as_str(), res.expect("ast not found"));
-        } else {
-            let content = fs::read_to_string(filepath.clone())
-                .map_err(|e| SolidHunterError::IoError(e))?;
-            self._add_file(
-                filepath.as_str(),
-                res.expect("ast not found"),
-                content.as_str(),
-            );
-        }
+        self._add_file(
+            filepath.as_str(),
+            res,
+            content.as_str(),
+        );
         let mut res: Vec<LintDiag> = Vec::new();
 
         for rule in &self.rules {
@@ -108,23 +98,13 @@ impl SolidLinter {
     }
 
     pub fn parse_content(&mut self, filepath: String, content: &String) -> LintResult {
-        let res = Solc::default().extract_ast_content(content.to_string());
+        let res = extract::extract_ast_from_content(content.to_string())?;
 
-        if let Err(res) = res {
-            println!("{:?}", res);
-            return Err(SolidHunterError::SolcError(res));
-        }
-
-        if self._file_exists(filepath.as_str()) {
-            self._update_file_ast(filepath.as_str(), res.expect("ast not found"));
-        } else {
-            self._add_file(
-                filepath.as_str(),
-                res.expect("ast not found"),
-                content.as_str(),
-            );
-        }
-
+        self._add_file(
+            filepath.as_str(),
+            res,
+            content.as_str(),
+        );
         let mut res: Vec<LintDiag> = Vec::new();
 
         for rule in &self.rules {

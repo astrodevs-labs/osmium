@@ -114,6 +114,28 @@ pub struct Range {
     pub length: u64,
 }
 
+impl Range {
+    // Compue the number of characters between the start and end of the range
+    pub fn compute_length(&mut self, content: &str) {
+        if self.start.line == self.end.line {
+            self.length = self.end.character - self.start.character;
+        } else {
+            let mut length = 0;
+            let mut line = self.start.line;
+            let mut character = self.start.character;
+            while line < self.end.line {
+                let line_content = content.lines().nth(line as usize - 1).unwrap();
+                length += line_content.len() + 1 - character as usize;
+                line += 1;
+                character = 0;
+            }
+            let line_content = content.lines().nth(line as usize - 1).unwrap();
+            length += self.end.character as usize - character as usize;
+            self.length = length as u64;
+        }
+    }
+}
+
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub enum NumberOrString {
     Number(i32),

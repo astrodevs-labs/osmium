@@ -98,5 +98,6 @@ test_directories! {
     ImportOnTop,
     MaxStatesCount,
     FunctionNameCamelCase,
-    FunctionParamNameCamelCase
+    FunctionParamNameCamelCase,
+    UseForbiddenName
 }

@@ -1,0 +1,12 @@
+{
+  "name": "solidhunter",
+  "includes": [],
+  "plugins": [],
+  "rules": [
+    {
+      "id": "use-forbidden-name",
+      "severity": "WARNING",
+      "data": []
+    }
+  ]
+}

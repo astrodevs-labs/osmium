@@ -1,8 +1,10 @@
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
+use ast_extractor::Spanned;
+use ast_extractor::*;
 
-/*
+pub const RULE_ID: &str = "use-forbidden-name";
 
 pub struct UseForbiddenName {
     data: RuleEntry,
@@ -11,12 +13,12 @@ pub struct UseForbiddenName {
 impl UseForbiddenName {
     fn create_diag(
         &self,
-        location: (CodeLocation, CodeLocation),
-        var: Box<VariableDeclaration>,
         file: &SolidFile,
+        location: (LineColumn, LineColumn),
+        name: &String,
     ) -> LintDiag {
         LintDiag {
-            id: "use-forbidden-name".to_string(),
+            id: RULE_ID.to_string(),
             range: Range {
                 start: Position {
                     line: location.0.line as u64,
@@ -27,7 +29,7 @@ impl UseForbiddenName {
                     character: location.1.column as u64,
                 },
             },
-            message: format!("Forbidden variable name: {}", var.name),
+            message: format!("Forbidden variable name: {}", name),
             severity: Some(self.data.severity),
             code: None,
             source: None,
@@ -42,16 +44,21 @@ impl RuleType for UseForbiddenName {
         let mut res = Vec::new();
         let blacklist = ['I', 'l', 'O'];
 
-        let nodes = get_all_nodes_by_type(file.data.clone(), NodeType::VariableDeclaration);
+        let contracts = retriever::retrieve_contract_nodes(&file.data);
 
-        for node in nodes {
-            let var = match node {
-                Nodes::VariableDeclaration(var) => var,
-                _ => continue,
-            };
-            if var.name.len() == 1 && blacklist.contains(&var.name.chars().next().unwrap()) {
-                let location = decode_location(&var.src, &file.content);
-                res.push(self.create_diag(location, var, file));
+        // var def => contract def
+        for contract in contracts.iter() {
+            for node_var in contract.body.iter() {
+                let var = match node_var {
+                    Item::Variable(var) => var,
+                    _ => continue,
+                };
+                if var.name.as_string().len() == 1
+                    && blacklist.contains(&var.name.as_string().chars().next().unwrap())
+                {
+                    let location = (var.name.span().start(), var.name.span().end());
+                    res.push(self.create_diag(file, location, &var.name.as_string()));
+                }
             }
         }
         res
@@ -59,8 +66,6 @@ impl RuleType for UseForbiddenName {
 }
 
 impl UseForbiddenName {
-    pub const RULE_ID: &'static str = "use-forbidden-name";
-
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
         let rule = UseForbiddenName { data };
         Box::new(rule)
@@ -68,11 +73,9 @@ impl UseForbiddenName {
 
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
-            id: UseForbiddenName::RULE_ID.to_string(),
+            id: RULE_ID.to_string(),
             severity: Severity::WARNING,
             data: vec![],
         }
     }
 }
-
-*/

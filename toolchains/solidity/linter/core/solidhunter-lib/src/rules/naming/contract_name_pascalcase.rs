@@ -12,10 +12,23 @@ pub struct ContractNamePascalCase {
 }
 
 impl ContractNamePascalCase {
-    fn create_diag(&self, location: Range, file: &SolidFile) -> LintDiag {
+    fn create_diag(
+        &self,
+        location: (ast_extractor::LineColumn, ast_extractor::LineColumn),
+        file: &SolidFile,
+    ) -> LintDiag {
         LintDiag {
             id: RULE_ID.to_string(),
-            range: location,
+            range: Range {
+                start: Position {
+                    line: location.0.line as u64,
+                    character: location.0.column as u64,
+                },
+                end: Position {
+                    line: location.1.line as u64,
+                    character: location.1.column as u64,
+                },
+            },
             message: MESSAGE.to_string(),
             severity: Some(self.data.severity),
             code: None,
@@ -33,24 +46,13 @@ impl RuleType for ContractNamePascalCase {
 
         for contract in contracts {
             if (contract.name.as_string().chars().nth(0).unwrap() >= 'a'
-                        && contract.name.as_string().chars().nth(0).unwrap() <= 'z')
-                        || contract.name.as_string().contains('_')
-                        || contract.name.as_string().contains('-')
-                    {
-                        res.push(self.create_diag({
-                            let location = contract.name.span();
-                            Range {
-                                start: Position {
-                                    line: location.start().line as u64,
-                                    character: location.start().column as u64,
-                                },
-                                end: Position {
-                                    line: location.end().line as u64,
-                                    character: location.end().column as u64,
-                                },
-                            }
-                        }, file));
-                    }
+                && contract.name.as_string().chars().nth(0).unwrap() <= 'z')
+                || contract.name.as_string().contains('_')
+                || contract.name.as_string().contains('-')
+            {
+                let span = contract.name.span();
+                res.push(self.create_diag((span.start(), span.end()), file));
+            }
         }
         res
     }

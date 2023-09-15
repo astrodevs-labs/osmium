@@ -4,6 +4,7 @@ use std::collections::HashMap;
 pub mod factory;
 pub mod rule_impl;
 pub mod types;
+pub mod utils;
 
 // List all rules
 pub mod best_practises;

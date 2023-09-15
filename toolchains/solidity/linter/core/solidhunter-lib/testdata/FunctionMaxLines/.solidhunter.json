@@ -4,7 +4,7 @@
   "plugins": [],
   "rules": [
     {
-      "id": "contract-name-pascalcase",
+      "id": "function-max-lines",
       "severity": "WARNING",
       "data": []
     }

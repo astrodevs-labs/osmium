@@ -88,7 +88,7 @@ macro_rules! test_directories {
 }
 
 test_directories! {
-    LineMaxLen,
-    ImportOnTop,
-    ContractNamePascalCase
+    ContractNamePascalCase,
+    FunctionMaxLines,
+    ImportOnTop
 }

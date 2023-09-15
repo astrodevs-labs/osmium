@@ -55,7 +55,12 @@ fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>) {
     let result = linter.parse_file(String::from(source));
     match result {
         Ok(diags) => {
-            assert_eq!(diags.len(), expected_findings.len(), "Wrong number of findings for {}", source);
+            assert_eq!(
+                diags.len(),
+                expected_findings.len(),
+                "Wrong number of findings for {}",
+                source
+            );
             let mut found = false;
 
             for (_, diag) in diags.iter().enumerate() {
@@ -91,5 +96,6 @@ test_directories! {
     ContractNamePascalCase,
     FunctionMaxLines,
     ImportOnTop,
-    MaxStatesCount
+    MaxStatesCount,
+    FunctionNameCamelCase
 }

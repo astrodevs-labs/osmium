@@ -1,0 +1,12 @@
+{
+  "name": "solidhunter",
+  "includes": [],
+  "plugins": [],
+  "rules": [
+    {
+      "id": "func-name-camelcase",
+      "severity": "WARNING",
+      "data": []
+    }
+  ]
+}

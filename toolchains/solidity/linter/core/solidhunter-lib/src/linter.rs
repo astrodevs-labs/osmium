@@ -81,7 +81,7 @@ impl SolidLinter {
 
     pub fn parse_file(&mut self, filepath: String) -> LintResult {
         let content = fs::read_to_string(filepath.clone())?;
-        let res = ast_extractor::extract::extract_ast_from_content(content)?;
+        let res = ast_extractor::extract::extract_ast_from_content(&content)?;
 
         self._add_file(
             filepath.as_str(),
@@ -98,7 +98,7 @@ impl SolidLinter {
     }
 
     pub fn parse_content(&mut self, filepath: String, content: &String) -> LintResult {
-        let res = ast_extractor::extract::extract_ast_from_content(content.to_string())?;
+        let res = ast_extractor::extract::extract_ast_from_content(&content.to_string())?;
 
         self._add_file(
             filepath.as_str(),

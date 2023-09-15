@@ -129,7 +129,6 @@ impl Range {
                 line += 1;
                 character = 0;
             }
-            let line_content = content.lines().nth(line as usize - 1).unwrap();
             length += self.end.character as usize - character as usize;
             self.length = length as u64;
         }

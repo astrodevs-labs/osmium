@@ -85,5 +85,6 @@ macro_rules! test_directories {
 }
 
 test_directories! {
-    LineMaxLen
+    LineMaxLen,
+    ImportOnTop
 }

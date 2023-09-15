@@ -97,5 +97,6 @@ test_directories! {
     FunctionMaxLines,
     ImportOnTop,
     MaxStatesCount,
-    FunctionNameCamelCase
+    FunctionNameCamelCase,
+    FunctionParamNameCamelCase
 }

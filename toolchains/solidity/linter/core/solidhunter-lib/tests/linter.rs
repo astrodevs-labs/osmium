@@ -4,7 +4,7 @@ use std::{fs, path::PathBuf};
 
 struct Finding {
     start: Position,
-    length: u64,
+    end: Position,
     id: String,
 }
 
@@ -35,7 +35,10 @@ fn test_directory(base_name: &str) {
                             line: splitted_line[1].parse::<u64>().unwrap(),
                             character: splitted_line[2].parse::<u64>().unwrap(),
                         },
-                        length: splitted_line[3].parse::<u64>().unwrap(),
+                        end: Position {
+                            line: splitted_line[3].parse::<u64>().unwrap(),
+                            character: splitted_line[4].parse::<u64>().unwrap(),
+                        },
                         id: splitted_line[0].to_string(),
                     });
                 }
@@ -58,7 +61,7 @@ fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>) {
             for (_, diag) in diags.iter().enumerate() {
                 for (_, expected_finding) in expected_findings.iter().enumerate() {
                     if (diag.range.start == expected_finding.start)
-                        && (diag.range.length == expected_finding.length)
+                        && (diag.range.end == expected_finding.end)
                         && (diag.id == expected_finding.id)
                     {
                         found = true;
@@ -86,5 +89,6 @@ macro_rules! test_directories {
 
 test_directories! {
     LineMaxLen,
-    ImportOnTop
+    ImportOnTop,
+    ContractNamePascalCase
 }

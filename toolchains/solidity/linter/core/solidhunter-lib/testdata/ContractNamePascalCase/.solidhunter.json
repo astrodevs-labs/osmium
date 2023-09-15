@@ -1,0 +1,24 @@
+{
+  "name": "solidhunter",
+  "includes": [],
+  "plugins": [],
+  "rules": [
+    {
+      "id": "line-max-len",
+      "severity": "WARNING",
+      "data": [
+        "80"
+      ]
+    },
+    {
+      "id": "quotes",
+      "severity": "ERROR",
+      "data": []
+    },
+    {
+      "id": "contract-name-pascalcase",
+      "severity": "WARNING",
+      "data": []
+    }
+  ]
+}

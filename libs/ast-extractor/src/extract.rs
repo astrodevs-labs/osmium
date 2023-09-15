@@ -27,14 +27,14 @@ mod tests {
         path.push("files");
         path.push("good.sol");
         let source = fs::read_to_string(path).unwrap();
-        let res = extract_ast_from_content(source);
+        let res = extract_ast_from_content(&source);
         assert!(res.is_ok());
     }
 
     #[test]
     fn test_extract_ast_from_content_invalid_token() {
         let source = String::from("contract test { function test() public | uint a = 1 } }");
-        let result = extract_ast_from_content(source);
+        let result = extract_ast_from_content(&source);
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
@@ -45,7 +45,7 @@ mod tests {
     #[test]
     fn test_extract_ast_from_content_missing_semicolumn() {
         let source = String::from("contract test { function test() public { uint a = 1 } }");
-        let result = extract_ast_from_content(source);
+        let result = extract_ast_from_content(&source);
         assert!(result.is_err());
         assert_eq!(result.unwrap_err().to_string(), "Parsing error");
     }

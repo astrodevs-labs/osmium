@@ -1,0 +1,12 @@
+{
+  "name": "solidhunter",
+  "includes": [],
+  "plugins": [],
+  "rules": [
+    {
+      "id": "max-states-count",
+      "severity": "WARNING",
+      "data": []
+    }
+  ]
+}

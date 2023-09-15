@@ -90,5 +90,6 @@ macro_rules! test_directories {
 test_directories! {
     ContractNamePascalCase,
     FunctionMaxLines,
-    ImportOnTop
+    ImportOnTop,
+    MaxStatesCount
 }

@@ -1,8 +1,8 @@
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
-use solc_wrapper::ast::utils::{get_all_nodes_by_type, Nodes};
-use solc_wrapper::*;
+
+/*
 
 pub struct UseForbiddenName {
     data: RuleEntry,
@@ -26,7 +26,6 @@ impl UseForbiddenName {
                     line: location.1.line as u64,
                     character: location.1.column as u64,
                 },
-                length: location.0.length as u64,
             },
             message: format!("Forbidden variable name: {}", var.name),
             severity: Some(self.data.severity),
@@ -75,3 +74,5 @@ impl UseForbiddenName {
         }
     }
 }
+
+*/

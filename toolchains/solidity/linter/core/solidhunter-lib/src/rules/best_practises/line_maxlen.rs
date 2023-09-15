@@ -2,6 +2,10 @@ use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
 
+pub const RULE_ID: &str = "line-max-len";
+
+const DEFAULT_LENGTH: u32 = 80;
+
 pub struct LineMaxLen {
     max_len: usize,
     data: RuleEntry,
@@ -19,9 +23,8 @@ impl LineMaxLen {
                     line: line_idx as u64,
                     character: line.len() as u64,
                 },
-                length: (line.len() - self.max_len) as u64,
             },
-            id: "line-max-len".to_string(),
+            id: RULE_ID.to_string(),
             message: format!("Line is too long: {}", line.len()),
             severity: Some(self.data.severity),
             code: None,
@@ -58,9 +61,9 @@ impl LineMaxLen {
 
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
-            id: "line-max-len".to_string(),
+            id: RULE_ID.to_string(),
             severity: Severity::WARNING,
-            data: vec!["80".to_string()],
+            data: vec![DEFAULT_LENGTH.to_string()],
         }
     }
 }

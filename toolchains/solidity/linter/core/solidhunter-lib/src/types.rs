@@ -74,7 +74,7 @@ impl fmt::Display for LintDiag {
             padding,
             line,
             " ".repeat(self.range.start.character as usize),
-            "^".repeat(self.range.length as usize)
+            "^".repeat(self.range.compute_length(line) as usize)
         )
     }
 }
@@ -111,14 +111,13 @@ pub enum Severity {
 pub struct Range {
     pub start: Position,
     pub end: Position,
-    pub length: u64,
 }
 
 impl Range {
     // Compue the number of characters between the start and end of the range
-    pub fn compute_length(&mut self, content: &str) {
+    pub fn compute_length(&self, content: &str) -> u64 {
         if self.start.line == self.end.line {
-            self.length = self.end.character - self.start.character;
+            self.end.character - self.start.character
         } else {
             let mut length = 0;
             let mut line = self.start.line;
@@ -130,7 +129,7 @@ impl Range {
                 character = 0;
             }
             length += self.end.character as usize - character as usize;
-            self.length = length as u64;
+            length as u64
         }
     }
 }

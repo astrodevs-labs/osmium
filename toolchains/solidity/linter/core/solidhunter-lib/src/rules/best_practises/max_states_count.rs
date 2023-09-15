@@ -1,8 +1,8 @@
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
-use solc_wrapper::*;
 
+/*
 pub struct MaxStatesCount {
     max_states: usize,
     data: RuleEntry,
@@ -26,7 +26,6 @@ impl MaxStatesCount {
                     line: location.1.line as u64,
                     character: location.1.column as u64,
                 },
-                length: location.0.length as u64,
             },
             message: format!("Too many states: {}", count),
             severity: Some(self.data.severity),
@@ -85,3 +84,5 @@ impl MaxStatesCount {
         }
     }
 }
+
+*/

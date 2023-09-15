@@ -1,7 +1,8 @@
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
-use solc_wrapper::ast::ast::*;
+
+/*
 
 // const DEFAULT_SEVERITY: &str = "warn";
 const DEFAULT_MESSAGE: &str = "Function contains too much lines";
@@ -82,7 +83,6 @@ fn check_function_lines(
                 line: last_bracket_line as u64,
                 character: 1,
             },
-            length: _file.content.lines().nth(_start.line - 1)?.len() as u64,
         });
     }
     res
@@ -131,3 +131,5 @@ impl FunctionMaxLines {
         }
     }
 }
+
+*/

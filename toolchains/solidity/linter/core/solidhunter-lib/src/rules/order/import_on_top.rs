@@ -4,6 +4,9 @@ use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
 
+pub const RULE_ID: &str = "import-on-top";
+const MESSAGE: &str = "Import must be on top in the file";
+
 pub struct ImportOnTop {
     data: RuleEntry,
 }
@@ -19,13 +22,11 @@ impl ImportOnTop {
                 line: location.1.line as u64,
                 character: location.1.column as u64,
             },
-            length: 0,
         };
-        range.compute_length(&file.content);
         LintDiag {
-            id: "import-on-top".to_string(),
+            id: RULE_ID.to_string(),
             range,
-            message: String::from("Import must be on top in the file"),
+            message: MESSAGE.to_string(),
             severity: Some(self.data.severity),
             code: None,
             source: None,
@@ -75,7 +76,7 @@ impl ImportOnTop {
 
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
-            id: "import-on-top".to_string(),
+            id: RULE_ID.to_string(),
             severity: Severity::WARNING,
             data: vec![],
         }

@@ -1,9 +1,8 @@
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
-use solc_wrapper::{
-    decode_location, CodeLocation, ContractDefinitionChildNodes, SourceUnitChildNodes,
-};
+
+/*
 
 pub struct FuncParamNameCamelcase {
     data: RuleEntry,
@@ -22,7 +21,6 @@ impl FuncParamNameCamelcase {
                     line: location.1.line as u64,
                     character: location.1.column as u64,
                 },
-                length: location.0.length as u64,
             },
             message: "Parameter name need to be in camel case".to_string(),
             severity: Some(self.data.severity),
@@ -88,3 +86,5 @@ impl FuncParamNameCamelcase {
         }
     }
 }
+
+*/

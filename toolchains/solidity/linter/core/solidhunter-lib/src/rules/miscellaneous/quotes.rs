@@ -19,7 +19,6 @@ impl Quotes {
                     line: line_idx,
                     character: idx as u64,
                 },
-                length: 1u64,
             },
             message: format!("Use double quotes instead of single quote"),
             severity: Some(self.data.severity),

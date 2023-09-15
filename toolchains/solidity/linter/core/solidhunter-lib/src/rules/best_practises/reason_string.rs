@@ -1,10 +1,8 @@
-use solc_wrapper::ast::utils::{self, get_all_nodes_by_type};
-use solc_wrapper::{decode_location, CodeLocation, Expression, NodeType};
-
 use crate::linter::SolidFile;
 use crate::rules::types::{RuleEntry, RuleType};
 use crate::types::{LintDiag, Position, Range, Severity};
 
+/*
 pub const RULE_ID: &str = "reason-string";
 const DEFAULT_SEVERITY: Severity = Severity::WARNING;
 
@@ -34,7 +32,6 @@ impl ReasonString {
                     line: location.1.line as u64,
                     character: location.1.column as u64,
                 },
-                length: location.0.length as u64,
             },
             message,
             severity: Some(self.data.severity),
@@ -119,3 +116,5 @@ impl ReasonString {
         }
     }
 }
+
+*/

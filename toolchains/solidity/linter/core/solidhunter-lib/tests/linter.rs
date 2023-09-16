@@ -99,6 +99,6 @@ test_directories! {
     MaxStatesCount,
     FunctionNameCamelCase,
     FunctionParamNameCamelCase,
-    UseForbiddenName
+    UseForbiddenName,
     ReasonString,
 }

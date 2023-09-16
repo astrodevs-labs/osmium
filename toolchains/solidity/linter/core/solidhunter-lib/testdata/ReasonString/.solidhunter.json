@@ -1,0 +1,14 @@
+{
+  "name": "solidhunter",
+  "includes": [],
+  "plugins": [],
+  "rules": [
+    {
+      "id": "reason-string",
+      "severity": "WARNING",
+      "data": [
+        "32"
+      ]
+    }
+  ]
+}

@@ -1,8 +1,9 @@
+use ast_extractor::LineColumn;
+
 use crate::linter::SolidFile;
 use crate::rules::types::{RuleEntry, RuleType};
 use crate::types::{LintDiag, Position, Range, Severity};
 
-/*
 pub const RULE_ID: &str = "reason-string";
 const DEFAULT_SEVERITY: Severity = Severity::WARNING;
 
@@ -18,7 +19,7 @@ impl ReasonString {
     fn create_diag(
         &self,
         file: &SolidFile,
-        location: (CodeLocation, CodeLocation),
+        location: (LineColumn, LineColumn),
         message: String,
     ) -> LintDiag {
         LintDiag {
@@ -47,54 +48,55 @@ impl RuleType for ReasonString {
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
 
-        let nodes = get_all_nodes_by_type(file.data.clone(), NodeType::FunctionCall);
-        for i in &nodes {
-            match i {
-                utils::Nodes::FunctionCall(j) => match &j.expression {
-                    Expression::Identifier(v) => {
-                        if v.name == "require" {
-                            if j.arguments.len() != 2 {
-                                let location = decode_location(&j.src, &file.content);
-                                res.push(self.create_diag(file, location, "reason-string: A require statement must have a reason string".to_string()));
-                            } else {
-                                for nj in &j.arguments {
-                                    match nj {
-                                        Expression::Literal(z) => {
-                                            if z.value.clone().unwrap().len()
-                                                > self.max_length as usize
-                                            {
-                                                let location =
-                                                    decode_location(&z.src, &file.content);
-                                                res.push(self.create_diag(file, location, format!("reason-string: A revert statement must have a reason string of length less than {}", self.max_length)));
-                                            }
-                                        }
-                                        _ => {}
-                                    }
-                                }
-                            }
-                        } else if v.name == "revert" {
-                            if j.arguments.is_empty() {
-                                let location = decode_location(&j.src, &file.content);
-                                res.push(self.create_diag(file, location, "reason-string: A revert statement must have a reason string".to_string()));
-                            } else {
-                                match &j.arguments[0] {
-                                    Expression::Literal(z) => {
-                                        if z.value.clone().unwrap().len() > self.max_length as usize
-                                        {
-                                            let location = decode_location(&z.src, &file.content);
-                                            res.push(self.create_diag(file, location, format!("reason-string: A revert statement must have a reason string of length less than {}", self.max_length)));
-                                        }
-                                    }
-                                    _ => {}
-                                }
-                            }
-                        }
-                    }
-                    _ => {}
-                },
-                _ => {}
-            }
-        }
+        println!("debug");
+        // let nodes = get_all_nodes_by_type(file.data.clone(), NodeType::FunctionCall);
+        // for i in &nodes {
+        //     match i {
+        //         utils::Nodes::FunctionCall(j) => match &j.expression {
+        //             Expression::Identifier(v) => {
+        //                 if v.name == "require" {
+        //                     if j.arguments.len() != 2 {
+        //                         let location = decode_location(&j.src, &file.content);
+        //                         res.push(self.create_diag(file, location, "reason-string: A require statement must have a reason string".to_string()));
+        //                     } else {
+        //                         for nj in &j.arguments {
+        //                             match nj {
+        //                                 Expression::Literal(z) => {
+        //                                     if z.value.clone().unwrap().len()
+        //                                         > self.max_length as usize
+        //                                     {
+        //                                         let location =
+        //                                             decode_location(&z.src, &file.content);
+        //                                         res.push(self.create_diag(file, location, format!("reason-string: A revert statement must have a reason string of length less than {}", self.max_length)));
+        //                                     }
+        //                                 }
+        //                                 _ => {}
+        //                             }
+        //                         }
+        //                     }
+        //                 } else if v.name == "revert" {
+        //                     if j.arguments.is_empty() {
+        //                         let location = decode_location(&j.src, &file.content);
+        //                         res.push(self.create_diag(file, location, "reason-string: A revert statement must have a reason string".to_string()));
+        //                     } else {
+        //                         match &j.arguments[0] {
+        //                             Expression::Literal(z) => {
+        //                                 if z.value.clone().unwrap().len() > self.max_length as usize
+        //                                 {
+        //                                     let location = decode_location(&z.src, &file.content);
+        //                                     res.push(self.create_diag(file, location, format!("reason-string: A revert statement must have a reason string of length less than {}", self.max_length)));
+        //                                 }
+        //                             }
+        //                             _ => {}
+        //                         }
+        //                     }
+        //                 }
+        //             }
+        //             _ => {}
+        //         },
+        //         _ => {}
+        //     }
+        // }
         res
     }
 }
@@ -116,5 +118,3 @@ impl ReasonString {
         }
     }
 }
-
-*/

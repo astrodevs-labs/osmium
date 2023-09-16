@@ -100,4 +100,5 @@ test_directories! {
     FunctionNameCamelCase,
     FunctionParamNameCamelCase,
     UseForbiddenName
+    ReasonString,
 }

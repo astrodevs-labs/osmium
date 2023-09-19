@@ -90,6 +90,35 @@ impl<'ast> Visit<'ast> for FileVisitor {
         }
         syn_solidity::visit::visit_item_struct(self, i)
     }
+
+    fn visit_item_enum(&mut self, i: &'ast ItemStruct) {
+        let enum_reference = EnumReference::new(
+            i.name.to_string(),
+            Location::new(
+                self.file_reference.borrow_mut().path.clone(),
+                Bound::new(
+                    i.brace_token.span.join().start().line as u32,
+                    i.brace_token.span.join().start().column as u32,
+                ),
+                Bound::new(
+                    i.brace_token.span.join().end().line as u32,
+                    i.brace_token.span.join().end().column as u32,
+                ),
+            ),
+            self.current_contract.as_ref(),
+            Some(&self.file_reference),
+        );
+        if self.current_contract.is_some() {
+            self.current_contract
+                .as_ref()
+                .unwrap()
+                .borrow_mut()
+                .add_enum(&Rc::new(RefCell::new(enum_reference)));
+        } else {
+            self.file_reference.borrow_mut().add_enum(enum_reference);
+        }
+        syn_solidity::visit::visit_item_enum(self, i)
+    }
 }
 
 pub fn retrieve_file_reference_from_path(path: String) -> Rc<RefCell<FileReference>> {
@@ -108,6 +137,13 @@ mod tests {
     #[test]
     fn test_retrieve_contract_nodes_empty() {
         retrieve_file_reference_from_path("C:\\Users\\byfish\\Desktop\\DEV\\osmium\\libs\\ast-extractor\\tests\\files\\contracts\\two.sol".to_string());
-        assert_eq!(1,0)
+        assert_eq!(1, 0)
+    }
+
+    #[test]
+    fn test_retrieve_enums_nodes() {
+        retrieve_file_reference_from_path("C:\\Users\\byfish\\Desktop\\DEV\\osmium\\libs\\ast-extractor\\tests\\files\\contracts\\two.sol".to_string());
+        visit_item_enum();
+        assert_eq!(1, 0)
     }
 }

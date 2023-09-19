@@ -4,23 +4,18 @@
  * author: ByFish
  */
 use crate::types::contract_reference::ContractReference;
-use crate::types::enum_reference::EnumReference;
-use crate::types::error_reference::ErrorReference;
 use crate::types::event_reference::EventReference;
 use crate::types::file_reference::FileReference;
-use crate::types::function_reference::FunctionReference;
-use crate::types::location::{Bound, Location};
 use crate::types::struct_reference::StructReference;
+use crate::types::function_reference::FunctionReference;
 use crate::types::variable_reference::VariableReference;
+use crate::types::location::{Bound, Location};
 use proc_macro2::TokenStream;
 use std::cell::RefCell;
 use std::fs;
 use std::rc::Rc;
 use std::str::FromStr;
-use syn_solidity::{
-    ItemContract, ItemEnum, ItemError, ItemEvent, ItemFunction, ItemStruct, Spanned,
-    VariableDeclaration, Visit,
-};
+use syn_solidity::{ItemContract, ItemEvent, ItemFunction, ItemStruct, Spanned, VariableDeclaration, Visit};
 
 struct FileVisitor {
     file_reference: Rc<RefCell<FileReference>>,
@@ -58,9 +53,7 @@ impl<'ast> Visit<'ast> for FileVisitor {
             self.current_contract.as_ref(),
             Some(&self.file_reference),
         );
-        self.file_reference
-            .borrow_mut()
-            .add_variable(variable_reference);
+        self.file_reference.borrow_mut().add_variable(variable_reference);
         syn_solidity::visit::visit_variable_declaration(self, i)
     }
 
@@ -172,11 +165,7 @@ impl<'ast> Visit<'ast> for FileVisitor {
                 ),
                 self.current_contract.as_ref().unwrap(),
             );
-            self.current_contract
-                .as_ref()
-                .unwrap()
-                .borrow_mut()
-                .add_function(&Rc::new(RefCell::new(function_reference)));
+            self.current_contract.as_ref().unwrap().borrow_mut().add_function(&Rc::new(RefCell::new(function_reference)));
         }
         syn_solidity::visit::visit_item_function(self, i);
     }
@@ -211,93 +200,6 @@ impl<'ast> Visit<'ast> for FileVisitor {
         }
         syn_solidity::visit::visit_item_struct(self, i)
     }
-
-    fn visit_item_enum(&mut self, i: &'ast ItemEnum) {
-        let enum_reference = EnumReference::new(
-            i.name.to_string(),
-            Location::new(
-                self.file_reference.borrow_mut().path.clone(),
-                Bound::new(
-                    i.brace_token.span.join().start().line as u32,
-                    i.brace_token.span.join().start().column as u32,
-                ),
-                Bound::new(
-                    i.brace_token.span.join().end().line as u32,
-                    i.brace_token.span.join().end().column as u32,
-                ),
-            ),
-            self.current_contract.as_ref(),
-            Some(&self.file_reference),
-        );
-        if self.current_contract.is_some() {
-            self.current_contract
-                .as_ref()
-                .unwrap()
-                .borrow_mut()
-                .add_enum(&Rc::new(RefCell::new(enum_reference)));
-        } else {
-            self.file_reference.borrow_mut().add_enum(enum_reference);
-        }
-        syn_solidity::visit::visit_item_enum(self, i)
-    }
-
-    fn visit_item_event(&mut self, i: &'ast ItemEvent) {
-        let event_reference = EventReference::new(
-            i.name.to_string(),
-            Location::new(
-                self.file_reference.borrow_mut().path.clone(),
-                Bound::new(
-                    i.brace_token.span.join().start().line as u32,
-                    i.brace_token.span.join().start().column as u32,
-                ),
-                Bound::new(
-                    i.brace_token.span.join().end().line as u32,
-                    i.brace_token.span.join().end().column as u32,
-                ),
-            ),
-            self.current_contract.as_ref(),
-            Some(&self.file_reference),
-        );
-        if self.current_contract.is_some() {
-            self.current_contract
-                .as_ref()
-                .unwrap()
-                .borrow_mut()
-                .add_event(&Rc::new(RefCell::new(event_reference)));
-        } else {
-            self.file_reference.borrow_mut().add_event(event_reference);
-        }
-        syn_solidity::visit::visit_item_event(self, i)
-    }
-
-    fn visit_item_error(&mut self, i: &'ast ItemError) {
-        let error_reference = ErrorReference::new(
-            i.name.to_string(),
-            Location::new(
-                self.file_reference.borrow_mut().path.clone(),
-                Bound::new(
-                    i.brace_token.span.join().start().line as u32,
-                    i.brace_token.span.join().start().column as u32,
-                ),
-                Bound::new(
-                    i.brace_token.span.join().end().line as u32,
-                    i.brace_token.span.join().end().column as u32,
-                ),
-            ),
-            self.current_contract.as_ref(),
-            Some(&self.file_reference),
-        );
-        if self.current_contract.is_some() {
-            self.current_contract
-                .as_ref()
-                .unwrap()
-                .borrow_mut()
-                .add_error(&Rc::new(RefCell::new(error_reference)));
-        } else {
-            self.file_reference.borrow_mut().add_error(error_reference);
-        }
-        syn_solidity::visit::visit_item_error(self, i)
-    }
 }
 
 pub fn retrieve_file_reference_from_path(path: String) -> Rc<RefCell<FileReference>> {
@@ -316,27 +218,6 @@ mod tests {
     #[test]
     fn test_retrieve_contract_nodes_empty() {
         retrieve_file_reference_from_path("C:\\Users\\byfish\\Desktop\\DEV\\osmium\\libs\\ast-extractor\\tests\\files\\contracts\\two.sol".to_string());
-        assert_eq!(1, 0)
-    }
-
-    #[test]
-    fn test_retrieve_enums_nodes() {
-        retrieve_file_reference_from_path("C:\\Users\\byfish\\Desktop\\DEV\\osmium\\libs\\ast-extractor\\tests\\files\\contracts\\two.sol".to_string());
-        visit_item_enum();
-        assert_eq!(1, 0)
-    }
-
-    #[test]
-    fn test_retrieve_event_nodes() {
-        retrieve_file_reference_from_path("C:\\Users\\byfish\\Desktop\\DEV\\osmium\\libs\\ast-extractor\\tests\\files\\contracts\\two.sol".to_string());
-        visit_item_event();
-        assert_eq!(1, 0)
-    }
-
-    #[test]
-    fn test_retrieve_error_nodes() {
-        retrieve_file_reference_from_path("C:\\Users\\byfish\\Desktop\\DEV\\osmium\\libs\\ast-extractor\\tests\\files\\contracts\\two.sol".to_string());
-        visit_item_error();
         assert_eq!(1, 0)
     }
 }

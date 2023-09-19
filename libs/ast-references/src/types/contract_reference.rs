@@ -1,19 +1,19 @@
+use crate::types::file_reference::FileReference;
+use crate::types::function_reference::FunctionReference;
+use crate::types::location::Location;
+use crate::types::struct_reference::StructReference;
+use crate::types::variable_reference::VariableReference;
+use std::cell::RefCell;
 /**
  * ContractReference.rs
  * Definition of ContractReference struct
  * author: 0xMemoryGrinder
 */
-
 use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::rc::Rc;
-use std::cell::RefCell;
-use crate::types::location::Location;
-use crate::types::file_reference::FileReference;
-use crate::types::struct_reference::StructReference;
-use crate::types::function_reference::FunctionReference;
-use crate::types::variable_reference::VariableReference;
 
+use super::enum_reference::EnumReference;
 use super::error_reference::ErrorReference;
 use super::event_reference::EventReference;
 
@@ -30,6 +30,7 @@ pub struct ContractReference {
     pub properties: Vec<Rc<RefCell<VariableReference>>>,
     pub errors: Vec<Rc<RefCell<ErrorReference>>>,
     pub events: Vec<Rc<RefCell<EventReference>>>,
+    pub enums: Vec<Rc<RefCell<EnumReference>>>,
 }
 
 /******************************************************************************
@@ -37,7 +38,11 @@ pub struct ContractReference {
  *****************************************************************************/
 
 impl ContractReference {
-    pub fn new(name: String, location: Location, file: &Rc<RefCell<FileReference>>) -> ContractReference {
+    pub fn new(
+        name: String,
+        location: Location,
+        file: &Rc<RefCell<FileReference>>,
+    ) -> ContractReference {
         ContractReference {
             name: name,
             location: location,
@@ -47,6 +52,7 @@ impl ContractReference {
             properties: Vec::new(),
             errors: Vec::new(),
             events: Vec::new(),
+            enums: Vec::new(),
         }
     }
 
@@ -68,6 +74,10 @@ impl ContractReference {
 
     pub fn add_event(&mut self, event: &Rc<RefCell<EventReference>>) {
         self.events.push(event.clone());
+    }
+
+    pub fn add_enum(&mut self, enums: &Rc<RefCell<EnumReference>>) {
+        self.enums.push(enums.clone());
     }
 }
 
@@ -116,7 +126,15 @@ mod tests {
     #[test]
     fn new_good_construct() {
         let file = Rc::new(RefCell::new(FileReference::new("File.test".to_string())));
-        let result = ContractReference::new("Test".to_string(), Location::new("File.test".to_string(), Bound {line: 0, column: 0}, Bound { line: 0, column: 0}), &file);
+        let result = ContractReference::new(
+            "Test".to_string(),
+            Location::new(
+                "File.test".to_string(),
+                Bound { line: 0, column: 0 },
+                Bound { line: 0, column: 0 },
+            ),
+            &file,
+        );
 
         assert_eq!(result.file, file);
         assert_eq!(result.name, "Test");
@@ -130,30 +148,54 @@ mod tests {
     #[test]
     fn add_struct() {
         let file = Rc::new(RefCell::new(FileReference::new("File.test".to_string())));
-        let result = Rc::new(RefCell::new(ContractReference::new("Test".to_string(), Location::new("File.test".to_string(), Bound {line: 0, column: 0}, Bound { line: 0, column: 0}), &file)));
-        let strct = Rc::new(RefCell::new(StructReference::new("TestStruct".to_string(), Location::new("File.test".to_string(), Bound {line: 0, column: 0}, Bound { line: 0, column: 0}), Some(&result), Some(&file))));
+        let result = Rc::new(RefCell::new(ContractReference::new(
+            "Test".to_string(),
+            Location::new(
+                "File.test".to_string(),
+                Bound { line: 0, column: 0 },
+                Bound { line: 0, column: 0 },
+            ),
+            &file,
+        )));
+        let strct = Rc::new(RefCell::new(StructReference::new(
+            "TestStruct".to_string(),
+            Location::new(
+                "File.test".to_string(),
+                Bound { line: 0, column: 0 },
+                Bound { line: 0, column: 0 },
+            ),
+            Some(&result),
+            Some(&file),
+        )));
 
         (*result).borrow_mut().add_struct(&strct);
 
         assert_eq!(result.borrow().structs.len(), 1);
         assert_eq!(result.borrow().structs[0], strct);
     }
-    
+
     #[test]
     fn add_function() {
         let file = Rc::new(RefCell::new(FileReference::new("File.test".to_string())));
-        let result = Rc::new(RefCell::new(ContractReference::new("Test".to_string(), Location::new("File.test".to_string(), Bound {line: 0, column: 0}, Bound { line: 0, column: 0}), &file)));
-        let function = Rc::new(
-            RefCell::new(
-                FunctionReference::new(
-                    "TestFunction".to_string(), 
-                    syn_solidity::FunctionKind::Function(function(proc_macro2::Span::call_site())),
-                    Location::new(
-                        "File.test".to_string(), 
-                        Bound {line: 0, column: 0}, 
-                        Bound { line: 0, column: 0}
-                    ), 
-                    &result)));
+        let result = Rc::new(RefCell::new(ContractReference::new(
+            "Test".to_string(),
+            Location::new(
+                "File.test".to_string(),
+                Bound { line: 0, column: 0 },
+                Bound { line: 0, column: 0 },
+            ),
+            &file,
+        )));
+        let function = Rc::new(RefCell::new(FunctionReference::new(
+            "TestFunction".to_string(),
+            syn_solidity::FunctionKind::Function(function(proc_macro2::Span::call_site())),
+            Location::new(
+                "File.test".to_string(),
+                Bound { line: 0, column: 0 },
+                Bound { line: 0, column: 0 },
+            ),
+            &result,
+        )));
 
         (*result).borrow_mut().add_function(&function);
 
@@ -164,8 +206,26 @@ mod tests {
     #[test]
     fn add_property() {
         let file = Rc::new(RefCell::new(FileReference::new("File.test".to_string())));
-        let result = Rc::new(RefCell::new(ContractReference::new("Test".to_string(), Location::new("File.test".to_string(), Bound {line: 0, column: 0}, Bound { line: 0, column: 0}), &file)));
-        let property = Rc::new(RefCell::new(VariableReference::new("TestProperty".to_string(), Type::Bool(Span::call_site()), Location::new("File.test".to_string(), Bound {line: 0, column: 0}, Bound { line: 0, column: 0}), Some(&result), None)));
+        let result = Rc::new(RefCell::new(ContractReference::new(
+            "Test".to_string(),
+            Location::new(
+                "File.test".to_string(),
+                Bound { line: 0, column: 0 },
+                Bound { line: 0, column: 0 },
+            ),
+            &file,
+        )));
+        let property = Rc::new(RefCell::new(VariableReference::new(
+            "TestProperty".to_string(),
+            Type::Bool(Span::call_site()),
+            Location::new(
+                "File.test".to_string(),
+                Bound { line: 0, column: 0 },
+                Bound { line: 0, column: 0 },
+            ),
+            Some(&result),
+            None,
+        )));
 
         (*result).borrow_mut().add_property(&property);
 
@@ -176,8 +236,25 @@ mod tests {
     #[test]
     fn add_error() {
         let file = Rc::new(RefCell::new(FileReference::new("File.test".to_string())));
-        let result = Rc::new(RefCell::new(ContractReference::new("Test".to_string(), Location::new("File.test".to_string(), Bound {line: 0, column: 0}, Bound { line: 0, column: 0}), &file)));
-        let error = Rc::new(RefCell::new(ErrorReference::new("TestError".to_string(), Location::new("File.test".to_string(), Bound {line: 0, column: 0}, Bound { line: 0, column: 0}), Some(&result), None)));
+        let result = Rc::new(RefCell::new(ContractReference::new(
+            "Test".to_string(),
+            Location::new(
+                "File.test".to_string(),
+                Bound { line: 0, column: 0 },
+                Bound { line: 0, column: 0 },
+            ),
+            &file,
+        )));
+        let error = Rc::new(RefCell::new(ErrorReference::new(
+            "TestError".to_string(),
+            Location::new(
+                "File.test".to_string(),
+                Bound { line: 0, column: 0 },
+                Bound { line: 0, column: 0 },
+            ),
+            Some(&result),
+            None,
+        )));
 
         (*result).borrow_mut().add_error(&error);
 
@@ -188,8 +265,25 @@ mod tests {
     #[test]
     fn add_event() {
         let file = Rc::new(RefCell::new(FileReference::new("File.test".to_string())));
-        let result = Rc::new(RefCell::new(ContractReference::new("Test".to_string(), Location::new("File.test".to_string(), Bound {line: 0, column: 0}, Bound { line: 0, column: 0}), &file)));
-        let event = Rc::new(RefCell::new(EventReference::new("TestEvent".to_string(), Location::new("File.test".to_string(), Bound {line: 0, column: 0}, Bound { line: 0, column: 0}), Some(&result), None)));
+        let result = Rc::new(RefCell::new(ContractReference::new(
+            "Test".to_string(),
+            Location::new(
+                "File.test".to_string(),
+                Bound { line: 0, column: 0 },
+                Bound { line: 0, column: 0 },
+            ),
+            &file,
+        )));
+        let event = Rc::new(RefCell::new(EventReference::new(
+            "TestEvent".to_string(),
+            Location::new(
+                "File.test".to_string(),
+                Bound { line: 0, column: 0 },
+                Bound { line: 0, column: 0 },
+            ),
+            Some(&result),
+            None,
+        )));
 
         (*result).borrow_mut().add_event(&event);
 

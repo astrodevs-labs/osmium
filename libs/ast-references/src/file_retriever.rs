@@ -401,31 +401,188 @@ mod tests {
 
     #[test]
     fn test_retrieve_contract_nodes_empty() {
-        retrieve_file_reference_from_path("./tests/two.sol".to_string());
+        let mut path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests");
+        path.push("contracts");
+        path.push("file.sol");
+        let path_str = path.to_str().unwrap().to_string();
+        let source = fs::read_to_string(&path).unwrap();
+
+        let mut visitor = FileVisitor::new(path_str.clone());
+        let file = ast_extractor::extract::extract_ast_from(source).unwrap();
+        let contracts = file.items.iter().find(|item| match item {
+            syn_solidity::Item::Contract(contract) => true,
+            _ => false,
+        });
+        let contracts = match contracts {
+            Some(syn_solidity::Item::Contract(var)) => var,
+            _ => panic!("Expect contracts declaration"),
+        };
+        visitor.visit_item_contract(contracts);
+        assert_eq!(visitor.file_reference.borrow().contracts.len(), 1);
         assert_eq!(1, 0)
     }
 
     #[test]
-    fn test_retrieve_event() {
-        retrieve_file_reference_from_path("./tests/two.sol".to_string());
-        assert_eq!(1, 0)
+    fn test_retrieve_contract_event() {
+        let mut path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests");
+        path.push("events");
+        path.push("file.sol");
+        let path_str = path.to_str().unwrap().to_string();
+        let source = fs::read_to_string(&path).unwrap();
+
+        let mut visitor = FileVisitor::new(path_str.clone());
+        let file = ast_extractor::extract::extract_ast_from(source).unwrap();
+        let events = file.items.iter().find(|item| match item {
+            syn_solidity::Item::Event(contract) => true,
+            _ => false,
+        });
+        let events = match events {
+            Some(syn_solidity::Item::Event(var)) => var,
+            _ => panic!("Expect events declaration"),
+        };
+        visitor.visit_item_event(events);
+        assert_eq!(visitor.file_reference.borrow().events.len(), 1);
     }
 
     #[test]
     fn test_retrieve_functions() {
-        retrieve_file_reference_from_path("./tests/two.sol".to_string());
-        assert_eq!(1, 0)
+        let mut path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests");
+        path.push("functions");
+        path.push("contract.sol");
+        let path_str = path.to_str().unwrap().to_string();
+        let source = fs::read_to_string(&path).unwrap();
+
+        let mut visitor = FileVisitor::new(path_str.clone());
+        let contract_ref = ContractReference::new(
+            "Good".to_string(),
+            Location::new(path_str, Bound { line: 1, column: 1 }, Bound::new(1, 10)),
+            &visitor.file_reference,
+        );
+        visitor
+            .file_reference
+            .borrow_mut()
+            .add_contract(contract_ref);
+        visitor.current_contract = Some(visitor.file_reference.borrow().contracts[0].clone());
+        let file = ast_extractor::extract::extract_ast_from(source).unwrap();
+        let contract = file.items.iter().find(|item| match item {
+            syn_solidity::Item::Contract(contract) => true,
+            _ => false,
+        });
+        let contract = match contract {
+            Some(syn_solidity::Item::Contract(contract)) => contract,
+            _ => panic!("No contract found"),
+        };
+        let function = contract.body.iter().find(|item| match item {
+            syn_solidity::Item::Function(_) => true,
+            _ => false,
+        });
+        let function = match function {
+            Some(syn_solidity::Item::Function(function)) => function,
+            _ => panic!("No function found"),
+        };
+        visitor.visit_item_function(function);
+        assert_eq!(
+            visitor.file_reference.borrow().contracts[0]
+                .borrow()
+                .properties
+                .len(),
+            1
+        );
     }
 
     #[test]
-    fn test_retrieve_structs() {
-        retrieve_file_reference_from_path("./tests/two.sol".to_string());
-        assert_eq!(1, 0)
+    fn test_retrieve_contract_structs() {
+        let mut path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests");
+        path.push("structs");
+        path.push("contract.sol");
+        let path_str = path.to_str().unwrap().to_string();
+        let source = fs::read_to_string(&path).unwrap();
+
+        let mut visitor = FileVisitor::new(path_str.clone());
+        let contract_ref = ContractReference::new(
+            "Good".to_string(),
+            Location::new(path_str, Bound { line: 1, column: 1 }, Bound::new(1, 10)),
+            &visitor.file_reference,
+        );
+        visitor
+            .file_reference
+            .borrow_mut()
+            .add_contract(contract_ref);
+        visitor.current_contract = Some(visitor.file_reference.borrow().contracts[0].clone());
+        let file = ast_extractor::extract::extract_ast_from(source).unwrap();
+        let contract = file.items.iter().find(|item| match item {
+            syn_solidity::Item::Contract(contract) => true,
+            _ => false,
+        });
+        let contract = match contract {
+            Some(syn_solidity::Item::Contract(contract)) => contract,
+            _ => panic!("No contract found"),
+        };
+        let structs = contract.body.iter().find(|item| match item {
+            syn_solidity::Item::Struct(_) => true,
+            _ => false,
+        });
+        let structs = match structs {
+            Some(syn_solidity::Item::Struct(structs)) => structs,
+            _ => panic!("No structs found"),
+        };
+        visitor.visit_item_struct(structs);
+        assert_eq!(
+            visitor.file_reference.borrow().contracts[0]
+                .borrow()
+                .properties
+                .len(),
+            1
+        );
+    }
+
+    #[test]
+    fn test_retrieve_file_structs() {
+        let mut path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests");
+        path.push("structs");
+        path.push("file.sol");
+        let path_str = path.to_str().unwrap().to_string();
+        let source = fs::read_to_string(&path).unwrap();
+
+        let mut visitor = FileVisitor::new(path_str.clone());
+        let file = ast_extractor::extract::extract_ast_from(source).unwrap();
+        let structs = file.items.iter().find(|item| match item {
+            syn_solidity::Item::Struct(contract) => true,
+            _ => false,
+        });
+        let structs = match structs {
+            Some(syn_solidity::Item::Struct(var)) => var,
+            _ => panic!("Expect structs declaration"),
+        };
+        visitor.visit_item_struct(structs);
+        assert_eq!(visitor.file_reference.borrow().structs.len(), 1);
     }
 
     #[test]
     fn test_retrieve_errors() {
-        retrieve_file_reference_from_path("./tests/two.sol".to_string());
-        assert_eq!(1, 0)
+        let mut path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests");
+        path.push("errors");
+        path.push("contract.sol");
+        let path_str = path.to_str().unwrap().to_string();
+        let source = fs::read_to_string(&path).unwrap();
+
+        let mut visitor = FileVisitor::new(path_str.clone());
+        let file = ast_extractor::extract::extract_ast_from(source).unwrap();
+        let errors = file.items.iter().find(|item| match item {
+            syn_solidity::Item::Error(contract) => true,
+            _ => false,
+        });
+        let errors = match errors {
+            Some(syn_solidity::Item::Error(var)) => var,
+            _ => panic!("Expect errors declaration"),
+        };
+        visitor.visit_item_error(errors);
+        assert_eq!(visitor.file_reference.borrow().errors.len(), 1);
     }
 }

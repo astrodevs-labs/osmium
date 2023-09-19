@@ -1,5 +1,5 @@
 pragma solidity ^0.8.0;
 
 contract Good {
-    uint256 public x;
+    event Deposit(address indexed _from, bytes32 indexed _id, uint256 _value);
 }

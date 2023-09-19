@@ -1,5 +1,10 @@
 pragma solidity ^0.8.0;
 
 contract Good {
-    uint256 public x;
+    struct User {
+        uint id;
+        string name;
+        uint age;
+        uint balance;
+    }
 }

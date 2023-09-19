@@ -59,6 +59,7 @@ impl<'ast> Visit<'ast> for FileVisitor {
         syn_solidity::visit::visit_item_contract(self, i);
         self.current_contract = None;
     }
+
     fn visit_item_struct(&mut self, i: &'ast ItemStruct) {
         let struct_reference = StructReference::new(
             i.name.to_string(),
@@ -73,7 +74,7 @@ impl<'ast> Visit<'ast> for FileVisitor {
                     i.brace_token.span.join().end().column as u32,
                 ),
             ),
-            None,
+            self.current_contract.as_ref(),
             Some(&self.file_reference),
         );
         if self.current_contract.is_some() {
@@ -98,4 +99,15 @@ pub fn retrieve_file_reference_from_path(path: String) -> Rc<RefCell<FileReferen
     let mut visitor = FileVisitor::new(path.to_string());
     visitor.visit_file(&ast);
     visitor.file_reference
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_retrieve_contract_nodes_empty() {
+        retrieve_file_reference_from_path("C:\\Users\\byfish\\Desktop\\DEV\\osmium\\libs\\ast-extractor\\tests\\files\\contracts\\two.sol".to_string());
+        assert_eq!(1,0)
+    }
 }

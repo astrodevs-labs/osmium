@@ -53,7 +53,17 @@ impl<'ast> Visit<'ast> for FileVisitor {
             self.current_contract.as_ref(),
             Some(&self.file_reference),
         );
-        self.file_reference.borrow_mut().add_variable(variable_reference);
+        if self.current_contract.is_some() {
+            self.current_contract
+                .as_ref()
+                .unwrap()
+                .borrow_mut()
+                .add_property(&Rc::new(RefCell::new(variable_reference)));
+        } else {
+            self.file_reference
+                .borrow_mut()
+                .add_variable(variable_reference);
+        }
         syn_solidity::visit::visit_variable_declaration(self, i)
     }
 

@@ -263,7 +263,8 @@ mod tests {
     fn test_retrieve_contract_variables() {
         let mut path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path.push("tests");
-        path.push("good.sol");
+        path.push("variables");
+        path.push("contract.sol");
         let path_str = path.to_str().unwrap().to_string();
         let source = fs::read_to_string(&path).unwrap();
 
@@ -309,6 +310,7 @@ mod tests {
     fn test_retrieve_file_variables() {
         let mut path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path.push("tests");
+        path.push("variables");
         path.push("file.sol");
         let path_str = path.to_str().unwrap().to_string();
         let source = fs::read_to_string(&path).unwrap();
@@ -328,9 +330,73 @@ mod tests {
     }
 
     #[test]
-    fn test_retrieve_enums() {
-        retrieve_file_reference_from_path("./tests/two.sol".to_string());
-        assert_eq!(1, 0)
+    fn test_retrieve_contract_enums() {
+        let mut path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests");
+        path.push("enums");
+        path.push("contract.sol");
+        let path_str = path.to_str().unwrap().to_string();
+        let source = fs::read_to_string(&path).unwrap();
+
+        let mut visitor = FileVisitor::new(path_str.clone());
+        let contract_ref = ContractReference::new(
+            "Good".to_string(),
+            Location::new(path_str, Bound { line: 1, column: 1 }, Bound::new(1, 10)),
+            &visitor.file_reference,
+        );
+        visitor
+            .file_reference
+            .borrow_mut()
+            .add_contract(contract_ref);
+        visitor.current_contract = Some(visitor.file_reference.borrow().contracts[0].clone());
+        let file = ast_extractor::extract::extract_ast_from(source).unwrap();
+        let contract = file.items.iter().find(|item| match item {
+            syn_solidity::Item::Contract(contract) => true,
+            _ => false,
+        });
+        let contract = match contract {
+            Some(syn_solidity::Item::Contract(contract)) => contract,
+            _ => panic!("No contract found"),
+        };
+        let enums = contract.body.iter().find(|item| match item {
+            syn_solidity::Item::Enum(_) => true,
+            _ => false,
+        });
+        let enums = match enums {
+            Some(syn_solidity::Item::Enum(enums)) => enums,
+            _ => panic!("No enums found"),
+        };
+        visitor.visit_item_enum(enums);
+        assert_eq!(
+            visitor.file_reference.borrow().contracts[0]
+                .borrow()
+                .properties
+                .len(),
+            1
+        );
+    }
+
+    #[test]
+    fn test_retrieve_file_enums() {
+        let mut path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests");
+        path.push("enums");
+        path.push("file.sol");
+        let path_str = path.to_str().unwrap().to_string();
+        let source = fs::read_to_string(&path).unwrap();
+
+        let mut visitor = FileVisitor::new(path_str.clone());
+        let file = ast_extractor::extract::extract_ast_from(source).unwrap();
+        let enums = file.items.iter().find(|item| match item {
+            syn_solidity::Item::Enum(contract) => true,
+            _ => false,
+        });
+        let enums = match enums {
+            Some(syn_solidity::Item::Enum(var)) => var,
+            _ => panic!("Expect enums declaration"),
+        };
+        visitor.visit_item_enum(enums);
+        assert_eq!(visitor.file_reference.borrow().enums.len(), 1);
     }
 
     #[test]

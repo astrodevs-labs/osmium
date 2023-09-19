@@ -19,7 +19,7 @@ use std::rc::Rc;
 use std::str::FromStr;
 use syn_solidity::{
     ItemContract, ItemEnum, ItemError, ItemEvent, ItemFunction, ItemStruct, Spanned,
-    VariableDeclaration, Visit,
+    VariableDefinition, Visit,
 };
 
 struct FileVisitor {
@@ -37,12 +37,9 @@ impl FileVisitor {
 }
 
 impl<'ast> Visit<'ast> for FileVisitor {
-    fn visit_variable_declaration(&mut self, i: &'ast VariableDeclaration) {
-        if i.name.is_none() {
-            return;
-        }
+    fn visit_variable_definition(&mut self, i: &'ast VariableDefinition) {
         let variable_reference = VariableReference::new(
-            i.name.as_ref().unwrap().0.to_string().clone(),
+            i.name.0.to_string().clone(),
             i.ty.clone(),
             Location::new(
                 self.file_reference.borrow_mut().path.clone(),
@@ -69,7 +66,7 @@ impl<'ast> Visit<'ast> for FileVisitor {
                 .borrow_mut()
                 .add_variable(variable_reference);
         }
-        syn_solidity::visit::visit_variable_declaration(self, i)
+        syn_solidity::visit::visit_variable_definition(self, i)
     }
 
     fn visit_item_enum(&mut self, i: &'ast ItemEnum) {
@@ -263,9 +260,71 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_retrieve_variables() {
-        retrieve_file_reference_from_path("./tests/two.sol".to_string());
-        assert_eq!(1, 0)
+    fn test_retrieve_contract_variables() {
+        let mut path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests");
+        path.push("good.sol");
+        let path_str = path.to_str().unwrap().to_string();
+        let source = fs::read_to_string(&path).unwrap();
+
+        let mut visitor = FileVisitor::new(path_str.clone());
+        let contract_ref = ContractReference::new(
+            "Good".to_string(),
+            Location::new(path_str, Bound { line: 1, column: 1 }, Bound::new(1, 10)),
+            &visitor.file_reference,
+        );
+        visitor
+            .file_reference
+            .borrow_mut()
+            .add_contract(contract_ref);
+        visitor.current_contract = Some(visitor.file_reference.borrow().contracts[0].clone());
+        let file = ast_extractor::extract::extract_ast_from(source).unwrap();
+        let contract = file.items.iter().find(|item| match item {
+            syn_solidity::Item::Contract(contract) => true,
+            _ => false,
+        });
+        let contract = match contract {
+            Some(syn_solidity::Item::Contract(contract)) => contract,
+            _ => panic!("No contract found"),
+        };
+        let variables = contract.body.iter().find(|item| match item {
+            syn_solidity::Item::Variable(_) => true,
+            _ => false,
+        });
+        let variables = match variables {
+            Some(syn_solidity::Item::Variable(variables)) => variables,
+            _ => panic!("No variables found"),
+        };
+        visitor.visit_variable_definition(variables);
+        assert_eq!(
+            visitor.file_reference.borrow().contracts[0]
+                .borrow()
+                .properties
+                .len(),
+            1
+        );
+    }
+
+    #[test]
+    fn test_retrieve_file_variables() {
+        let mut path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests");
+        path.push("file.sol");
+        let path_str = path.to_str().unwrap().to_string();
+        let source = fs::read_to_string(&path).unwrap();
+
+        let mut visitor = FileVisitor::new(path_str.clone());
+        let file = ast_extractor::extract::extract_ast_from(source).unwrap();
+        let variable = file.items.iter().find(|item| match item {
+            syn_solidity::Item::Variable(contract) => true,
+            _ => false,
+        });
+        let variable = match variable {
+            Some(syn_solidity::Item::Variable(var)) => var,
+            _ => panic!("Expect variable declaration"),
+        };
+        visitor.visit_variable_definition(variable);
+        assert_eq!(visitor.file_reference.borrow().variables.len(), 1);
     }
 
     #[test]

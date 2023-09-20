@@ -1,4 +1,4 @@
-use ast_extractor::{ArgListImpl, Expr, FunctionBody, LineColumn, Stmt};
+use ast_extractor::*;
 
 use crate::linter::SolidFile;
 use crate::rules::types::{RuleEntry, RuleType};
@@ -44,8 +44,9 @@ impl ReasonString {
     }
 }
 
-fn get_all_functions_from_ast(ast_nodes: &ast_extractor::File) -> Vec<ast_extractor::ItemFunction> {
+fn get_call_expressions(ast_nodes: &ast_extractor::File) -> Vec<ExprCall> {
     let mut res = Vec::new();
+    let mut calls: Vec<ExprCall> = Vec::new();
     let contract = ast_nodes
         .items
         .iter()
@@ -58,78 +59,82 @@ fn get_all_functions_from_ast(ast_nodes: &ast_extractor::File) -> Vec<ast_extrac
     if let Some(contract) = contract {
         res = ast_extractor::retriever::retrieve_functions_nodes(contract);
     }
-    res
+    for func in res {
+        if let FunctionBody::Block(fn_body) = func.body {
+            for stmt in fn_body.stmts {
+                if let Stmt::Expr(stmt_expr) = stmt {
+                    if let Expr::Call(call_expr) = stmt_expr.expr {
+                        calls.push(call_expr);
+                    }
+                }
+
+            }
+        }
+    }
+    calls
 }
 
 impl RuleType for ReasonString {
     fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
         let mut res = Vec::new();
-        let allfn = get_all_functions_from_ast(&file.data);
+        let calls = get_call_expressions(&file.data);
 
-        for func in allfn {
-            if let FunctionBody::Block(fn_body) = func.body {
-                for stmt in fn_body.stmts {
-                    if let Stmt::Expr(stmt_expr) = stmt {
-                        if let Expr::Call(call_expr) = stmt_expr.expr {
-                            let expr_require = match *call_expr.expr {
-                                Expr::Ident(require_ident) => require_ident,
-                                _ => continue,
-                            };
+        for call_expr in calls {
+            let expr_require = match *call_expr.expr {
+                Expr::Ident(require_ident) => require_ident,
+                _ => continue,
+            };
 
-                            if expr_require.as_string() != "require"
-                                && expr_require.as_string() != "revert"
-                            {
-                                continue;
-                            }
+            if expr_require.as_string() != "require"
+                && expr_require.as_string() != "revert"
+            {
+                continue;
+            }
 
-                            let expr_args = match call_expr.args.list {
-                                ArgListImpl::Named(_) => continue,
-                                ArgListImpl::Unnamed(args) => args,
-                            };
+            let expr_args = match call_expr.args.list {
+                ArgListImpl::Named(_) => continue,
+                ArgListImpl::Unnamed(args) => args,
+            };
 
-                            if let Some(expr_string) = expr_args.iter().find(|&x| {
-                                if let Expr::Lit(lit) = x {
-                                    matches!(lit, ast_extractor::Lit::Str(_))
-                                } else {
-                                    false
-                                }
-                            }) {
-                                if let Expr::Lit(lit_string) = expr_string {
-                                    if let ast_extractor::Lit::Str(lit_str) = lit_string {
-                                        let actual_string = lit_str.values[0].token().to_string();
+            if let Some(expr_string) = expr_args.iter().find(|&x| {
+                if let Expr::Lit(lit) = x {
+                    matches!(lit, ast_extractor::Lit::Str(_))
+                } else {
+                    false
+                }
+            }) {
+                if let Expr::Lit(lit_string) = expr_string {
+                    if let ast_extractor::Lit::Str(lit_str) = lit_string {
+                        let actual_string = lit_str.values[0].token().to_string();
 
-                                        if actual_string.len() > self.max_length as usize {
-                                            let location = (
-                                                lit_str.values[0].span().start(),
-                                                lit_str.values[0].span().end(),
-                                            );
-                                            res.push(
-                                            self.create_diag(
-                                                file,
-                                                location,
-                                                format!(
-                                                    "reason-string: A revert statement must have a reason string of length less than {}",
-                                                    self.max_length
-                                                ),
-                                            ),
-                                        );
-                                        }
-                                    }
-                                }
-                            } else {
-                                let location =
-                                    (expr_require.0.span().start(), expr_require.0.span().end());
-                                res.push(
-                                self.create_diag(
-                                    file,
-                                    location,
-                                    "reason-string: A require statement must have a reason string".to_string(),
-                                ),
+                        if actual_string.len() > self.max_length as usize {
+                            let location = (
+                                lit_str.values[0].span().start(),
+                                lit_str.values[0].span().end(),
                             );
-                            }
+                            res.push(
+                            self.create_diag(
+                                file,
+                                location,
+                                format!(
+                                    "reason-string: A revert statement must have a reason string of length less than {}",
+                                    self.max_length
+                                ),
+                            ),
+                        );
                         }
                     }
                 }
+            } else {
+                let location =
+                    (expr_require.0.span().start(), expr_require.0.span().end());
+                res.push(
+                    self.create_diag(
+                        file,
+                        location,
+                        "reason-string: A require statement must have a reason string".to_string(),
+                    ),
+                );
             }
         }
 

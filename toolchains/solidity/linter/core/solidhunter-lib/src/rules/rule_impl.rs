@@ -1,4 +1,4 @@
-use crate::error::SolidHunterError;
+use crate::errors::SolidHunterError;
 use crate::rules::create_default_rules;
 use crate::rules::types::*;
 

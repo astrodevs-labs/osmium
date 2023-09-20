@@ -1,7 +1,6 @@
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
-use ast_extractor::Spanned;
 use ast_extractor::*;
 
 pub const RULE_ID: &str = "use-forbidden-name";

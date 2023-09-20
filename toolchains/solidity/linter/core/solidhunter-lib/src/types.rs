@@ -74,7 +74,7 @@ impl fmt::Display for LintDiag {
             padding,
             line,
             " ".repeat(self.range.start.character),
-            "^".repeat(self.range.compute_length(line))
+            "^".repeat(self.range.compute_length(self.source_file_content.as_str()))
         )
     }
 }
@@ -114,7 +114,7 @@ pub struct Range {
 }
 
 impl Range {
-    // Compue the number of characters between the start and end of the range
+    // Compute the number of characters between the start and end of the range
     pub fn compute_length(&self, content: &str) -> usize {
         if self.start.line == self.end.line {
             self.end.character - self.start.character

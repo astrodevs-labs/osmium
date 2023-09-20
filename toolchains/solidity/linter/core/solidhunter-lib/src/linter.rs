@@ -87,7 +87,7 @@ impl SolidLinter {
         let mut res: Vec<LintDiag> = Vec::new();
 
         for rule in &self.rules {
-            let mut diags = rule.diagnose(&self.files[0], &self.files);
+            let mut diags = rule.diagnose(&self.files[self.files.len() - 1], &self.files);
             res.append(&mut diags);
         }
         Ok(res)
@@ -100,7 +100,7 @@ impl SolidLinter {
         let mut res: Vec<LintDiag> = Vec::new();
 
         for rule in &self.rules {
-            let mut diags = rule.diagnose(&self.files[0], &self.files);
+            let mut diags = rule.diagnose(&self.files[self.files.len() - 1], &self.files);
             res.append(&mut diags);
         }
         Ok(res)

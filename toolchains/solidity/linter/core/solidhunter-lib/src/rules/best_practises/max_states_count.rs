@@ -47,7 +47,6 @@ impl RuleType for MaxStatesCount {
         let mut count = 0;
         let contracts = retriever::retrieve_contract_nodes(&file.data);
 
-        // var def => contract def
         for contract in contracts.iter() {
             for node_var in contract.body.iter() {
                 let var = match node_var {
@@ -61,7 +60,6 @@ impl RuleType for MaxStatesCount {
                 }
             }
         }
-        println!("res: {:?}", res);
         res
     }
 }

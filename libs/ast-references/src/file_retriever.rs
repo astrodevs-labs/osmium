@@ -420,7 +420,6 @@ mod tests {
         };
         visitor.visit_item_contract(contracts);
         assert_eq!(visitor.file_reference.borrow().contracts.len(), 1);
-        assert_eq!(1, 0)
     }
 
     #[test]

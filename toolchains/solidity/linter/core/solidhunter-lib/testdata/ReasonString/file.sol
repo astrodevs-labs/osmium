@@ -4,10 +4,10 @@ contract Test {
     function awesome() public {
         require(!has(role, account), "This is perfect");
     }
-    function not_awesome() public {
-        require(!has(role, account), "This is not perfect at all because it's really too long but the code is 0xSwapFeeder compliant");
+    function notAwesome() public {
+        require(!has(role, account), "This is not perfect at all because i");
     }
-    function not_awesome_either() public {
+    function notAwesomeEither() public {
         require(!has(role, account));
     }
 }

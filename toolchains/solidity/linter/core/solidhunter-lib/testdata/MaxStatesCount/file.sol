@@ -12,7 +12,7 @@ contract Test {
     uint i = 9;
     uint j = 10;
     uint k = 11;
-    uint l = 12;
+    uint z = 12;
     uint m = 13;
     uint n = 14;
     uint o = 15;

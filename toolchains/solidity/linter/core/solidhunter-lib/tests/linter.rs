@@ -96,6 +96,7 @@ test_directories! {
     ContractNamePascalCase,
     FunctionMaxLines,
     ImportOnTop,
+    LineMaxLen,
     MaxStatesCount,
     FunctionNameCamelCase,
     FunctionParamNameCamelCase,

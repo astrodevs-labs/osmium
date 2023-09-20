@@ -16,12 +16,12 @@ impl LineMaxLen {
         LintDiag {
             range: Range {
                 start: Position {
-                    line: line_idx as u64,
-                    character: self.max_len as u64,
+                    line: line_idx,
+                    character: self.max_len,
                 },
                 end: Position {
-                    line: line_idx as u64,
-                    character: line.len() as u64,
+                    line: line_idx,
+                    character: line.len(),
                 },
             },
             id: RULE_ID.to_string(),
@@ -36,7 +36,7 @@ impl LineMaxLen {
 }
 
 impl RuleType for LineMaxLen {
-    fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
+    fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let mut line_idx = 1;
 

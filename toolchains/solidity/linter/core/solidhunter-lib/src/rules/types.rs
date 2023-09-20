@@ -1,6 +1,7 @@
 use crate::linter::SolidFile;
 use crate::types::*;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RuleEntry {
@@ -18,5 +19,7 @@ pub struct Rules {
 }
 
 pub trait RuleType: Send + Sync + 'static {
-    fn diagnose(&self, file: &SolidFile, files: &Vec<SolidFile>) -> Vec<LintDiag>;
+    fn diagnose(&self, file: &SolidFile, files: &[SolidFile]) -> Vec<LintDiag>;
 }
+
+pub type RulesMap = HashMap<String, fn(RuleEntry) -> Box<dyn RuleType>>;

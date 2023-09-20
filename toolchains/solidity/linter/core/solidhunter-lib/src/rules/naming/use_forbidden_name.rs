@@ -21,12 +21,12 @@ impl UseForbiddenName {
             id: RULE_ID.to_string(),
             range: Range {
                 start: Position {
-                    line: location.0.line as u64,
-                    character: location.0.column as u64,
+                    line: location.0.line,
+                    character: location.0.column,
                 },
                 end: Position {
-                    line: location.1.line as u64,
-                    character: location.1.column as u64,
+                    line: location.1.line,
+                    character: location.1.column,
                 },
             },
             message: format!("Forbidden variable name: {}", name),
@@ -40,7 +40,7 @@ impl UseForbiddenName {
 }
 
 impl RuleType for UseForbiddenName {
-    fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
+    fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let blacklist = ['I', 'l', 'O'];
 

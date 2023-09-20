@@ -3,7 +3,7 @@ use crate::rules::naming::func_name_camelcase::FuncNameCamelCase;
 
 use crate::rules::naming::func_param_name_camelcase::FuncParamNameCamelcase;
 use crate::rules::naming::use_forbidden_name::UseForbiddenName;
-use crate::rules::types::{RuleEntry, RuleType};
+use crate::rules::types::{RuleEntry, RulesMap};
 use crate::rules::RuleBuilder;
 use std::collections::HashMap;
 
@@ -24,7 +24,7 @@ pub fn create_default_rules() -> Vec<RuleEntry> {
     ]
 }
 
-pub fn create_rules() -> HashMap<String, fn(RuleEntry) -> Box<dyn RuleType>> {
+pub fn create_rules() -> RulesMap {
     let mut rules: HashMap<String, RuleBuilder> = HashMap::new();
 
     rules.insert(

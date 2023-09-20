@@ -32,12 +32,12 @@ fn test_directory(base_name: &str) {
                     let splitted_line: Vec<&str> = line.split(':').collect();
                     expected_findings.push(Finding {
                         start: Position {
-                            line: splitted_line[1].parse::<u64>().unwrap(),
-                            character: splitted_line[2].parse::<u64>().unwrap(),
+                            line: splitted_line[1].parse::<usize>().unwrap(),
+                            character: splitted_line[2].parse::<usize>().unwrap(),
                         },
                         end: Position {
-                            line: splitted_line[3].parse::<u64>().unwrap(),
-                            character: splitted_line[4].parse::<u64>().unwrap(),
+                            line: splitted_line[3].parse::<usize>().unwrap(),
+                            character: splitted_line[4].parse::<usize>().unwrap(),
                         },
                         id: splitted_line[0].to_string(),
                     });

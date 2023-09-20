@@ -59,7 +59,7 @@ impl fmt::Display for LintDiag {
         let line = self
             .source_file_content
             .lines()
-            .nth((self.range.start.line - 1) as usize)
+            .nth(self.range.start.line - 1)
             .unwrap();
 
         write!(
@@ -73,8 +73,8 @@ impl fmt::Display for LintDiag {
             self.range.start.line,
             padding,
             line,
-            " ".repeat(self.range.start.character as usize),
-            "^".repeat(self.range.compute_length(line) as usize)
+            " ".repeat(self.range.start.character),
+            "^".repeat(self.range.compute_length(line))
         )
     }
 }
@@ -91,8 +91,8 @@ impl PartialEq for Position {
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Position {
-    pub line: u64,
-    pub character: u64,
+    pub line: usize,
+    pub character: usize,
 }
 
 #[derive(PartialEq, Eq, Clone, Copy, Serialize, Deserialize, Debug)]
@@ -115,7 +115,7 @@ pub struct Range {
 
 impl Range {
     // Compue the number of characters between the start and end of the range
-    pub fn compute_length(&self, content: &str) -> u64 {
+    pub fn compute_length(&self, content: &str) -> usize {
         if self.start.line == self.end.line {
             self.end.character - self.start.character
         } else {
@@ -123,13 +123,13 @@ impl Range {
             let mut line = self.start.line;
             let mut character = self.start.character;
             while line < self.end.line {
-                let line_content = content.lines().nth(line as usize - 1).unwrap();
-                length += line_content.len() + 1 - character as usize;
+                let line_content = content.lines().nth(line - 1).unwrap();
+                length += line_content.len() + 1 - character;
                 line += 1;
                 character = 0;
             }
-            length += self.end.character as usize - character as usize;
-            length as u64
+            length += self.end.character - character;
+            length
         }
     }
 }

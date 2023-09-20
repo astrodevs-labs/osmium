@@ -6,6 +6,7 @@ use crate::types::*;
 
 // const DEFAULT_SEVERITY: &str = "warn";
 const DEFAULT_MESSAGE: &str = "Function contains too much lines";
+pub const RULE_ID: &str = "function-max-lines";
 
 // specific
 pub const DEFAULT_MAX_LINES: usize = 20;
@@ -16,7 +17,7 @@ pub struct FunctionMaxLines {
 }
 
 impl RuleType for FunctionMaxLines {
-    fn diagnose(&self, _file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
+    fn diagnose(&self, _file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
 
         let functions = get_all_functions_from_ast(&_file.data);
@@ -24,7 +25,7 @@ impl RuleType for FunctionMaxLines {
             let _report = check_function_lines(_file, &function, self.number_max_lines);
             if let Some(report) = _report {
                 res.push(LintDiag {
-                    id: Self::RULE_ID.to_string(),
+                    id: RULE_ID.to_string(),
                     range: report,
                     severity: Some(Severity::WARNING),
                     code: None,
@@ -71,11 +72,11 @@ fn check_function_lines(
     if function_lines > nb_max_line {
         res = Some(Range {
             start: Position {
-                line: start_span.line as u64,
-                character: start_span.column as u64,
+                line: start_span.line,
+                character: start_span.column,
             },
             end: Position {
-                line: last_bracket_line as u64,
+                line: last_bracket_line,
                 character: 1,
             },
         });
@@ -101,12 +102,10 @@ fn get_all_functions_from_ast(ast_nodes: &ast_extractor::File) -> Vec<ast_extrac
 }
 
 impl FunctionMaxLines {
-    pub(crate) const RULE_ID: &'static str = "function-max-lines";
-
     pub fn create(data: RuleEntry) -> Box<dyn RuleType> {
         let mut max_number_lines = DEFAULT_MAX_LINES;
-        
-        if data.data.len() > 0 {
+
+        if !data.data.is_empty() {
             max_number_lines = match data.data[0].parse::<usize>() {
                 Ok(v) => v,
                 Err(_) => DEFAULT_MAX_LINES,
@@ -121,10 +120,9 @@ impl FunctionMaxLines {
 
     pub fn create_default() -> RuleEntry {
         RuleEntry {
-            id: FunctionMaxLines::RULE_ID.to_string(),
+            id: RULE_ID.to_string(),
             severity: Severity::WARNING,
             data: vec![DEFAULT_MAX_LINES.to_string()],
         }
     }
 }
-

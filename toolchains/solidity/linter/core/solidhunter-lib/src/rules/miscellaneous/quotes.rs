@@ -2,25 +2,27 @@ use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
 
+pub const RULE_ID: &str = "quotes";
+
 pub struct Quotes {
     data: RuleEntry,
 }
 
 impl Quotes {
-    fn create_diag(&self, file: &SolidFile, idx: usize, line_idx: u64) -> LintDiag {
+    fn create_diag(&self, file: &SolidFile, idx: usize, line_idx: usize) -> LintDiag {
         LintDiag {
-            id: "quotes".to_string(),
+            id: RULE_ID.to_string(),
             range: Range {
                 start: Position {
                     line: line_idx,
-                    character: idx as u64,
+                    character: idx,
                 },
                 end: Position {
                     line: line_idx,
-                    character: idx as u64,
+                    character: idx,
                 },
             },
-            message: format!("Use double quotes instead of single quote"),
+            message: "Use double quotes instead of single quote".to_string(),
             severity: Some(self.data.severity),
             code: None,
             source: None,
@@ -31,7 +33,7 @@ impl Quotes {
 }
 
 impl RuleType for Quotes {
-    fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
+    fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let mut line_idx = 1;
 
@@ -55,7 +57,7 @@ impl Quotes {
 
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
-            id: "quotes".to_string(),
+            id: RULE_ID.to_string(),
             severity: Severity::ERROR,
             data: vec![],
         }

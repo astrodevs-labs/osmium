@@ -1,4 +1,4 @@
-use crate::rules::types::{RuleEntry, RuleType};
+use crate::rules::types::{RuleEntry, RulesMap};
 use std::collections::HashMap;
 
 #[macro_use]
@@ -24,7 +24,7 @@ pub fn create_default_rules() -> Vec<RuleEntry> {
     ]
 }
 
-pub fn create_rules() -> HashMap<String, fn(RuleEntry) -> Box<dyn RuleType>> {
+pub fn create_rules() -> RulesMap {
     let mut rules: HashMap<String, RuleBuilder> = HashMap::new();
 
     rules.insert(line_maxlen::RULE_ID.to_string(), LineMaxLen::create);
@@ -34,7 +34,7 @@ pub fn create_rules() -> HashMap<String, fn(RuleEntry) -> Box<dyn RuleType>> {
         MaxStatesCount::create,
     );
     rules.insert(
-        FunctionMaxLines::RULE_ID.to_string(),
+        function_max_lines::RULE_ID.to_string(),
         FunctionMaxLines::create,
     );
     rules.insert(reason_string::RULE_ID.to_string(), ReasonString::create);

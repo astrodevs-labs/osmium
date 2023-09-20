@@ -12,15 +12,19 @@ pub struct ImportOnTop {
 }
 
 impl ImportOnTop {
-    fn create_diag(&self, file: &SolidFile, location: (ast_extractor::LineColumn, ast_extractor::LineColumn)) -> LintDiag {
-        let mut range = Range {
+    fn create_diag(
+        &self,
+        file: &SolidFile,
+        location: (ast_extractor::LineColumn, ast_extractor::LineColumn),
+    ) -> LintDiag {
+        let range = Range {
             start: Position {
-                line: location.0.line as u64,
-                character: location.0.column as u64,
+                line: location.0.line,
+                character: location.0.column,
             },
             end: Position {
-                line: location.1.line as u64,
-                character: location.1.column as u64,
+                line: location.1.line,
+                character: location.1.column,
             },
         };
         LintDiag {
@@ -37,7 +41,7 @@ impl ImportOnTop {
 }
 
 impl RuleType for ImportOnTop {
-    fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
+    fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let mut last_import_location = 0;
 
@@ -53,14 +57,11 @@ impl RuleType for ImportOnTop {
         }
 
         for i in 1..file.data.items.len() {
-            match &file.data.items[i] {
-                ast_extractor::Item::Import(import) => {
-                    if i > last_import_location {
-                        let location = (import.span().start(), import.span().end());
-                        res.push(self.create_diag(file, location));
-                    }
+            if let ast_extractor::Item::Import(import) = &file.data.items[i] {
+                if i > last_import_location {
+                    let location = (import.span().start(), import.span().end());
+                    res.push(self.create_diag(file, location));
                 }
-                _ => {}
             }
         }
 

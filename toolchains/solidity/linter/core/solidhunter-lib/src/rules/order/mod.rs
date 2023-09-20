@@ -1,4 +1,4 @@
-use crate::rules::types::{RuleEntry, RuleType};
+use crate::rules::types::{RuleEntry, RulesMap};
 use std::collections::HashMap;
 
 #[macro_use]
@@ -12,7 +12,7 @@ pub fn create_default_rules() -> Vec<RuleEntry> {
     vec![ImportOnTop::create_default()]
 }
 
-pub fn create_rules() -> HashMap<String, fn(RuleEntry) -> Box<dyn RuleType>> {
+pub fn create_rules() -> RulesMap {
     let mut rules: HashMap<String, RuleBuilder> = HashMap::new();
 
     rules.insert(import_on_top::RULE_ID.to_string(), ImportOnTop::create);

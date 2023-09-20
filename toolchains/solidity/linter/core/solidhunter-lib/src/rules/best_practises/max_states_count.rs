@@ -3,8 +3,7 @@ use crate::rules::types::*;
 use crate::types::*;
 use ast_extractor::*;
 
-
-pub const RULE_ID: &'static str = "max-states-count";
+pub const RULE_ID: &str = "max-states-count";
 const DEFAULT_MAX_STATES: usize = 15;
 
 pub struct MaxStatesCount {
@@ -23,12 +22,12 @@ impl MaxStatesCount {
             id: RULE_ID.to_string(),
             range: Range {
                 start: Position {
-                    line: location.0.line as u64,
-                    character: location.0.column as u64,
+                    line: location.0.line,
+                    character: location.0.column,
                 },
                 end: Position {
-                    line: location.1.line as u64,
-                    character: location.1.column as u64,
+                    line: location.1.line,
+                    character: location.1.column,
                 },
             },
             message: format!("Too many states: {}", count),
@@ -42,7 +41,7 @@ impl MaxStatesCount {
 }
 
 impl RuleType for MaxStatesCount {
-    fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
+    fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
 
         let mut count = 0;
@@ -68,19 +67,15 @@ impl RuleType for MaxStatesCount {
 }
 
 impl MaxStatesCount {
-
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
         let mut max_states = DEFAULT_MAX_STATES;
-        if data.data.len() > 0 {
+        if !data.data.is_empty() {
             max_states = match data.data[0].parse::<usize>() {
                 Ok(v) => v,
                 Err(_) => DEFAULT_MAX_STATES,
             };
         }
-        let rule = MaxStatesCount {
-            max_states,
-            data,
-        };
+        let rule = MaxStatesCount { max_states, data };
         Box::new(rule)
     }
 
@@ -92,4 +87,3 @@ impl MaxStatesCount {
         }
     }
 }
-

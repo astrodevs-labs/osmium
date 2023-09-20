@@ -26,12 +26,12 @@ impl ReasonString {
             id: RULE_ID.to_string(),
             range: Range {
                 start: Position {
-                    line: location.0.line as u64,
-                    character: location.0.column as u64,
+                    line: location.0.line,
+                    character: location.0.column,
                 },
                 end: Position {
-                    line: location.1.line as u64,
-                    character: location.1.column as u64,
+                    line: location.1.line,
+                    character: location.1.column,
                 },
             },
             message,
@@ -67,7 +67,6 @@ fn get_call_expressions(ast_nodes: &ast_extractor::File) -> Vec<ExprCall> {
                         calls.push(call_expr);
                     }
                 }
-
             }
         }
     }
@@ -75,7 +74,7 @@ fn get_call_expressions(ast_nodes: &ast_extractor::File) -> Vec<ExprCall> {
 }
 
 impl RuleType for ReasonString {
-    fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
+    fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let calls = get_call_expressions(&file.data);
 
@@ -85,9 +84,7 @@ impl RuleType for ReasonString {
                 _ => continue,
             };
 
-            if expr_require.as_string() != "require"
-                && expr_require.as_string() != "revert"
-            {
+            if expr_require.as_string() != "require" && expr_require.as_string() != "revert" {
                 continue;
             }
 
@@ -103,16 +100,15 @@ impl RuleType for ReasonString {
                     false
                 }
             }) {
-                if let Expr::Lit(lit_string) = expr_string {
-                    if let ast_extractor::Lit::Str(lit_str) = lit_string {
-                        let actual_string = lit_str.values[0].token().to_string();
+                if let Expr::Lit(ast_extractor::Lit::Str(lit_str)) = expr_string {
+                    let actual_string = lit_str.values[0].token().to_string();
 
-                        if actual_string.len() > self.max_length as usize {
-                            let location = (
-                                lit_str.values[0].span().start(),
-                                lit_str.values[0].span().end(),
-                            );
-                            res.push(
+                    if actual_string.len() > self.max_length as usize {
+                        let location = (
+                            lit_str.values[0].span().start(),
+                            lit_str.values[0].span().end(),
+                        );
+                        res.push(
                             self.create_diag(
                                 file,
                                 location,
@@ -122,19 +118,15 @@ impl RuleType for ReasonString {
                                 ),
                             ),
                         );
-                        }
                     }
                 }
             } else {
-                let location =
-                    (expr_require.0.span().start(), expr_require.0.span().end());
-                res.push(
-                    self.create_diag(
-                        file,
-                        location,
-                        "reason-string: A require statement must have a reason string".to_string(),
-                    ),
-                );
+                let location = (expr_require.0.span().start(), expr_require.0.span().end());
+                res.push(self.create_diag(
+                    file,
+                    location,
+                    "reason-string: A require statement must have a reason string".to_string(),
+                ));
             }
         }
 

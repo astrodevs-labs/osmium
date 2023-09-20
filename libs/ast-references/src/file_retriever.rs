@@ -370,7 +370,7 @@ mod tests {
         assert_eq!(
             visitor.file_reference.borrow().contracts[0]
                 .borrow()
-                .properties
+                .enums
                 .len(),
             1
         );
@@ -428,7 +428,7 @@ mod tests {
         let mut path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path.push("tests");
         path.push("events");
-        path.push("file.sol");
+        path.push("contract.sol");
         let path_str = path.to_str().unwrap().to_string();
         let source = fs::read_to_string(&path).unwrap();
 
@@ -458,7 +458,7 @@ mod tests {
         let mut visitor = FileVisitor::new(path_str.clone());
         let contract_ref = ContractReference::new(
             "Good".to_string(),
-            Location::new(path_str, Bound { line: 1, column: 1 }, Bound::new(1, 10)),
+            Location::new(path_str, Bound { line: 1, column: 1 }, Bound::new(10, 100)),
             &visitor.file_reference,
         );
         visitor
@@ -487,7 +487,7 @@ mod tests {
         assert_eq!(
             visitor.file_reference.borrow().contracts[0]
                 .borrow()
-                .properties
+                .functions
                 .len(),
             1
         );
@@ -534,7 +534,7 @@ mod tests {
         assert_eq!(
             visitor.file_reference.borrow().contracts[0]
                 .borrow()
-                .properties
+                .structs
                 .len(),
             1
         );

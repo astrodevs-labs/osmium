@@ -24,6 +24,5 @@ contract Test {
         uint t = 20;
         uint u = 21;
         uint v = 22;
-
     }
 }

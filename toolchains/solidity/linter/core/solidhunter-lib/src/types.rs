@@ -74,7 +74,7 @@ impl LintDiag {
             .unwrap();
         let trimmed_first_line = first_line.trim_start();
         let max_offset = first_line.len() - trimmed_first_line.len();
-        
+
         for line_nb in self.range.start.line..self.range.end.line + 1 {
             let line = self
             .source_file_content
@@ -95,8 +95,8 @@ impl LintDiag {
             formatted = format!(
                 "{}{}{}|    {}\n   |    {}{}\n",
                 formatted,
-                self.range.start.line,
-                compute_format_line_padding(self.range.start.line),
+                line_nb,
+                compute_format_line_padding(line_nb),
                 trimmed_line,
                 " ".repeat(if line_nb == self.range.start.line { self.range.start.character - offset } else { 0 }),
                 "^".repeat(higlight_length)

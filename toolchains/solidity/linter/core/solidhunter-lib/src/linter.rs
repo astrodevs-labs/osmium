@@ -1,7 +1,7 @@
 use crate::errors::SolidHunterError;
 use crate::rules::factory::RuleFactory;
 use crate::rules::create_default_rules;
-use crate::rules::rule_impl::{create_rules_file, parse_rules};
+use crate::rules::rule_impl::parse_rules;
 use crate::rules::types::*;
 use crate::types::*;
 use std::fs;

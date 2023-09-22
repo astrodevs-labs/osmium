@@ -3,8 +3,8 @@ use solidhunter_lib::linter::SolidLinter;
 use solidhunter_lib::rules::rule_impl::create_rules_file;
 use solidhunter_lib::types::LintResult;
 
-mod lsp_server;
-use lsp_server::run_server;
+mod server;
+use server::run_server;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]

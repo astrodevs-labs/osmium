@@ -107,4 +107,5 @@ test_directories! {
     OneContractPerFile,
     CustomErrors,
     EventNameCamelCase
+    ConstNameSnakeCase,
 }

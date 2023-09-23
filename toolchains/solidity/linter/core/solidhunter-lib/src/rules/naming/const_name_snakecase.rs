@@ -42,7 +42,7 @@ impl ConstNameSnakeCase {
 fn is_snake_case(name: &str) -> bool {
     for c in name.chars() {
         if c != '_' && !c.is_ascii_uppercase() {
-            false
+            return false;
         }
     }
     true

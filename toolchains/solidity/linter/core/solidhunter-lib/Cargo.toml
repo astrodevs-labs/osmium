@@ -9,8 +9,8 @@ license = "GPL-3.0-or-later"
 clap = { version = "4.0.29", features = ["derive"] }
 colored = "2"
 serde = { version = "1.0.149", features = ["derive"] }
-solc-wrapper = { path = "../solc-wrapper" }
 serde_json = "1.0.89"
 anyhow = "1.0"
 glob = "0.3.0"
 thiserror = "1.0"
+ast-extractor = { path = "../../../../../libs/ast-extractor" }

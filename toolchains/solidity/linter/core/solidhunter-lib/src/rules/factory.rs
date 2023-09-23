@@ -3,7 +3,7 @@ use crate::rules::types::*;
 use std::collections::HashMap;
 
 pub struct RuleFactory {
-    _buildables: HashMap<String, fn(RuleEntry) -> Box<dyn RuleType>>,
+    _buildables: RulesMap,
     _rules: Vec<Box<dyn RuleType>>,
 }
 

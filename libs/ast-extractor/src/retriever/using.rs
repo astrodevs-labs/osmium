@@ -22,7 +22,7 @@ impl<'ast> Visit<'ast> for UsingVisitor {
     }
 }
 
-pub fn retrieve_usings_nodes(ast: syn_solidity::ItemContract) -> Vec<UsingDirective> {
+pub fn retrieve_usings_nodes(ast: &syn_solidity::ItemContract) -> Vec<UsingDirective> {
     let mut visitor = UsingVisitor::new();
     visitor.visit_item_contract(&ast);
     visitor.usings
@@ -51,7 +51,7 @@ mod tests {
         let item = ast.items.first().unwrap().clone();
 
         if let Item::Contract(contract) = item {
-            let res = retrieve_usings_nodes(contract);
+            let res = retrieve_usings_nodes(&contract);
             assert_eq!(res.len(), 0);
         } else {
             panic!("Item should not have any using directive");
@@ -79,7 +79,7 @@ mod tests {
             .clone();
 
         if let Item::Contract(contract) = item {
-            let res = retrieve_usings_nodes(contract);
+            let res = retrieve_usings_nodes(&contract);
             assert_eq!(res.len(), 1);
         } else {
             panic!("Item should have a a using directive");

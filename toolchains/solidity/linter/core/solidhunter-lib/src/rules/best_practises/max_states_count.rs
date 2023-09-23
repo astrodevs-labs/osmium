@@ -1,7 +1,10 @@
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
-use solc_wrapper::*;
+use ast_extractor::*;
+
+pub const RULE_ID: &str = "max-states-count";
+const DEFAULT_MAX_STATES: usize = 15;
 
 pub struct MaxStatesCount {
     max_states: usize,
@@ -12,21 +15,20 @@ impl MaxStatesCount {
     fn create_diag(
         &self,
         file: &SolidFile,
-        location: (CodeLocation, CodeLocation),
+        location: (LineColumn, LineColumn),
         count: usize,
     ) -> LintDiag {
         LintDiag {
-            id: Self::RULE_ID.to_string(),
+            id: RULE_ID.to_string(),
             range: Range {
                 start: Position {
-                    line: location.0.line as u64,
-                    character: location.0.column as u64,
+                    line: location.0.line,
+                    character: location.0.column,
                 },
                 end: Position {
-                    line: location.1.line as u64,
-                    character: location.1.column as u64,
+                    line: location.1.line,
+                    character: location.1.column,
                 },
-                length: location.0.length as u64,
             },
             message: format!("Too many states: {}", count),
             severity: Some(self.data.severity),
@@ -39,25 +41,21 @@ impl MaxStatesCount {
 }
 
 impl RuleType for MaxStatesCount {
-    fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
+    fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
 
         let mut count = 0;
+        let contracts = retriever::retrieve_contract_nodes(&file.data);
 
-        // var def => contract def
-        for node in file.data.nodes.iter() {
-            let contract = match node {
-                SourceUnitChildNodes::ContractDefinition(contract) => contract,
-                _ => continue,
-            };
-            for node_var in contract.nodes.iter() {
+        for contract in contracts.iter() {
+            for node_var in contract.body.iter() {
                 let var = match node_var {
-                    ContractDefinitionChildNodes::VariableDeclaration(var) => var,
+                    Item::Variable(var) => var,
                     _ => continue,
                 };
                 count += 1;
                 if count > self.max_states {
-                    let location = decode_location(&var.src, &file.content);
+                    let location = (var.span().start(), var.span().end());
                     res.push(self.create_diag(file, location, count));
                 }
             }
@@ -67,19 +65,21 @@ impl RuleType for MaxStatesCount {
 }
 
 impl MaxStatesCount {
-    pub(crate) const RULE_ID: &'static str = "max-states-count";
-
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let rule = MaxStatesCount {
-            max_states: data.data[0].parse::<usize>().unwrap(),
-            data,
-        };
+        let mut max_states = DEFAULT_MAX_STATES;
+        if !data.data.is_empty() {
+            max_states = match data.data[0].parse::<usize>() {
+                Ok(v) => v,
+                Err(_) => DEFAULT_MAX_STATES,
+            };
+        }
+        let rule = MaxStatesCount { max_states, data };
         Box::new(rule)
     }
 
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
-            id: MaxStatesCount::RULE_ID.to_string(),
+            id: RULE_ID.to_string(),
             severity: Severity::WARNING,
             data: vec!["15".to_string()],
         }

@@ -1,9 +1,10 @@
-use crate::rules::types::{RuleEntry, RuleType};
+use crate::rules::types::{RuleEntry, RuleType, RulesMap};
 use std::collections::HashMap;
 
 pub mod factory;
 pub mod rule_impl;
 pub mod types;
+pub mod utils;
 
 // List all rules
 pub mod best_practises;
@@ -30,7 +31,7 @@ pub fn add_rules(rules: &mut HashMap<String, RuleBuilder>, to_add: HashMap<Strin
     }
 }
 
-pub fn create_rules() -> HashMap<String, fn(RuleEntry) -> Box<dyn RuleType>> {
+pub fn create_rules() -> RulesMap {
     let mut rules = HashMap::new();
 
     add_rules(&mut rules, best_practises::create_rules());

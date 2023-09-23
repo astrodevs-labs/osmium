@@ -4,7 +4,7 @@ use std::{fs, path::PathBuf};
 
 struct Finding {
     start: Position,
-    length: u64,
+    end: Position,
     id: String,
 }
 
@@ -32,10 +32,13 @@ fn test_directory(base_name: &str) {
                     let splitted_line: Vec<&str> = line.split(':').collect();
                     expected_findings.push(Finding {
                         start: Position {
-                            line: splitted_line[1].parse::<u64>().unwrap(),
-                            character: splitted_line[2].parse::<u64>().unwrap(),
+                            line: splitted_line[1].parse::<usize>().unwrap(),
+                            character: splitted_line[2].parse::<usize>().unwrap(),
                         },
-                        length: splitted_line[3].parse::<u64>().unwrap(),
+                        end: Position {
+                            line: splitted_line[3].parse::<usize>().unwrap(),
+                            character: splitted_line[4].parse::<usize>().unwrap(),
+                        },
                         id: splitted_line[0].to_string(),
                     });
                 }
@@ -52,13 +55,18 @@ fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>) {
     let result = linter.parse_file(String::from(source));
     match result {
         Ok(diags) => {
-            assert_eq!(diags.len(), expected_findings.len(), "Wrong number of findings for {}", source);
+            assert_eq!(
+                diags.len(),
+                expected_findings.len(),
+                "Wrong number of findings for {}",
+                source
+            );
             let mut found = false;
 
             for (_, diag) in diags.iter().enumerate() {
                 for (_, expected_finding) in expected_findings.iter().enumerate() {
                     if (diag.range.start == expected_finding.start)
-                        && (diag.range.length == expected_finding.length)
+                        && (diag.range.end == expected_finding.end)
                         && (diag.id == expected_finding.id)
                     {
                         found = true;
@@ -85,5 +93,13 @@ macro_rules! test_directories {
 }
 
 test_directories! {
-    LineMaxLen
+    ContractNamePascalCase,
+    FunctionMaxLines,
+    ImportOnTop,
+    LineMaxLen,
+    MaxStatesCount,
+    FunctionNameCamelCase,
+    FunctionParamNameCamelCase,
+    UseForbiddenName,
+    ReasonString,
 }

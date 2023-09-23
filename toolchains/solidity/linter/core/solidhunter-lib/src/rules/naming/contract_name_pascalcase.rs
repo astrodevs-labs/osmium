@@ -1,28 +1,35 @@
+use ast_extractor::Spanned;
+
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
-use solc_wrapper::{decode_location, CodeLocation, SourceUnitChildNodes};
+
+pub const RULE_ID: &str = "contract-name-pascalcase";
+const MESSAGE: &str = "Contract name need to be in pascal case";
 
 pub struct ContractNamePascalCase {
     data: RuleEntry,
 }
 
 impl ContractNamePascalCase {
-    fn create_diag(&self, location: (CodeLocation, CodeLocation), file: &SolidFile) -> LintDiag {
+    fn create_diag(
+        &self,
+        location: (ast_extractor::LineColumn, ast_extractor::LineColumn),
+        file: &SolidFile,
+    ) -> LintDiag {
         LintDiag {
-            id: "contract-name-pascalcase".to_string(),
+            id: RULE_ID.to_string(),
             range: Range {
                 start: Position {
-                    line: location.0.line as u64,
-                    character: location.0.column as u64,
+                    line: location.0.line,
+                    character: location.0.column,
                 },
                 end: Position {
-                    line: location.1.line as u64,
-                    character: location.1.column as u64,
+                    line: location.1.line,
+                    character: location.1.column,
                 },
-                length: location.0.length as u64,
             },
-            message: "Contract name need to be in pascal case".to_string(),
+            message: MESSAGE.to_string(),
             severity: Some(self.data.severity),
             code: None,
             source: None,
@@ -33,28 +40,18 @@ impl ContractNamePascalCase {
 }
 
 impl RuleType for ContractNamePascalCase {
-    fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
+    fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
+        let contracts = ast_extractor::retriever::retrieve_contract_nodes(&file.data);
 
-        for node in &file.data.nodes {
-            match node {
-                SourceUnitChildNodes::ContractDefinition(contract) => {
-                    if (contract.name.chars().nth(0).unwrap() >= 'a'
-                        && contract.name.chars().nth(0).unwrap() <= 'z')
-                        || contract.name.contains('_')
-                        || contract.name.contains('-')
-                    {
-                        //Untested
-                        let location = decode_location(
-                            contract.name_location.as_ref().unwrap(),
-                            &file.content,
-                        );
-                        res.push(self.create_diag(location, file));
-                    }
-                }
-                _ => {
-                    continue;
-                }
+        for contract in contracts {
+            if (contract.name.as_string().chars().nth(0).unwrap() >= 'a'
+                && contract.name.as_string().chars().nth(0).unwrap() <= 'z')
+                || contract.name.as_string().contains('_')
+                || contract.name.as_string().contains('-')
+            {
+                let span = contract.name.span();
+                res.push(self.create_diag((span.start(), span.end()), file));
             }
         }
         res
@@ -69,7 +66,7 @@ impl ContractNamePascalCase {
 
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
-            id: "contract-name-pascalcase".to_string(),
+            id: RULE_ID.to_string(),
             severity: Severity::WARNING,
             data: vec![],
         }

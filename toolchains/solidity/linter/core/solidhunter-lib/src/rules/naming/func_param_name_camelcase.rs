@@ -1,30 +1,34 @@
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
-use solc_wrapper::{
-    decode_location, CodeLocation, ContractDefinitionChildNodes, SourceUnitChildNodes,
-};
+use ast_extractor::Spanned;
+
+pub const RULE_ID: &str = "func-param-name-camelcase";
+const MESSAGE: &str = "Parameter name need to be in camel case";
 
 pub struct FuncParamNameCamelcase {
     data: RuleEntry,
 }
 
 impl FuncParamNameCamelcase {
-    fn create_diag(&self, location: (CodeLocation, CodeLocation), file: &SolidFile) -> LintDiag {
+    fn create_diag(
+        &self,
+        location: (ast_extractor::LineColumn, ast_extractor::LineColumn),
+        file: &SolidFile,
+    ) -> LintDiag {
         LintDiag {
-            id: "func-param-name-camelcase".to_string(),
+            id: RULE_ID.to_string(),
             range: Range {
                 start: Position {
-                    line: location.0.line as u64,
-                    character: location.0.column as u64,
+                    line: location.0.line,
+                    character: location.0.column,
                 },
                 end: Position {
-                    line: location.1.line as u64,
-                    character: location.1.column as u64,
+                    line: location.1.line,
+                    character: location.1.column,
                 },
-                length: location.0.length as u64,
             },
-            message: "Parameter name need to be in camel case".to_string(),
+            message: MESSAGE.to_string(),
             severity: Some(self.data.severity),
             code: None,
             source: None,
@@ -35,38 +39,23 @@ impl FuncParamNameCamelcase {
 }
 
 impl RuleType for FuncParamNameCamelcase {
-    fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
+    fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
+        let contracts = ast_extractor::retriever::retrieve_contract_nodes(&file.data);
 
-        for node in &file.data.nodes {
-            match node {
-                SourceUnitChildNodes::ContractDefinition(contract) => {
-                    for node in &contract.nodes {
-                        match node {
-                            ContractDefinitionChildNodes::FunctionDefinition(function) => {
-                                for parameter in &function.parameters.parameters {
-                                    if !(parameter.name.chars().nth(0).unwrap() >= 'a'
-                                        && parameter.name.chars().nth(0).unwrap() <= 'z')
-                                        || parameter.name.contains('_')
-                                        || parameter.name.contains('-')
-                                    {
-                                        //Untested
-                                        let location = decode_location(
-                                            parameter.name_location.as_ref().unwrap(),
-                                            &file.content,
-                                        );
-                                        res.push(self.create_diag(location, file));
-                                    }
-                                }
-                            }
-                            _ => {
-                                continue;
-                            }
+        for contract in contracts {
+            for function in ast_extractor::retriever::retrieve_functions_nodes(&contract) {
+                for arg in function.arguments.iter() {
+                    if let Some(name) = &arg.name {
+                        if !(name.as_string().chars().nth(0).unwrap() >= 'a'
+                            && name.as_string().chars().nth(0).unwrap() <= 'z')
+                            || name.as_string().contains('_')
+                            || name.as_string().contains('-')
+                        {
+                            let span = name.span();
+                            res.push(self.create_diag((span.start(), span.end()), file));
                         }
                     }
-                }
-                _ => {
-                    continue;
                 }
             }
         }
@@ -82,7 +71,7 @@ impl FuncParamNameCamelcase {
 
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
-            id: "func-param-name-camelcase".to_string(),
+            id: RULE_ID.to_string(),
             severity: Severity::WARNING,
             data: vec![],
         }

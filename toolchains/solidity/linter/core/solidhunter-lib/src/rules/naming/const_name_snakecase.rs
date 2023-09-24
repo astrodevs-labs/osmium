@@ -55,16 +55,14 @@ impl RuleType for ConstNameSnakeCase {
 
         for contract in contracts.iter() {
             for node_var in contract.body.iter() {
-                let var = match node_var {
-                    Item::Variable(var) => var,
-                    _ => continue,
-                };
-                if !var.attributes.has_constant() {
-                    continue;
-                }
-                if !is_snake_case(&var.name.as_string()) {
-                    let span = var.name.span();
-                    res.push(self.create_diag((span.start(), span.end()), file));
+                if let Item::Variable(var) = node_var {
+                    if !var.attributes.has_constant() {
+                        continue;
+                    }
+                    if !is_snake_case(&var.name.as_string()) {
+                        let span = var.name.span();
+                        res.push(self.create_diag((span.start(), span.end()), file));
+                    }
                 }
             }
         }

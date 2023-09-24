@@ -106,4 +106,5 @@ test_directories! {
     FunctionVisibility,
     OneContractPerFile,
     CustomErrors,
+    EventNameCamelCase
 }

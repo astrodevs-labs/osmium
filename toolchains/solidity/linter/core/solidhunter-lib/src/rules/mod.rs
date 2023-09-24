@@ -11,6 +11,7 @@ pub mod best_practises;
 pub mod miscellaneous;
 pub mod naming;
 pub mod order;
+pub mod security;
 
 pub fn create_default_rules() -> Vec<RuleEntry> {
     let mut rules = Vec::new();
@@ -19,6 +20,7 @@ pub fn create_default_rules() -> Vec<RuleEntry> {
     rules.append(&mut miscellaneous::create_default_rules());
     rules.append(&mut naming::create_default_rules());
     rules.append(&mut order::create_default_rules());
+    rules.append(&mut security::create_default_rules());
 
     rules
 }
@@ -38,6 +40,7 @@ pub fn create_rules() -> RulesMap {
     add_rules(&mut rules, naming::create_rules());
     add_rules(&mut rules, order::create_rules());
     add_rules(&mut rules, miscellaneous::create_rules());
+    add_rules(&mut rules, security::create_rules());
 
     rules
 }

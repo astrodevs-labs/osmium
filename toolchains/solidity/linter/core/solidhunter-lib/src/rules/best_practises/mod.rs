@@ -5,6 +5,7 @@ use std::collections::HashMap;
 pub mod line_maxlen;
 pub mod function_max_lines;
 pub mod max_states_count;
+pub mod payable_fallback;
 pub mod reason_string;
 
 // List all rules
@@ -12,6 +13,7 @@ pub mod reason_string;
 use crate::rules::best_practises::function_max_lines::FunctionMaxLines;
 use crate::rules::best_practises::line_maxlen::LineMaxLen;
 use crate::rules::best_practises::max_states_count::MaxStatesCount;
+use crate::rules::best_practises::payable_fallback::PayableFallback;
 use crate::rules::best_practises::reason_string::ReasonString;
 use crate::rules::RuleBuilder;
 
@@ -21,6 +23,7 @@ pub fn create_default_rules() -> Vec<RuleEntry> {
         MaxStatesCount::create_default(),
         FunctionMaxLines::create_default(),
         ReasonString::create_default(),
+        PayableFallback::create_default(),
     ]
 }
 
@@ -38,6 +41,10 @@ pub fn create_rules() -> RulesMap {
         FunctionMaxLines::create,
     );
     rules.insert(reason_string::RULE_ID.to_string(), ReasonString::create);
+    rules.insert(
+        payable_fallback::RULE_ID.to_string(),
+        PayableFallback::create,
+    );
 
     rules
 }

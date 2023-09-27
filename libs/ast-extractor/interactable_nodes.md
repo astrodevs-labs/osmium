@@ -28,13 +28,36 @@ File :
     * Variable { usages } (name)
         - VariableName(file, contract, function, property)
     
-    Enum
-    Struct
-    Event
-        Emit
-    Error(e en miniscule)
-    Library
-        usage
+    Enum { definition } (name, values)
+        - EnumName(file, Option<contract>, enum, name)
+        - EnumValue(file, contract, enum, value)
+    Enum { usages } (name)
+        - EnumName(file, Option<contract>, Option<function>, enum, name)
+
+    Struct { definition } (name)
+        - StructName(file, Option<contract>, struct, name)
+    Struct { instantiation } (type)
+        - StructInstantiation(file, contract, Option<function>, struct, new)
+    Struct { usages } (name)
+        - StructName(file, contract, Option<function>, struct, name)
+
+    Event { definition } (name, parameters)
+        - EventName(file, contract, event, name)
+        - EventParameter(file, contract, event, parameter)
+    Event { usages } (name)
+        - EventName(file, contract, Option<function>, event, name)
+
+    Error { definition } (name, type)
+        - ErrorName(file, contract, error, name)
+        - ErrorType(file, contract, error, type)
+    Error { usages }
+        - ErrorName(file, contract, Option<function>, error, name)
+
+    Library { definition } (name)
+        - LibraryName(file, Option<contract>, library, name)
+    Library { usages }
+        - LibraryName(file, contract, Option<function>, library, name)
+
     // TODO: search cast ast node
     // TODO: search super ast node
 

@@ -4,13 +4,13 @@ use crate::types::*;
 
 // const DEFAULT_SEVERITY: &str = "warn";
 const DEFAULT_MESSAGE: &str = "should not be an empty block";
-pub const RULE_ID: &str = "no-empty-block";
+pub const RULE_ID: &str = "empty-block";
 
-pub struct NoEmptyBlock {
+pub struct EmptyBlock {
     _data: RuleEntry,
 }
 
-impl RuleType for NoEmptyBlock {
+impl RuleType for EmptyBlock {
     fn diagnose(&self, _file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let _report = check_empty_block(_file);
@@ -76,9 +76,9 @@ fn check_empty_block(file: &SolidFile) -> Option<Range> {
     res
 }
 
-impl NoEmptyBlock {
+impl EmptyBlock {
     pub fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let rule = NoEmptyBlock { _data: data };
+        let rule = EmptyBlock { _data: data };
         Box::new(rule)
     }
 

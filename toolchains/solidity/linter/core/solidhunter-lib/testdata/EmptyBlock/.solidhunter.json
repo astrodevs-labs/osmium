@@ -57,7 +57,7 @@
       "data": []
     },
     {
-      "id": "no-empty-block",
+      "id": "empty-block",
       "severity": "WARNING",
       "data": []
     }

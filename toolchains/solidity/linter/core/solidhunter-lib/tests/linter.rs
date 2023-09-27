@@ -102,5 +102,5 @@ test_directories! {
     FunctionParamNameCamelCase,
     UseForbiddenName,
     ReasonString,
-    NoEmptyBlock,
+    EmptyBlock,
 }

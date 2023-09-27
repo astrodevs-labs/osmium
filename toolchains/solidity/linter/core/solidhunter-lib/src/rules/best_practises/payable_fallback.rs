@@ -40,7 +40,10 @@ fn check_fallback_payable(file: &SolidFile) -> Option<Range> {
     let mut line_index = 1;
 
     file.content.lines().for_each(|line| {
-        let fallback_index = line.find("fallback");
+        let mut fallback_index = line.find("fallback");
+        if !fallback_index.is_some() {
+            fallback_index = line.find("function");
+        }
         if fallback_index.is_some() {
             if !line.find("payable").is_some() {
                 res = Some(Range {

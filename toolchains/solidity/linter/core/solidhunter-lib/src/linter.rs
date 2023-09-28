@@ -30,19 +30,19 @@ impl SolidLinter {
         let mut linter = SolidLinter {
             files: Vec::new(),
             rule_factory: RuleFactory::default(),
-            rules: Vec::new(),
+            rules: vec![],
         };
         linter._create_rules(rules_config).unwrap();
         linter
     }
 
-    fn _create_rules(&mut self, rules_config: &String) -> Result<(), SolidHunterError> {
-        let res = parse_rules(rules_config.as_str())?;
-            for rule in res.rules {
-                self.rules.push(self.rule_factory.create_rule(rule));
-            }
-            Ok(())
+    fn _create_rules(&mut self, rules_config: &str) -> Result<(), SolidHunterError> {
+        let res = parse_rules(rules_config)?;
+        for rule in res.rules {
+            self.rules.push(self.rule_factory.create_rule(rule));
         }
+        Ok(())
+    }
 
     fn _file_exists(&self, path: &str) -> bool {
         for file in &self.files {

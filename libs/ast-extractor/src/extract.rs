@@ -3,7 +3,6 @@
  * Extract AST from solidity source code
  * author: 0xMemoryGrinder
  */
-
 use crate::errors::ExtractError;
 use proc_macro2::TokenStream;
 use std::str::FromStr;

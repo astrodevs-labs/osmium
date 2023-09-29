@@ -412,12 +412,6 @@ impl Client {
         server_opt.unwrap().send(Message::Notification(
             lsp_server::Notification::new(N::METHOD.to_string(), params),
         ));
-        /*if let State::Initialized | State::ShutDown = self.inner.state.get() {
-            self.send_notification_unchecked::<N>(params).await;
-        } else {
-            let msg = Request::from_notification::<N>(params);
-            trace!("server not initialized, supressing message: {}", msg);
-        }*/
     }
 
     fn send_notification_unchecked<N>(&self, params: N::Params)
@@ -432,10 +426,6 @@ impl Client {
         server_opt.unwrap().send(Message::Notification(
             lsp_server::Notification::new(N::METHOD.to_string(), params),
         ));
-        //let request = request::Request::from_notification::<N>(params);
-        /*if self.clone().call(request).await.is_err() {
-            error!("failed to send notification");
-        }*/
     }
 
     /// Sends a custom request to the client.
@@ -458,15 +448,6 @@ impl Client {
         server_opt.as_ref().unwrap().send(Message::Request(
             lsp_server::Request::new(RequestId::from(self.next_request_id().to_string()), R::METHOD.to_string(), params),
         ));
-
-        /*if let State::Initialized | State::ShutDown = self.inner.state.get() {
-            self.send_request_unchecked::<R>(params).await
-        } else {
-            let id = self.inner.request_id.load(Ordering::SeqCst) as i64 + 1;
-            let msg = Request::from_request::<R>(id.into(), params);
-            trace!("server not initialized, supressing message: {}", msg);
-            Err(jsonrpc::not_initialized_error())
-        }*/
         Err(jsonrpc::not_initialized_error())
     }
 
@@ -482,22 +463,6 @@ impl Client {
         server_opt.unwrap().send(Message::Request(
             lsp_server::Request::new(RequestId::from(self.next_request_id().to_string()), R::METHOD.to_string(), params),
         ));
-        /*let id = self.next_request_id();
-        let request = Request::from_request::<R>(id, params);
-
-        let response = match self.clone().call(request).await {
-            Ok(Some(response)) => response,
-            Ok(None) | Err(_) => return Err(Error::internal_error()),
-        };
-
-        let (_, result) = response.into_parts();
-        result.and_then(|v| {
-            serde_json::from_value(v).map_err(|e| Error {
-                code: ErrorCode::ParseError,
-                message: e.to_string().into(),
-                data: None,
-            })
-        })*/
         Err(jsonrpc::not_initialized_error())
     }
 }

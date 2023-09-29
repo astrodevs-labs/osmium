@@ -62,7 +62,6 @@ impl LanguageServer for Backend {
             eprintln!("diags: {:?}", diags);
             self.client.as_ref().borrow().log_message(MessageType::INFO, "diags: ");
             self.client.as_ref().borrow().publish_diagnostics(params.text_document.uri.clone(), diags, None);
-            //self.client.publish_diagnostics(params.text_document.uri, diags, None).await;
         } else if let Err(e) = diags_res {
             self.client.as_ref().borrow().log_message(MessageType::ERROR, e.to_string());
         }
@@ -83,7 +82,6 @@ impl LanguageServer for Backend {
             let diags = diags.iter().map(|d| diagnostic_from_lintdiag(d.clone())).collect();
             eprintln!("diags: {:?}", diags);
             self.client.as_ref().borrow().publish_diagnostics(params.text_document.uri.clone(), diags, None);
-            //self.client.publish_diagnostics(params.text_document.uri, diags, None).await;
         } else if let Err(e) = diags_res {
             self.client.as_ref().borrow().log_message(MessageType::ERROR, e.to_string());
         }
@@ -92,7 +90,6 @@ impl LanguageServer for Backend {
 
 pub fn filepath_from_uri(uri: &Url) -> String {
     let path = uri.path();
-//    let path = path.strip_prefix("/").unwrap_or(path);
     path.to_string()
 }
 

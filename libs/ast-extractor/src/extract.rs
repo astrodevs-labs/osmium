@@ -7,8 +7,8 @@ use crate::errors::ExtractError;
 use proc_macro2::TokenStream;
 use std::str::FromStr;
 
-pub fn extract_ast_from_content(content: &String) -> Result<syn_solidity::File, ExtractError> {
-    let tokens = TokenStream::from_str(content.as_str())?;
+pub fn extract_ast_from_content(content: &str) -> Result<syn_solidity::File, ExtractError> {
+    let tokens = TokenStream::from_str(content)?;
     let ast = syn_solidity::parse2(tokens)?;
     Ok(ast)
 }

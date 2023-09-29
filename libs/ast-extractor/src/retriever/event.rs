@@ -40,13 +40,13 @@ impl<'ast> Visit<'ast> for EventVisitor {
 
 pub fn retrieve_events_contract_nodes(ast: &syn_solidity::ItemContract) -> Vec<ItemEvent> {
     let mut visitor = EventVisitor::new();
-    visitor.visit_item_contract(&ast);
+    visitor.visit_item_contract(ast);
     visitor.contract_events
 }
 
 pub fn retrieve_events_file_nodes(ast: &syn_solidity::File) -> Vec<ItemEvent> {
     let mut visitor = EventVisitor::new();
-    visitor.visit_file(&ast);
+    visitor.visit_file(ast);
     visitor.file_events
 }
 

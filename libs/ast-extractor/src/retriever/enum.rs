@@ -40,13 +40,13 @@ impl<'ast> Visit<'ast> for EnumVisitor {
 
 pub fn retrieve_enums_contract_nodes(ast: &syn_solidity::ItemContract) -> Vec<ItemEnum> {
     let mut visitor = EnumVisitor::new();
-    visitor.visit_item_contract(&ast);
+    visitor.visit_item_contract(ast);
     visitor.contract_enums
 }
 
 pub fn retrieve_enums_file_nodes(ast: &syn_solidity::File) -> Vec<ItemEnum> {
     let mut visitor = EnumVisitor::new();
-    visitor.visit_file(&ast);
+    visitor.visit_file(ast);
     visitor.file_enums
 }
 

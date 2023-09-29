@@ -39,13 +39,13 @@ impl<'ast> Visit<'ast> for StructVisitor {
 
 pub fn retrieve_structs_contract_nodes(ast: &syn_solidity::ItemContract) -> Vec<ItemStruct> {
     let mut visitor = StructVisitor::new();
-    visitor.visit_item_contract(&ast);
+    visitor.visit_item_contract(ast);
     visitor.contract_structs
 }
 
 pub fn retrieve_structs_file_nodes(ast: &syn_solidity::File) -> Vec<ItemStruct> {
     let mut visitor = StructVisitor::new();
-    visitor.visit_file(&ast);
+    visitor.visit_file(ast);
     visitor.file_structs
 }
 

@@ -24,7 +24,7 @@ impl<'ast> Visit<'ast> for UdtVisitor {
 
 pub fn retrieve_udts_nodes(ast: &syn_solidity::File) -> Vec<ItemUdt> {
     let mut visitor = UdtVisitor::new();
-    visitor.visit_file(&ast);
+    visitor.visit_file(ast);
     visitor.udts
 }
 

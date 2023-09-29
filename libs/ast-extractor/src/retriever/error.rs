@@ -24,7 +24,7 @@ impl<'ast> Visit<'ast> for ErrorVisitor {
 
 pub fn retrieve_errors_nodes(ast: &syn_solidity::ItemContract) -> Vec<ItemError> {
     let mut visitor = ErrorVisitor::new();
-    visitor.visit_item_contract(&ast);
+    visitor.visit_item_contract(ast);
     visitor.errors
 }
 

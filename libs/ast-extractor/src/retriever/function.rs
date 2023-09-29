@@ -26,7 +26,7 @@ impl<'ast> Visit<'ast> for FunctionVisitor {
 
 pub fn retrieve_functions_nodes(ast: &syn_solidity::ItemContract) -> Vec<ItemFunction> {
     let mut visitor = FunctionVisitor::new();
-    visitor.visit_item_contract(&ast);
+    visitor.visit_item_contract(ast);
     visitor.functions
 }
 

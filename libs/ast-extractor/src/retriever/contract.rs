@@ -26,7 +26,7 @@ impl<'ast> Visit<'ast> for ContractVisitor {
 
 pub fn retrieve_contract_nodes(ast: &syn_solidity::File) -> Vec<ItemContract> {
     let mut visitor = ContractVisitor::new();
-    visitor.visit_file(&ast);
+    visitor.visit_file(ast);
     visitor.contracts
 }
 

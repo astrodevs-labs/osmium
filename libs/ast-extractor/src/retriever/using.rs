@@ -24,7 +24,7 @@ impl<'ast> Visit<'ast> for UsingVisitor {
 
 pub fn retrieve_usings_nodes(ast: &syn_solidity::ItemContract) -> Vec<UsingDirective> {
     let mut visitor = UsingVisitor::new();
-    visitor.visit_item_contract(&ast);
+    visitor.visit_item_contract(ast);
     visitor.usings
 }
 

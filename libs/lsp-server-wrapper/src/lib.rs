@@ -5,7 +5,6 @@ mod service;
 
 pub use lsp_types;
 use lsp_types::*;
-use tracing::{error, warn};
 use lsp_types::request::{
     GotoDeclarationParams, GotoDeclarationResponse, GotoImplementationParams,
     GotoImplementationResponse, GotoTypeDefinitionParams, GotoTypeDefinitionResponse,
@@ -67,7 +66,7 @@ pub trait LanguageServer {
     /// client. It doesn't necessarily mean that its content is presented in an editor.
     fn did_open(&self, params: DidOpenTextDocumentParams) {
         let _ = params;
-        warn!("Got a textDocument/didOpen notification, but it is not implemented");
+        eprintln!("Got a textDocument/didOpen notification, but it is not implemented");
     }
 
     /// The [`textDocument/didChange`] notification is sent from the client to the server to signal
@@ -79,7 +78,7 @@ pub trait LanguageServer {
     /// document for the server to interpret.
     fn did_change(&self, params: DidChangeTextDocumentParams) {
         let _ = params;
-        warn!("Got a textDocument/didChange notification, but it is not implemented");
+        eprintln!("Got a textDocument/didChange notification, but it is not implemented");
     }
 
     /// The [`textDocument/willSave`] notification is sent from the client to the server before the
@@ -88,7 +87,7 @@ pub trait LanguageServer {
     /// [`textDocument/willSave`]: https://microsoft.github.io/language-server-protocol/specification#textDocument_willSave
     fn will_save(&self, params: WillSaveTextDocumentParams) {
         let _ = params;
-        warn!("Got a textDocument/willSave notification, but it is not implemented");
+        eprintln!("Got a textDocument/willSave notification, but it is not implemented");
     }
 
     /// The [`textDocument/willSaveWaitUntil`] request is sent from the client to the server before
@@ -106,7 +105,7 @@ pub trait LanguageServer {
         params: WillSaveTextDocumentParams,
     ) -> Result<Option<Vec<TextEdit>>> {
         let _ = params;
-        error!("Got a textDocument/willSaveWaitUntil request, but it is not implemented");
+        eprintln!("Got a textDocument/willSaveWaitUntil request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -116,7 +115,7 @@ pub trait LanguageServer {
     /// [`textDocument/didSave`]: https://microsoft.github.io/language-server-protocol/specification#textDocument_didSave
     fn did_save(&self, params: DidSaveTextDocumentParams) {
         let _ = params;
-        warn!("Got a textDocument/didSave notification, but it is not implemented");
+        eprintln!("Got a textDocument/didSave notification, but it is not implemented");
     }
 
     /// The [`textDocument/didClose`] notification is sent from the client to the server when the
@@ -128,7 +127,7 @@ pub trait LanguageServer {
     /// URI is a file URI, the truth now exists on disk).
     fn did_close(&self, params: DidCloseTextDocumentParams) {
         let _ = params;
-        warn!("Got a textDocument/didClose notification, but it is not implemented");
+        eprintln!("Got a textDocument/didClose notification, but it is not implemented");
     }
 
     // Language Features
@@ -155,7 +154,7 @@ pub trait LanguageServer {
         params: GotoDeclarationParams,
     ) -> Result<Option<GotoDeclarationResponse>> {
         let _ = params;
-        error!("Got a textDocument/declaration request, but it is not implemented");
+        eprintln!("Got a textDocument/declaration request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -179,7 +178,7 @@ pub trait LanguageServer {
         params: GotoDefinitionParams,
     ) -> Result<Option<GotoDefinitionResponse>> {
         let _ = params;
-        error!("Got a textDocument/definition request, but it is not implemented");
+        eprintln!("Got a textDocument/definition request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -205,7 +204,7 @@ pub trait LanguageServer {
         params: GotoTypeDefinitionParams,
     ) -> Result<Option<GotoTypeDefinitionResponse>> {
         let _ = params;
-        error!("Got a textDocument/typeDefinition request, but it is not implemented");
+        eprintln!("Got a textDocument/typeDefinition request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -231,7 +230,7 @@ pub trait LanguageServer {
         params: GotoImplementationParams,
     ) -> Result<Option<GotoImplementationResponse>> {
         let _ = params;
-        error!("Got a textDocument/implementation request, but it is not implemented");
+        eprintln!("Got a textDocument/implementation request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -242,7 +241,7 @@ pub trait LanguageServer {
 
     fn references(&self, params: ReferenceParams) -> Result<Option<Vec<Location>>> {
         let _ = params;
-        error!("Got a textDocument/references request, but it is not implemented");
+        eprintln!("Got a textDocument/references request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -269,7 +268,7 @@ pub trait LanguageServer {
         params: CallHierarchyPrepareParams,
     ) -> Result<Option<Vec<CallHierarchyItem>>> {
         let _ = params;
-        error!("Got a textDocument/prepareCallHierarchy request, but it is not implemented");
+        eprintln!("Got a textDocument/prepareCallHierarchy request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -290,7 +289,7 @@ pub trait LanguageServer {
         params: CallHierarchyIncomingCallsParams,
     ) -> Result<Option<Vec<CallHierarchyIncomingCall>>> {
         let _ = params;
-        error!("Got a callHierarchy/incomingCalls request, but it is not implemented");
+        eprintln!("Got a callHierarchy/incomingCalls request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -311,7 +310,7 @@ pub trait LanguageServer {
         params: CallHierarchyOutgoingCallsParams,
     ) -> Result<Option<Vec<CallHierarchyOutgoingCall>>> {
         let _ = params;
-        error!("Got a callHierarchy/outgoingCalls request, but it is not implemented");
+        eprintln!("Got a callHierarchy/outgoingCalls request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -336,7 +335,7 @@ pub trait LanguageServer {
         params: TypeHierarchyPrepareParams,
     ) -> Result<Option<Vec<TypeHierarchyItem>>> {
         let _ = params;
-        error!("Got a textDocument/prepareTypeHierarchy request, but it is not implemented");
+        eprintln!("Got a textDocument/prepareTypeHierarchy request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -356,7 +355,7 @@ pub trait LanguageServer {
         params: TypeHierarchySupertypesParams,
     ) -> Result<Option<Vec<TypeHierarchyItem>>> {
         let _ = params;
-        error!("Got a typeHierarchy/supertypes request, but it is not implemented");
+        eprintln!("Got a typeHierarchy/supertypes request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -376,7 +375,7 @@ pub trait LanguageServer {
         params: TypeHierarchySubtypesParams,
     ) -> Result<Option<Vec<TypeHierarchyItem>>> {
         let _ = params;
-        error!("Got a typeHierarchy/subtypes request, but it is not implemented");
+        eprintln!("Got a typeHierarchy/subtypes request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -395,7 +394,7 @@ pub trait LanguageServer {
         params: DocumentHighlightParams,
     ) -> Result<Option<Vec<DocumentHighlight>>> {
         let _ = params;
-        error!("Got a textDocument/documentHighlight request, but it is not implemented");
+        eprintln!("Got a textDocument/documentHighlight request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -418,7 +417,7 @@ pub trait LanguageServer {
     /// ```
     fn document_link(&self, params: DocumentLinkParams) -> Result<Option<Vec<DocumentLink>>> {
         let _ = params;
-        error!("Got a textDocument/documentLink request, but it is not implemented");
+        eprintln!("Got a textDocument/documentLink request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -431,7 +430,7 @@ pub trait LanguageServer {
     /// resource, like another text document or a web site.
     fn document_link_resolve(&self, params: DocumentLink) -> Result<DocumentLink> {
         let _ = params;
-        error!("Got a documentLink/resolve request, but it is not implemented");
+        eprintln!("Got a documentLink/resolve request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -444,7 +443,7 @@ pub trait LanguageServer {
     /// documentation for the symbol at the given text document position.
     fn hover(&self, params: HoverParams) -> Result<Option<Hover>> {
         let _ = params;
-        error!("Got a textDocument/hover request, but it is not implemented");
+        eprintln!("Got a textDocument/hover request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -455,7 +454,7 @@ pub trait LanguageServer {
 
     fn code_lens(&self, params: CodeLensParams) -> Result<Option<Vec<CodeLens>>> {
         let _ = params;
-        error!("Got a textDocument/codeLens request, but it is not implemented");
+        eprintln!("Got a textDocument/codeLens request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -466,7 +465,7 @@ pub trait LanguageServer {
 
     fn code_lens_resolve(&self, params: CodeLens) -> Result<CodeLens> {
         let _ = params;
-        error!("Got a codeLens/resolve request, but it is not implemented");
+        eprintln!("Got a codeLens/resolve request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -481,7 +480,7 @@ pub trait LanguageServer {
 
     fn folding_range(&self, params: FoldingRangeParams) -> Result<Option<Vec<FoldingRange>>> {
         let _ = params;
-        error!("Got a textDocument/foldingRange request, but it is not implemented");
+        eprintln!("Got a textDocument/foldingRange request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -503,7 +502,7 @@ pub trait LanguageServer {
         params: SelectionRangeParams,
     ) -> Result<Option<Vec<SelectionRange>>> {
         let _ = params;
-        error!("Got a textDocument/selectionRange request, but it is not implemented");
+        eprintln!("Got a textDocument/selectionRange request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -525,7 +524,7 @@ pub trait LanguageServer {
         params: DocumentSymbolParams,
     ) -> Result<Option<DocumentSymbolResponse>> {
         let _ = params;
-        error!("Got a textDocument/documentSymbol request, but it is not implemented");
+        eprintln!("Got a textDocument/documentSymbol request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -550,7 +549,7 @@ pub trait LanguageServer {
         params: SemanticTokensParams,
     ) -> Result<Option<SemanticTokensResult>> {
         let _ = params;
-        error!("Got a textDocument/semanticTokens/full request, but it is not implemented");
+        eprintln!("Got a textDocument/semanticTokens/full request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -571,7 +570,7 @@ pub trait LanguageServer {
         params: SemanticTokensDeltaParams,
     ) -> Result<Option<SemanticTokensFullDeltaResult>> {
         let _ = params;
-        error!("Got a textDocument/semanticTokens/full/delta request, but it is not implemented");
+        eprintln!("Got a textDocument/semanticTokens/full/delta request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -597,7 +596,7 @@ pub trait LanguageServer {
         params: SemanticTokensRangeParams,
     ) -> Result<Option<SemanticTokensRangeResult>> {
         let _ = params;
-        error!("Got a textDocument/semanticTokens/range request, but it is not implemented");
+        eprintln!("Got a textDocument/semanticTokens/range request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -613,7 +612,7 @@ pub trait LanguageServer {
 
     fn inline_value(&self, params: InlineValueParams) -> Result<Option<Vec<InlineValue>>> {
         let _ = params;
-        error!("Got a textDocument/inlineValue request, but it is not implemented");
+        eprintln!("Got a textDocument/inlineValue request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -629,7 +628,7 @@ pub trait LanguageServer {
 
     fn inlay_hint(&self, params: InlayHintParams) -> Result<Option<Vec<InlayHint>>> {
         let _ = params;
-        error!("Got a textDocument/inlayHint request, but it is not implemented");
+        eprintln!("Got a textDocument/inlayHint request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -658,7 +657,7 @@ pub trait LanguageServer {
 
     fn inlay_hint_resolve(&self, params: InlayHint) -> Result<InlayHint> {
         let _ = params;
-        error!("Got a inlayHint/resolve request, but it is not implemented");
+        eprintln!("Got a inlayHint/resolve request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -688,7 +687,7 @@ pub trait LanguageServer {
 
     fn moniker(&self, params: MonikerParams) -> Result<Option<Vec<Moniker>>> {
         let _ = params;
-        error!("Got a textDocument/moniker request, but it is not implemented");
+        eprintln!("Got a textDocument/moniker request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -713,7 +712,7 @@ pub trait LanguageServer {
 
     fn completion(&self, params: CompletionParams) -> Result<Option<CompletionResponse>> {
         let _ = params;
-        error!("Got a textDocument/completion request, but it is not implemented");
+        eprintln!("Got a textDocument/completion request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -724,7 +723,7 @@ pub trait LanguageServer {
 
     fn completion_resolve(&self, params: CompletionItem) -> Result<CompletionItem> {
         let _ = params;
-        error!("Got a completionItem/resolve request, but it is not implemented");
+        eprintln!("Got a completionItem/resolve request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -748,7 +747,7 @@ pub trait LanguageServer {
         params: DocumentDiagnosticParams,
     ) -> Result<DocumentDiagnosticReportResult> {
         let _ = params;
-        error!("Got a textDocument/diagnostic request, but it is not implemented");
+        eprintln!("Got a textDocument/diagnostic request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -786,7 +785,7 @@ pub trait LanguageServer {
         params: WorkspaceDiagnosticParams,
     ) -> Result<WorkspaceDiagnosticReportResult> {
         let _ = params;
-        error!("Got a workspace/diagnostic request, but it is not implemented");
+        eprintln!("Got a workspace/diagnostic request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -797,7 +796,7 @@ pub trait LanguageServer {
 
     fn signature_help(&self, params: SignatureHelpParams) -> Result<Option<SignatureHelp>> {
         let _ = params;
-        error!("Got a textDocument/signatureHelp request, but it is not implemented");
+        eprintln!("Got a textDocument/signatureHelp request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -857,7 +856,7 @@ pub trait LanguageServer {
 
     fn code_action(&self, params: CodeActionParams) -> Result<Option<CodeActionResponse>> {
         let _ = params;
-        error!("Got a textDocument/codeAction request, but it is not implemented");
+        eprintln!("Got a textDocument/codeAction request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -875,7 +874,7 @@ pub trait LanguageServer {
 
     fn code_action_resolve(&self, params: CodeAction) -> Result<CodeAction> {
         let _ = params;
-        error!("Got a codeAction/resolve request, but it is not implemented");
+        eprintln!("Got a codeAction/resolve request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -896,7 +895,7 @@ pub trait LanguageServer {
 
     fn document_color(&self, params: DocumentColorParams) -> Result<Vec<ColorInformation>> {
         let _ = params;
-        error!("Got a textDocument/documentColor request, but it is not implemented");
+        eprintln!("Got a textDocument/documentColor request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -922,7 +921,7 @@ pub trait LanguageServer {
         params: ColorPresentationParams,
     ) -> Result<Vec<ColorPresentation>> {
         let _ = params;
-        error!("Got a textDocument/colorPresentation request, but it is not implemented");
+        eprintln!("Got a textDocument/colorPresentation request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -933,7 +932,7 @@ pub trait LanguageServer {
 
     fn formatting(&self, params: DocumentFormattingParams) -> Result<Option<Vec<TextEdit>>> {
         let _ = params;
-        error!("Got a textDocument/formatting request, but it is not implemented");
+        eprintln!("Got a textDocument/formatting request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -947,7 +946,7 @@ pub trait LanguageServer {
         params: DocumentRangeFormattingParams,
     ) -> Result<Option<Vec<TextEdit>>> {
         let _ = params;
-        error!("Got a textDocument/rangeFormatting request, but it is not implemented");
+        eprintln!("Got a textDocument/rangeFormatting request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -961,7 +960,7 @@ pub trait LanguageServer {
         params: DocumentOnTypeFormattingParams,
     ) -> Result<Option<Vec<TextEdit>>> {
         let _ = params;
-        error!("Got a textDocument/onTypeFormatting request, but it is not implemented");
+        eprintln!("Got a textDocument/onTypeFormatting request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -973,7 +972,7 @@ pub trait LanguageServer {
 
     fn rename(&self, params: RenameParams) -> Result<Option<WorkspaceEdit>> {
         let _ = params;
-        error!("Got a textDocument/rename request, but it is not implemented");
+        eprintln!("Got a textDocument/rename request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -991,7 +990,7 @@ pub trait LanguageServer {
         params: TextDocumentPositionParams,
     ) -> Result<Option<PrepareRenameResponse>> {
         let _ = params;
-        error!("Got a textDocument/prepareRename request, but it is not implemented");
+        eprintln!("Got a textDocument/prepareRename request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -1016,7 +1015,7 @@ pub trait LanguageServer {
         params: LinkedEditingRangeParams,
     ) -> Result<Option<LinkedEditingRanges>> {
         let _ = params;
-        error!("Got a textDocument/linkedEditingRange request, but it is not implemented");
+        eprintln!("Got a textDocument/linkedEditingRange request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -1044,7 +1043,7 @@ pub trait LanguageServer {
         params: WorkspaceSymbolParams,
     ) -> Result<Option<Vec<SymbolInformation>>> {
         let _ = params;
-        error!("Got a workspace/symbol request, but it is not implemented");
+        eprintln!("Got a workspace/symbol request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -1061,7 +1060,7 @@ pub trait LanguageServer {
 
     fn symbol_resolve(&self, params: WorkspaceSymbol) -> Result<WorkspaceSymbol> {
         let _ = params;
-        error!("Got a workspaceSymbol/resolve request, but it is not implemented");
+        eprintln!("Got a workspaceSymbol/resolve request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -1072,7 +1071,7 @@ pub trait LanguageServer {
 
     fn did_change_configuration(&self, params: DidChangeConfigurationParams) {
         let _ = params;
-        warn!("Got a workspace/didChangeConfiguration notification, but it is not implemented");
+        eprintln!("Got a workspace/didChangeConfiguration notification, but it is not implemented");
     }
 
     /// The [`workspace/didChangeWorkspaceFolders`] notification is sent from the client to the
@@ -1091,7 +1090,7 @@ pub trait LanguageServer {
 
     fn did_change_workspace_folders(&self, params: DidChangeWorkspaceFoldersParams) {
         let _ = params;
-        warn!("Got a workspace/didChangeWorkspaceFolders notification, but it is not implemented");
+        eprintln!("Got a workspace/didChangeWorkspaceFolders notification, but it is not implemented");
     }
 
     /// The [`workspace/willCreateFiles`] request is sent from the client to the server before
@@ -1110,7 +1109,7 @@ pub trait LanguageServer {
 
     fn will_create_files(&self, params: CreateFilesParams) -> Result<Option<WorkspaceEdit>> {
         let _ = params;
-        error!("Got a workspace/willCreateFiles request, but it is not implemented");
+        eprintln!("Got a workspace/willCreateFiles request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -1121,7 +1120,7 @@ pub trait LanguageServer {
 
     fn did_create_files(&self, params: CreateFilesParams) {
         let _ = params;
-        warn!("Got a workspace/didCreateFiles notification, but it is not implemented");
+        eprintln!("Got a workspace/didCreateFiles notification, but it is not implemented");
     }
 
     /// The [`workspace/willRenameFiles`] request is sent from the client to the server before
@@ -1140,7 +1139,7 @@ pub trait LanguageServer {
 
     fn will_rename_files(&self, params: RenameFilesParams) -> Result<Option<WorkspaceEdit>> {
         let _ = params;
-        error!("Got a workspace/willRenameFiles request, but it is not implemented");
+        eprintln!("Got a workspace/willRenameFiles request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -1151,7 +1150,7 @@ pub trait LanguageServer {
 
     fn did_rename_files(&self, params: RenameFilesParams) {
         let _ = params;
-        warn!("Got a workspace/didRenameFiles notification, but it is not implemented");
+        eprintln!("Got a workspace/didRenameFiles notification, but it is not implemented");
     }
 
     /// The [`workspace/willDeleteFiles`] request is sent from the client to the server before
@@ -1171,7 +1170,7 @@ pub trait LanguageServer {
 
     fn will_delete_files(&self, params: DeleteFilesParams) -> Result<Option<WorkspaceEdit>> {
         let _ = params;
-        error!("Got a workspace/willDeleteFiles request, but it is not implemented");
+        eprintln!("Got a workspace/willDeleteFiles request, but it is not implemented");
         Err(Error::method_not_found())
     }
 
@@ -1182,7 +1181,7 @@ pub trait LanguageServer {
 
     fn did_delete_files(&self, params: DeleteFilesParams) {
         let _ = params;
-        warn!("Got a workspace/didDeleteFiles notification, but it is not implemented");
+        eprintln!("Got a workspace/didDeleteFiles notification, but it is not implemented");
     }
 
     /// The [`workspace/didChangeWatchedFiles`] notification is sent from the client to the server
@@ -1196,7 +1195,7 @@ pub trait LanguageServer {
 
     fn did_change_watched_files(&self, params: DidChangeWatchedFilesParams) {
         let _ = params;
-        warn!("Got a workspace/didChangeWatchedFiles notification, but it is not implemented");
+        eprintln!("Got a workspace/didChangeWatchedFiles notification, but it is not implemented");
     }
 
     /// The [`workspace/executeCommand`] request is sent from the client to the server to trigger
@@ -1209,7 +1208,7 @@ pub trait LanguageServer {
 
     fn execute_command(&self, params: ExecuteCommandParams) -> Result<Option<Value>> {
         let _ = params;
-        error!("Got a workspace/executeCommand request, but it is not implemented");
+        eprintln!("Got a workspace/executeCommand request, but it is not implemented");
         Err(Error::method_not_found())
     }
 

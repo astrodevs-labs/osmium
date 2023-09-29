@@ -85,24 +85,46 @@ impl<'a> LspStdioServer {
             match msg {
                 Message::Request(req) => {
                     let id = req.id.clone();
-                    let is_shutdown = self.inner.connection.handle_shutdown(&req)?;
-                    let result = service.call_request(&req.method, req.params)?;
+                    let is_shutdown = self.inner.connection.handle_shutdown(&req);
+                    let is_shutdown = match is_shutdown {
+                        Ok(is_shutdown) => is_shutdown,
+                        Err(e) => {
+                            eprintln!("Handle shutdown Error: {}", e);
+                            continue
+                        }
+                    };
+                    let result = service.call_request(&req.method, req.params);
+                    let result = match result {
+                        Ok(result) => result,
+                        Err(e) => {
+                            eprintln!("Call request Error: {}", e);
+                            continue
+                        }
+                    };
                     let resp = Response { id, result, error: None };
                     if is_shutdown {
+                        eprintln!("Shutting down");
                         return Ok(());
                     }
-                    self.inner.connection.sender.send(Message::Response(resp))?;
+                    let status = self.inner.connection.sender.send(Message::Response(resp));
+                    if status.is_err() {
+                        eprintln!("Error sending request's response: {status:?}");
+                    }
                     continue;
                 }
                 Message::Response(resp) => {
                     eprintln!("got response: {resp:?}");
                 }
                 Message::Notification(not) => {
-                    service.call_notification(&not.method, not.params)?;
+                    let status = service.call_notification(&not.method, not.params);
+                    if status.is_err() {
+                        eprintln!("Error calling notification ({}): {status:?}", not.method);
+                    }
                     continue;
                 }
             }
         }
+        eprintln!("Out of loop");
         Ok(())
     }
 }

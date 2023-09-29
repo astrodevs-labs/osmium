@@ -22,9 +22,9 @@ impl<'ast> Visit<'ast> for ErrorVisitor {
     }
 }
 
-pub fn retrieve_errors_nodes(ast: syn_solidity::ItemContract) -> Vec<ItemError> {
+pub fn retrieve_errors_nodes(ast: &syn_solidity::ItemContract) -> Vec<ItemError> {
     let mut visitor = ErrorVisitor::new();
-    visitor.visit_item_contract(&ast);
+    visitor.visit_item_contract(ast);
     visitor.errors
 }
 
@@ -51,7 +51,7 @@ mod tests {
         let item = ast.items.first().unwrap().clone();
 
         if let Item::Contract(contract) = item {
-            let res = retrieve_errors_nodes(contract);
+            let res = retrieve_errors_nodes(&contract);
             assert_eq!(res.len(), 0);
         } else {
             panic!("Item should not have error");
@@ -76,7 +76,7 @@ mod tests {
             .clone();
 
         if let Item::Contract(contract) = item {
-            let res = retrieve_errors_nodes(contract);
+            let res = retrieve_errors_nodes(&contract);
             assert_eq!(res.len(), 1);
         } else {
             panic!("Item should have a contract");

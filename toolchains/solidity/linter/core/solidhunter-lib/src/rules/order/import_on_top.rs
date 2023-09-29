@@ -1,22 +1,53 @@
+use ast_extractor::Spanned;
+
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
-use solc_wrapper::{decode_location, SourceUnitChildNodes};
+
+pub const RULE_ID: &str = "import-on-top";
+const MESSAGE: &str = "Import must be on top in the file";
 
 pub struct ImportOnTop {
-    data: RuleEntry
+    data: RuleEntry,
+}
+
+impl ImportOnTop {
+    fn create_diag(
+        &self,
+        file: &SolidFile,
+        location: (ast_extractor::LineColumn, ast_extractor::LineColumn),
+    ) -> LintDiag {
+        let range = Range {
+            start: Position {
+                line: location.0.line,
+                character: location.0.column,
+            },
+            end: Position {
+                line: location.1.line,
+                character: location.1.column,
+            },
+        };
+        LintDiag {
+            id: RULE_ID.to_string(),
+            range,
+            message: MESSAGE.to_string(),
+            severity: Some(self.data.severity),
+            code: None,
+            source: None,
+            uri: file.path.clone(),
+            source_file_content: file.content.clone(),
+        }
+    }
 }
 
 impl RuleType for ImportOnTop {
-
-    fn diagnose(&self, file: &SolidFile, _files: &Vec<SolidFile>) -> Vec<LintDiag> {
-
+    fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let mut last_import_location = 0;
 
-        for i in 1..file.data.nodes.len() {
-            match &file.data.nodes[i] {
-                SourceUnitChildNodes::ImportDirective(_) => {
+        for i in 1..file.data.items.len() {
+            match &file.data.items[i] {
+                ast_extractor::Item::Import(_) => {
                     last_import_location = i;
                 }
                 _ => {
@@ -25,28 +56,12 @@ impl RuleType for ImportOnTop {
             }
         }
 
-        for i in 1..file.data.nodes.len() {
-            match &file.data.nodes[i] {
-                SourceUnitChildNodes::ImportDirective(import) => {
-                    if i > last_import_location {
-                        let location = decode_location(&import.src, &file.content);
-                        
-                        res.push(LintDiag {
-                            range: Range {
-                                start: Position { line: location.0.line as u64, character: location.0.column as u64 },
-                                end: Position { line: location.1.line as u64, character: location.1.column as u64 },
-                                length: location.0.length as u64
-                            },
-                            message: format!("Import must be on top in the file"),
-                            severity: Some(self.data.severity),
-                            code: None,
-                            source: None,
-                            uri: file.path.clone(),
-                            source_file_content: file.content.clone(),
-                        });
-                    }
+        for i in 1..file.data.items.len() {
+            if let ast_extractor::Item::Import(import) = &file.data.items[i] {
+                if i > last_import_location {
+                    let location = (import.span().start(), import.span().end());
+                    res.push(self.create_diag(file, location));
                 }
-                _ => {}
             }
         }
 
@@ -56,17 +71,15 @@ impl RuleType for ImportOnTop {
 
 impl ImportOnTop {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let rule  = ImportOnTop {
-            data
-        };
+        let rule = ImportOnTop { data };
         Box::new(rule)
     }
 
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
-            id: "import-on-top".to_string(),
+            id: RULE_ID.to_string(),
             severity: Severity::WARNING,
-            data: vec![]
+            data: vec![],
         }
     }
 }

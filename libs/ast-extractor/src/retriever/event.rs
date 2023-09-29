@@ -38,15 +38,15 @@ impl<'ast> Visit<'ast> for EventVisitor {
     }
 }
 
-pub fn retrieve_events_contract_nodes(ast: syn_solidity::ItemContract) -> Vec<ItemEvent> {
+pub fn retrieve_events_contract_nodes(ast: &syn_solidity::ItemContract) -> Vec<ItemEvent> {
     let mut visitor = EventVisitor::new();
-    visitor.visit_item_contract(&ast);
+    visitor.visit_item_contract(ast);
     visitor.contract_events
 }
 
-pub fn retrieve_events_file_nodes(ast: syn_solidity::File) -> Vec<ItemEvent> {
+pub fn retrieve_events_file_nodes(ast: &syn_solidity::File) -> Vec<ItemEvent> {
     let mut visitor = EventVisitor::new();
-    visitor.visit_file(&ast);
+    visitor.visit_file(ast);
     visitor.file_events
 }
 
@@ -74,7 +74,7 @@ mod tests {
         let item = ast.items.first().unwrap().clone();
 
         if let Item::Contract(contract) = item {
-            let res = retrieve_events_contract_nodes(contract);
+            let res = retrieve_events_contract_nodes(&contract);
             assert_eq!(res.len(), 0);
         } else {
             panic!("Item should not have event");
@@ -99,7 +99,7 @@ mod tests {
             .clone();
 
         if let Item::Contract(contract) = item {
-            let res = retrieve_events_contract_nodes(contract);
+            let res = retrieve_events_contract_nodes(&contract);
             assert_eq!(res.len(), 1);
         } else {
             panic!("Item should have a event");
@@ -117,7 +117,7 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = syn_solidity::parse2(tokens).unwrap();
 
-        let res = retrieve_events_file_nodes(ast);
+        let res = retrieve_events_file_nodes(&ast);
         assert_eq!(res.len(), 0);
     }
 
@@ -132,7 +132,7 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = syn_solidity::parse2(tokens).unwrap();
 
-        let res = retrieve_events_file_nodes(ast);
+        let res = retrieve_events_file_nodes(&ast);
         assert_eq!(res.len(), 1);
     }
 }

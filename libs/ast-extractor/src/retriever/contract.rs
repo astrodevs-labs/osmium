@@ -24,9 +24,9 @@ impl<'ast> Visit<'ast> for ContractVisitor {
     }
 }
 
-pub fn retrieve_contract_nodes(ast: syn_solidity::File) -> Vec<ItemContract> {
+pub fn retrieve_contract_nodes(ast: &syn_solidity::File) -> Vec<ItemContract> {
     let mut visitor = ContractVisitor::new();
-    visitor.visit_file(&ast);
+    visitor.visit_file(ast);
     visitor.contracts
 }
 
@@ -44,7 +44,7 @@ mod tests {
         let source = String::from("pragma solidity ^0.8.0;");
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = syn_solidity::parse2(tokens).unwrap();
-        let res = retrieve_contract_nodes(ast);
+        let res = retrieve_contract_nodes(&ast);
         assert_eq!(res.len(), 0);
     }
 
@@ -58,7 +58,7 @@ mod tests {
         let source = fs::read_to_string(path).unwrap();
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = syn_solidity::parse2(tokens).unwrap();
-        let res = retrieve_contract_nodes(ast);
+        let res = retrieve_contract_nodes(&ast);
         assert_eq!(res.len(), 1);
     }
 
@@ -72,7 +72,7 @@ mod tests {
         let source = fs::read_to_string(path).unwrap();
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = syn_solidity::parse2(tokens).unwrap();
-        let res = retrieve_contract_nodes(ast);
+        let res = retrieve_contract_nodes(&ast);
         assert_eq!(res.len(), 2);
     }
 }

@@ -22,9 +22,9 @@ impl<'ast> Visit<'ast> for UdtVisitor {
     }
 }
 
-pub fn retrieve_udts_nodes(ast: syn_solidity::File) -> Vec<ItemUdt> {
+pub fn retrieve_udts_nodes(ast: &syn_solidity::File) -> Vec<ItemUdt> {
     let mut visitor = UdtVisitor::new();
-    visitor.visit_file(&ast);
+    visitor.visit_file(ast);
     visitor.udts
 }
 
@@ -48,7 +48,7 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = syn_solidity::parse2(tokens).unwrap();
 
-        let res = retrieve_udts_nodes(ast);
+        let res = retrieve_udts_nodes(&ast);
         assert_eq!(res.len(), 1);
     }
 }

@@ -1,9 +1,7 @@
 use clap::Parser;
-use colored::Colorize;
 use solidhunter_lib::linter::SolidLinter;
-
 use solidhunter_lib::rules::rule_impl::create_rules_file;
-use solidhunter_lib::types::Severity;
+use solidhunter_lib::types::LintResult;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -64,64 +62,26 @@ struct Args {
     init: bool,
 }
 
-pub fn severity_to_string(severity: Option<Severity>) -> String {
-    match severity {
-        Some(Severity::ERROR) => "error".to_string().red(),
-        Some(Severity::WARNING) => "warning".to_string().yellow(),
-        Some(Severity::INFO) => "info".to_string().blue(),
-        Some(Severity::HINT) => "hint".to_string().green(),
-        _ => "error".to_string().red(),
-    }
-    .to_string()
-}
-
-fn print_diag(diag: &solidhunter_lib::types::LintDiag) {
-    let padding: String;
-    if diag.range.start.line > 99 {
-        padding = "".to_string();
-    } else if diag.range.start.line > 9 {
-        padding = " ".to_string();
-    } else {
-        padding = " ".repeat(2).to_string();
-    }
-    let line = diag
-        .source_file_content
-        .lines()
-        .nth((diag.range.start.line - 1) as usize)
-        .unwrap();
-
-    println!("\n{}: {}", severity_to_string(diag.severity), diag.message);
-    println!(
-        "  --> {}:{}:{}",
-        diag.uri, diag.range.start.line, diag.range.start.character,
-    );
-    println!("   |");
-    //TODO: add code to print
-    println!("{}{}|{}", diag.range.start.line, padding, line);
-    println!(
-        "   |{}{}",
-        " ".repeat(diag.range.start.character as usize),
-        "^".repeat(diag.range.length as usize)
-    );
-}
-
 fn lint_folder(args: Args) {
-    let mut linter: SolidLinter = SolidLinter::new();
-    linter.initalize(&args.rules_file);
+    let mut linter: SolidLinter = SolidLinter::new(&args.rules_file);
     let mut result = Vec::new();
     for path in args.project_path {
         result.append(&mut linter.parse_folder(path));
     }
     for res in result {
-        match res {
-            Ok(diags) => {
-                for diag in diags {
-                    print_diag(&diag);
-                }
+        print_result(res);
+    }
+}
+
+fn print_result(result: LintResult) {
+    match result {
+        Ok(diags) => {
+            for diag in diags {
+                println!("{}", &diag);
             }
-            Err(e) => {
-                println!("{}", e);
-            }
+        }
+        Err(e) => {
+            println!("{}", e);
         }
     }
 }
@@ -158,21 +118,11 @@ fn main() {
     if !args.to_json && args.file_to_lint.is_empty() {
         lint_folder(args);
     } else if !args.file_to_lint.is_empty() {
-        let mut linter: SolidLinter = SolidLinter::new();
-        linter.initalize(&args.rules_file);
+        let mut linter: SolidLinter = SolidLinter::new(&args.rules_file);
 
         let result = linter.parse_file(args.file_to_lint);
         if !args.to_json {
-            match result {
-                Ok(diags) => {
-                    for diag in diags {
-                        print_diag(&diag);
-                    }
-                }
-                Err(e) => {
-                    println!("{}", e);
-                }
-            }
+            print_result(result);
         } else {
             match result {
                 Ok(diags) => {

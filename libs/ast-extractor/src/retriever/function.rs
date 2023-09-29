@@ -24,9 +24,9 @@ impl<'ast> Visit<'ast> for FunctionVisitor {
     }
 }
 
-pub fn retrieve_functions_nodes(ast: syn_solidity::ItemContract) -> Vec<ItemFunction> {
+pub fn retrieve_functions_nodes(ast: &syn_solidity::ItemContract) -> Vec<ItemFunction> {
     let mut visitor = FunctionVisitor::new();
-    visitor.visit_item_contract(&ast);
+    visitor.visit_item_contract(ast);
     visitor.functions
 }
 
@@ -53,7 +53,7 @@ mod tests {
         let item = ast.items.first().unwrap().clone();
 
         if let Item::Contract(contract) = item {
-            let res = retrieve_functions_nodes(contract);
+            let res = retrieve_functions_nodes(&contract);
             assert_eq!(res.len(), 0);
         } else {
             panic!("Item is not a contract");
@@ -73,7 +73,7 @@ mod tests {
         let item = ast.items.first().unwrap().clone();
 
         if let Item::Contract(contract) = item {
-            let res = retrieve_functions_nodes(contract);
+            let res = retrieve_functions_nodes(&contract);
             assert_eq!(res.len(), 1);
         } else {
             panic!("Item is not a contract");
@@ -93,7 +93,7 @@ mod tests {
         let item = ast.items.first().unwrap().clone();
 
         if let Item::Contract(contract) = item {
-            let res = retrieve_functions_nodes(contract);
+            let res = retrieve_functions_nodes(&contract);
             assert_eq!(res.len(), 2);
         } else {
             panic!("Item is not a contract");

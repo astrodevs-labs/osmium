@@ -75,24 +75,62 @@ jobs:
             console.log(workspaces)
             const affectedWorkspaces = workspaces.filter(workspace => {
               return workspace.location !== '.'
+            }).map(workspace => {
+              return {
+                name: workspace.name
+              }
             })
             console.log(affectedWorkspaces)
             const toolchainsWorkspaces = affectedWorkspaces.filter(workspace => {
               return workspace.name.startsWith('@osmium-toolchains/')
-            })
+            }).map(workspace => ({
+                name: workspace.name
+            }))
             const librariesWorkspaces = affectedWorkspaces.filter(workspace => {
               return workspace.name.startsWith('@osmium-libs/')
-            })
+            }).map(workspace => ({
+                name: workspace.name
+            }))
             const packagesWorkspaces = affectedWorkspaces.filter(workspace => {
               return workspace.name.startsWith('@osmium-packages/')
-            })
+            }).map(workspace => ({
+                name: workspace.name
+            }))
             const extensionsWorkspaces = affectedWorkspaces.filter(workspace => {
               return workspace.name.match(/@osmium\/(?:manager|(?!\w+-\w+-\w+)(?:\w+-\w+))/)
+            }).map(workspace => ({
+                name: workspace.name
+            }))
+            const extensionsFoldersWorkspaces = affectedWorkspaces.filter(workspace => {
+              return workspace.name.match(/@osmium\/\w+-\w+-\w+/)
+            }).map(workspace => ({
+                name: workspace.name
+            }))
+
+            const missingExtensionsWorkspaces = extensionsFoldersWorkspaces.map(workspaceFolder => {
+              const extensionName = workspaceFolder.name.split('-').slice(0, 2).join('-')
+              const extensionWorkspace = extensionsWorkspaces.find(workspace => {
+                return workspace.name === extensionName
+              })
+              if (!extensionWorkspace) {
+                return {
+                  name: extensionName
+                }
+              }
+              return extensionWorkspace
             })
+
+            const completeList = [...extensionsWorkspaces, ...missingExtensionsWorkspaces]
+            const completeExtensionsWorkspaces = completeList.filter((workspace, index, self) => {
+              return index === self.findIndex((t) => (
+                t.name === workspace.name
+              ))
+            })
+
             return {
               affectedWorkspaces,
               toolchainsWorkspaces,
-              extensionsWorkspaces,
+              extensionsWorkspaces: completeExtensionsWorkspaces,
               librariesWorkspaces,
               packagesWorkspaces
             }

@@ -49,14 +49,8 @@ File :
 
     Error { definition } (name, type)
         - ErrorName(file, contract, error, name)
-        - ErrorType(file, contract, error, type)
     Error { usages }
         - ErrorName(file, contract, Option<function>, error, name)
-
-    Library { definition } (name)
-        - LibraryName(file, Option<contract>, library, name)
-    Library { usages }
-        - LibraryName(file, contract, Option<function>, library, name)
 
     // TODO: search cast ast node
     // TODO: search super ast node

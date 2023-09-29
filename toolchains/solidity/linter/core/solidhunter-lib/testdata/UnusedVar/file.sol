@@ -1,6 +1,6 @@
 pragma solidity 0.8.19;
 
-contract test {
+contract Test {
     uint used = 1;
     uint c = 1;
 

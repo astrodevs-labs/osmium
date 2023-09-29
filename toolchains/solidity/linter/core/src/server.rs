@@ -3,12 +3,9 @@ use std::{cell::RefCell, rc::Rc};
 use lsp_server_wrapper::{ LanguageServer, Client, lsp_types::{InitializeParams, InitializeResult, InitializedParams, MessageType, ServerCapabilities, TextDocumentSyncCapability, TextDocumentSyncKind, DidOpenTextDocumentParams, DidChangeTextDocumentParams, Diagnostic, DiagnosticSeverity, Range, Position, Url}, Result, LspStdioServer };
 use solidhunter_lib::{linter::SolidLinter, types::LintDiag};
 
-use crate::Args;
-
 struct Backend {
     client: Rc<RefCell<Client>>,
     config_file_path: String,
-    _working_dir: String,
     linter: RefCell<Option<SolidLinter>>
 }
 
@@ -123,13 +120,12 @@ fn diagnostic_from_lintdiag(diag: LintDiag) -> Diagnostic {
     }
 }
 
-pub fn run_server(args: Args) {
+pub fn run_server(config_file_path: String) {
     eprintln!("starting LSP server");
     let server = LspStdioServer::new();
     let _ = LspStdioServer::serve(server, |client| Backend { 
         client,
-        config_file_path: args.rules_file,
-        _working_dir: args.project_path[0].clone(),
+        config_file_path,
         linter: RefCell::new(None)
     });
 }

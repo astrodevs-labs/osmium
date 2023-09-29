@@ -8,7 +8,7 @@ use server::run_server;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
-pub struct Args {
+struct Args {
     #[arg(
         short = 'p',
         long = "path",
@@ -101,9 +101,9 @@ fn main() {
     let args = Args::parse();
 
     if args.lsp {
-        //println!("Starting language server...");
-        run_server(args);
-        //println!("Done!");
+        eprintln!("Starting language server...");
+        run_server(args.rules_file.clone());
+        eprintln!("Done!");
         return;
     }
 

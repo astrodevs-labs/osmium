@@ -1,5 +1,6 @@
+use crate::errors::SolidHunterError;
 use crate::rules::factory::RuleFactory;
-use crate::rules::rule_impl::{create_rules_file, parse_rules};
+use crate::rules::rule_impl::parse_rules;
 use crate::rules::types::*;
 use crate::types::*;
 use std::fs;
@@ -20,7 +21,7 @@ pub struct SolidLinter {
 
 impl Default for SolidLinter {
     fn default() -> Self {
-        SolidLinter::new(&String::new())
+        SolidLinter::new(&".solidhunter.json".to_string())
     }
 }
 
@@ -31,26 +32,17 @@ impl SolidLinter {
             rule_factory: RuleFactory::default(),
             rules: Vec::new(),
         };
-        linter._create_rules(rules_config, true);
+        linter._create_rules(rules_config).unwrap();
         linter
     }
 
-    fn _create_rules(&mut self, rules_config: &String, first: bool) {
-        let res = parse_rules(rules_config.as_str());
-        match res {
-            Ok(rules) => {
-                for rule in rules.rules {
-                    self.rules.push(self.rule_factory.create_rule(rule));
-                }
+    fn _create_rules(&mut self, rules_config: &String) -> Result<(), SolidHunterError> {
+        let res = parse_rules(rules_config.as_str())?;
+            for rule in res.rules {
+                self.rules.push(self.rule_factory.create_rule(rule));
             }
-            Err(_) => {
-                create_rules_file(rules_config.as_str());
-                if first {
-                    self._create_rules(rules_config, false);
-                }
-            }
+            Ok(())
         }
-    }
 
     fn _file_exists(&self, path: &str) -> bool {
         for file in &self.files {

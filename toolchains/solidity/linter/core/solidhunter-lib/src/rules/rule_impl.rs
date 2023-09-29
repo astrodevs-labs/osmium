@@ -16,9 +16,9 @@ pub fn create_rules_file(path: &str) {
 
 pub fn parse_rules(path: &str) -> Result<Rules, SolidHunterError> {
     if !std::path::Path::new(&path).is_file() {
-        return Err(SolidHunterError::IoError(std::io::Error::new(
+       return Err(SolidHunterError::IoError(std::io::Error::new(
             std::io::ErrorKind::NotFound,
-            "Rules file not found",
+            "Failed to load a solidhunter's config file",
         )));
     }
     let file = std::fs::read_to_string(path)?;

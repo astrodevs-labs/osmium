@@ -37,8 +37,29 @@ fn check_unused_var(file: &SolidFile) -> Option<Range> {
     let mut report: Option<Range> = None;
     let mut line_index = 1;
 
+    let mut _is_in_function = false;
+    let mut nb_left_bracket = 0;
+    let mut nb_right_bracket = 0;
     file.content.lines().for_each(|line| {
-        // let is_in_function = false;
+        if line.find("function").is_some() {
+            println!("function found :line: {}", line);
+            _is_in_function = true;
+        }
+        if _is_in_function && line.find("{").is_some() {
+            println!("bracket left found :line: {}", line);
+            nb_left_bracket += 1;
+        }
+        if _is_in_function && line.find("}").is_some() {
+            println!("bracket right found :line: {}", line);
+            nb_right_bracket += 1;
+        }
+        println!(
+            "nb_left_bracket: {} nb_right_bracket: {}",
+            nb_left_bracket, nb_right_bracket
+        );
+        if nb_left_bracket == nb_right_bracket {
+            _is_in_function = false;
+        }
         let index_equal = line.find("=");
         if index_equal.is_some() {
             let var_declaration = &line[..index_equal.unwrap()];
@@ -49,22 +70,25 @@ fn check_unused_var(file: &SolidFile) -> Option<Range> {
                     var_name = part;
                 }
             }
-            // if is_in_function {
-            if !var_is_used(var_name, &file.content) {
-                println!("var not used");
-                report = Some(Range {
-                    start: Position {
-                        line: line_index,
-                        character: index_equal.unwrap() - 1,
-                    },
-                    end: Position {
-                        line: line_index,
-                        character: index_equal.unwrap() - 1 + var_name.len(),
-                    },
-                });
+            if _is_in_function {
+                println!("IN FUNCTION {}", line);
+                if !var_is_used(var_name, &file.content) {
+                    println!("var not used");
+                    report = Some(Range {
+                        start: Position {
+                            line: line_index,
+                            character: index_equal.unwrap() - 1,
+                        },
+                        end: Position {
+                            line: line_index,
+                            character: index_equal.unwrap() - 1 + var_name.len(),
+                        },
+                    });
+                }
             } else {
+                println!("IN CONTRACT {}", line);
                 //(dans un contract)
-                println!("var used")
+                // println!("var used")
                 // logique pour le contrat
             }
         }

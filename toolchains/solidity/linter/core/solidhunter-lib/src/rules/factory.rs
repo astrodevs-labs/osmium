@@ -4,14 +4,12 @@ use std::collections::HashMap;
 
 pub struct RuleFactory {
     _buildables: RulesMap,
-    _rules: Vec<Box<dyn RuleType>>,
 }
 
 impl Default for RuleFactory {
     fn default() -> Self {
         RuleFactory {
             _buildables: create_rules(),
-            _rules: Vec::new(),
         }
     }
 }
@@ -20,7 +18,6 @@ impl RuleFactory {
     pub fn new() -> RuleFactory {
         RuleFactory {
             _buildables: HashMap::new(),
-            _rules: Vec::new(),
         }
     }
 

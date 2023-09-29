@@ -1,7 +1,7 @@
-use std::cmp::min;
 use crate::errors::SolidHunterError;
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
+use std::cmp::min;
 use std::fmt;
 
 pub type LintResult = Result<Vec<LintDiag>, SolidHunterError>;
@@ -36,7 +36,6 @@ pub struct LintDiag {
     pub source_file_content: String,
 }
 
-
 fn compute_format_line_padding(line: usize) -> String {
     let padding: String;
     if line > 99 {
@@ -64,9 +63,8 @@ fn try_trim_max_offset(line: &str, max_offset: usize) -> (&str, usize) {
 }
 
 impl LintDiag {
-
     fn format_highlighted_lines(&self) -> String {
-        let mut formatted = format!("   |\n");
+        let mut formatted = "   |\n".to_string();
         let first_line = self
             .source_file_content
             .lines()
@@ -76,11 +74,7 @@ impl LintDiag {
         let max_offset = first_line.len() - trimmed_first_line.len();
 
         for line_nb in self.range.start.line..self.range.end.line + 1 {
-            let line = self
-            .source_file_content
-            .lines()
-            .nth(line_nb - 1)
-            .unwrap();
+            let line = self.source_file_content.lines().nth(line_nb - 1).unwrap();
             let (trimmed_line, offset) = try_trim_max_offset(line, max_offset);
             let mut higlight_length = trimmed_line.len();
 
@@ -89,7 +83,8 @@ impl LintDiag {
             } else if line_nb == self.range.start.line {
                 higlight_length = trimmed_line.len() - (self.range.start.character - offset);
             } else if line_nb == self.range.end.line {
-                higlight_length = trimmed_line.len() - (self.range.end.character - min(offset, trimmed_line.len()));
+                higlight_length = trimmed_line.len()
+                    - (self.range.end.character - min(offset, trimmed_line.len()));
             }
 
             formatted = format!(
@@ -98,7 +93,11 @@ impl LintDiag {
                 line_nb,
                 compute_format_line_padding(line_nb),
                 trimmed_line,
-                " ".repeat(if line_nb == self.range.start.line { self.range.start.character - offset } else { 0 }),
+                " ".repeat(if line_nb == self.range.start.line {
+                    self.range.start.character - offset
+                } else {
+                    0
+                }),
                 "^".repeat(higlight_length)
             );
         }
@@ -133,7 +132,7 @@ fn severity_to_string(severity: Option<Severity>) -> String {
         Some(Severity::HINT) => "hint".to_string().green(),
         _ => "error".to_string().red(),
     }
-        .to_string()
+    .to_string()
 }
 
 impl PartialEq for Position {

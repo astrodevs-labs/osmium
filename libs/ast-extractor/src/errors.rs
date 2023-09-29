@@ -1,6 +1,6 @@
+use proc_macro2::LexError;
 use syn::Error;
 use thiserror::Error;
-use proc_macro2::LexError;
 
 #[derive(Error, Debug)]
 pub enum ExtractError {

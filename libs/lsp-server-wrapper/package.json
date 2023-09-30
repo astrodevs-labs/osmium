@@ -1,6 +1,5 @@
 {
   "name": "@osmium-libs/lsp-server-wrapper",
-  "packageManager": "yarn@3.6.1",
   "scripts": {
     "build": "cargo build --release",
     "format": "cargo fmt",

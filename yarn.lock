@@ -242,6 +242,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@osmium-libs/lsp-server-wrapper@workspace:libs/lsp-server-wrapper":
+  version: 0.0.0-use.local
+  resolution: "@osmium-libs/lsp-server-wrapper@workspace:libs/lsp-server-wrapper"
+  languageName: unknown
+  linkType: soft
+
 "@osmium-packages/eslint-config@workspace:packages/eslint-config":
   version: 0.0.0-use.local
   resolution: "@osmium-packages/eslint-config@workspace:packages/eslint-config"

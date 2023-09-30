@@ -24,6 +24,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:libs/lsp-launcher"\
       },\
       {\
+        "name": "@osmium-libs/lsp-server-wrapper",\
+        "reference": "workspace:libs/lsp-server-wrapper"\
+      },\
+      {\
         "name": "@osmium/manager",\
         "reference": "workspace:manager"\
       },\
@@ -61,6 +65,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
     "fallbackExclusionList": [\
       ["@osmium-libs/ast-extractor", ["workspace:libs/ast-extractor"]],\
       ["@osmium-libs/lsp-launcher", ["workspace:libs/lsp-launcher"]],\
+      ["@osmium-libs/lsp-server-wrapper", ["workspace:libs/lsp-server-wrapper"]],\
       ["@osmium-packages/eslint-config", ["workspace:packages/eslint-config"]],\
       ["@osmium-packages/prettier-config", ["workspace:packages/prettier-config"]],\
       ["@osmium-toolchains/solidity", ["workspace:toolchains/solidity"]],\
@@ -384,6 +389,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./libs/lsp-launcher/",\
           "packageDependencies": [\
             ["@osmium-libs/lsp-launcher", "workspace:libs/lsp-launcher"]\
+          ],\
+          "linkType": "SOFT"\
+        }]\
+      ]],\
+      ["@osmium-libs/lsp-server-wrapper", [\
+        ["workspace:libs/lsp-server-wrapper", {\
+          "packageLocation": "./libs/lsp-server-wrapper/",\
+          "packageDependencies": [\
+            ["@osmium-libs/lsp-server-wrapper", "workspace:libs/lsp-server-wrapper"]\
           ],\
           "linkType": "SOFT"\
         }]\

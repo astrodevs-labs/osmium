@@ -4,7 +4,8 @@
   "license": "MIT",
   "private": true,
   "workspaces": [
-    "core"
+    "core",
+    "extension"
   ],
   "scripts": {
     "build": "yarn workspaces foreach run build",

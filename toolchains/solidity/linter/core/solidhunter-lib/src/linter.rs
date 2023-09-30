@@ -1,5 +1,6 @@
 use crate::errors::SolidHunterError;
 use crate::rules::factory::RuleFactory;
+use crate::rules::create_default_rules;
 use crate::rules::rule_impl::parse_rules;
 use crate::rules::types::*;
 use crate::types::*;
@@ -7,6 +8,7 @@ use std::fs;
 
 use glob::glob;
 
+#[derive(Debug)]
 pub struct SolidFile {
     pub data: ast_extractor::File,
     pub path: String,
@@ -33,6 +35,21 @@ impl SolidLinter {
             rules: vec![],
         };
         linter._create_rules(rules_config).unwrap();
+        linter
+    }
+
+    pub fn new_fileless() -> Self {
+        let default_rules = create_default_rules();       
+        let mut linter = SolidLinter {
+            files: Vec::new(),
+            rule_factory: RuleFactory::default(),
+            rules: Vec::new(),
+        };
+
+        for rule in default_rules {
+            linter.rules.push(linter.rule_factory.create_rule(rule));
+        }
+
         linter
     }
 

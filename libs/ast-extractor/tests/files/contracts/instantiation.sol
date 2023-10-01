@@ -1,7 +1,6 @@
 abstract contract One {
     uint storedData;
     function set(uint x) public {
-        string myString = "hello";
         storedData = x;
     }
 
@@ -13,6 +12,7 @@ abstract contract One {
 abstract contract Two {
     uint storedData;
     function set(uint x) public {
+        var c = new One();
         storedData = x;
     }
 

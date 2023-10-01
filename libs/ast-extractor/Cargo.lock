@@ -50,8 +50,9 @@ dependencies = [
 
 [[package]]
 name = "syn-solidity"
-version = "0.3.2"
-source = "git+https://github.com/alloy-rs/core.git#73e4e51ef4fccbdfb4ebf6c1e028430fdfbfc51a"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1b8a5a633f1172a0c80b1516a988e7e8efa7ce9cededf56590f54e593e4513b3"
 dependencies = [
  "paste",
  "proc-macro2",

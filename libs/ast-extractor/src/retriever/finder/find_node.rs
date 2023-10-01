@@ -7,6 +7,7 @@ use syn::token::Struct;
 
 use syn_solidity::{ExprNew, ItemContract, ItemEnum, ItemFunction, VariableDeclaration, ExprCall, SolIdent, VariableDefinition, Type, VarDeclDecl, Expr, SolPath, File, Variant, Item, ItemEvent, ItemError, Modifier, EventParameter};
 
+#[derive(Debug)]
 pub enum FoundNode {
     // Contracts
     ContractDefName(ItemContract),

@@ -2,6 +2,7 @@ use solidhunter_lib::linter::SolidLinter;
 use solidhunter_lib::types::Position;
 use std::{fs, path::PathBuf};
 
+#[derive(Debug)]
 struct Finding {
     start: Position,
     end: Position,
@@ -46,6 +47,7 @@ fn test_directory(base_name: &str) {
         }
     }
 
+    println!("expected_findings : {:?}", expected_findings);
     test_linter(&config, &source, &expected_findings);
 }
 
@@ -64,7 +66,7 @@ fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>) {
                 "Wrong number of findings for {}",
                 source
             );
-            let mut found = false;
+            let mut found = 0;
 
             for (_, diag) in diags.iter().enumerate() {
                 for (_, expected_finding) in expected_findings.iter().enumerate() {

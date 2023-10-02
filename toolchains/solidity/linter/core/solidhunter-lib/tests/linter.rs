@@ -102,6 +102,7 @@ test_directories! {
     FunctionParamNameCamelCase,
     UseForbiddenName,
     ReasonString,
+    NoInlineAssembly,
     FunctionVisibility,
     OneContractPerFile,
 }

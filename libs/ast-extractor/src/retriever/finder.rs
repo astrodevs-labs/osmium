@@ -303,7 +303,6 @@ mod tests {
     use std::str::FromStr;
 
 
-
     #[test]
     fn test_retrieve_contract_def_name() {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -316,16 +315,8 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(1, 20));
-        if let Some(node) = res {
-            match &node {
-                FoundNode::ContractDefName(contract) => {
-                    assert_eq!(contract.name.to_string(), "One");
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        if let Some(FoundNode::ContractDefName(contract)) = res {
+            assert_eq!(contract.name.to_string(), "One");
         } else {
             panic!()
         }
@@ -343,16 +334,8 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(1, 28));
-        if let Some(node) = res {
-            match &node {
-                FoundNode::ContractDefInheritance(_contract, modifier) => {
-                    assert_eq!(modifier.name.to_string(), "ERC20");
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        if let Some(FoundNode::ContractDefInheritance(_contract, modifier)) = res {
+            assert_eq!(modifier.name.to_string(), "ERC20");
         } else {
             panic!()
         }
@@ -369,16 +352,8 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(1, 34));
-        if let Some(node) = res {
-            match &node {
-                FoundNode::ContractDefInheritance(_contract, modifier) => {
-                    assert_eq!(modifier.name.to_string(), "ERC721");
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        if let Some(FoundNode::ContractDefInheritance(_contract, modifier)) = res {
+            assert_eq!(modifier.name.to_string(), "ERC721");
         } else {
             panic!()
         }
@@ -396,24 +371,13 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(15, 22));
-        println!("{:?}", res);
-        if let Some(node) = res {
-            match &node {
-                FoundNode::ContractInstantiation(_contract, _func, expr) => {
-                     match &expr.ty {
-                         Type::Custom(sol_path) => {
-                                assert_eq!(sol_path.to_string(), "One");
-                         }
-                         _ => {
-                             panic!()
-                         }
-                     }
-                }
-                _ => {
-                    panic!()
-                }
+        
+        if let Some(FoundNode::ContractInstantiation(_contract, _func, expr)) = res {
+            if let Type::Custom(sol_path) = &expr.ty {
+                assert_eq!(sol_path.to_string(), "One");
+            } else {
+                panic!()
             }
-
         } else {
             panic!()
         }
@@ -431,20 +395,12 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(3, 14));
-        if let Some(node) = res {
-            match &node {
-                FoundNode::FunctionDefName(_,f) => {
-                    if let Some(name) = &f.name {
-                        assert_eq!(name.to_string(), "set");
-                    } else {
-                        panic!()
-                    }
-                }
-                _ => {
-                    panic!()
-                }
+        if let Some(FoundNode::FunctionDefName(_contract, func)) = res {
+            if let Some(name) = func.name {
+                assert_eq!(name.to_string(), "set");
+            } else {
+                panic!()
             }
-
         } else {
             panic!()
         }
@@ -462,23 +418,12 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(9, 18));
-        if let Some(node) = res {
-            match &node {
-                FoundNode::IdentUsageCall(_contract, _func, expr) => {
-                    match &*expr.expr {
-                        Expr::Ident(ident) => {
-                            assert_eq!(ident.to_string(), "test");
-                        }
-                        _ => {
-                            panic!()
-                        }
-                    }
-                }
-                _ => {
-                    panic!()
-                }
+        if let Some(FoundNode::IdentUsageCall(_contract, _func, expr)) = res {
+            if let Expr::Ident(ident) = &*expr.expr {
+                assert_eq!(ident.to_string(), "test");
+            } else {
+                panic!()
             }
-
         } else {
             panic!()
         }
@@ -496,20 +441,8 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(3, 23));
-        if let Some(node) = res {
-            match &node {
-                FoundNode::FunctionDefParameterName(_contract, _func, _var, ident) => {
-                    if let Some(name) = &ident {
-                        assert_eq!(name.to_string(), "x");
-                    } else {
-                        panic!()
-                    }
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        if let Some(FoundNode::FunctionDefParameterName(_, _, _var, Some(ident))) = res {
+            assert_eq!(ident.to_string(), "x");
         } else {
             panic!()
         }
@@ -527,16 +460,8 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(2, 13));
-        if let Some(node) = res {
-            match &node {
-                FoundNode::PropertyDefName(_contract, _var, ident) => {
-                    assert_eq!(ident.to_string(), "storedData");
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        if let Some(FoundNode::PropertyDefName(_contract, _var, ident)) = res {
+            assert_eq!(ident.to_string(), "storedData");
         } else {
             panic!()
         }
@@ -554,16 +479,8 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(1, 21));
-        if let Some(node) = res {
-            match &node {
-                FoundNode::ConstantVariableDefName(_var, ident ) => {
-                    assert_eq!(ident.to_string(), "myConst");
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        if let Some(FoundNode::ConstantVariableDefName(_var, ident)) = res {
+            assert_eq!(ident.to_string(), "myConst");
         } else {
             panic!()
         }
@@ -581,20 +498,8 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(4, 17));
-        if let Some(node) = res {
-            match &node {
-                FoundNode::VariableDefName(_contract, _func, _var , ident) => {
-                    if let Some(name) = ident {
-                        assert_eq!(name.to_string(), "myString");
-                    } else {
-                        panic!()
-                    }
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        if let Some(FoundNode::VariableDefName(_contract, _func, _var, Some(ident))) = res {
+            assert_eq!(ident.to_string(), "myString");
         } else {
             panic!()
         }
@@ -613,20 +518,7 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(4, 10));
-        println!("{:?}", res);
-        if let Some(node) = res {
-            match &node {
-                FoundNode::TypeUsage(_,_,_,ty) => {
-                    match ty {
-                        Type::String(_) => {assert!(true)}
-                        _ => {panic!()}
-                    }
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        if let Some(FoundNode::TypeUsage(_,_,_,Type::String(_))) = res {
         } else {
             panic!()
         }
@@ -644,22 +536,12 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(13, 36));
-        println!("{:?}", res);
-        if let Some(node) = res {
-            match &node {
-                FoundNode::IdentUsageCall(_, _, expr) => {
-                    match &*expr.expr {
-                        Expr::Ident(ident) => {
-                            assert_eq!(ident.to_string(), "another_one");
-                        }
-                        _ => {panic!()}
-                    }
-                }
-                _ => {
-                    panic!()
-                }
+        if let Some(FoundNode::IdentUsageCall(_, _, expr)) = res {
+            if let Expr::Ident(ident) = &*expr.expr {
+                assert_eq!(ident.to_string(), "another_one");
+            } else {
+                panic!()
             }
-
         } else {
             panic!()
         }
@@ -677,22 +559,8 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(13, 12));
-        println!("{:?}", res);
-        if let Some(node) = res {
-            match &node {
-                FoundNode::TypeUsage(_,_,_expr, ty) => {
-                    match ty {
-                        Type::Custom(ident) => {
-                            assert_eq!(ident.to_string(), "another_one");
-                        }
-                        _ => {panic!()}
-                    }
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        if let Some(FoundNode::TypeUsage(_,_,_expr, Type::Custom(ident))) = res {
+            assert_eq!(ident.to_string(), "another_one");
         } else {
             panic!()
         }
@@ -710,20 +578,8 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(7, 42));
-        println!("{:?}", res);
-        if let Some(node) = res {
-            match &node {
-                FoundNode::TypeUsage(_,_,_expr, ty) => {
-                    match ty {
-                        Type::Uint(_, _) => {}
-                        _ => {panic!()}
-                    }
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        
+        if let Some(FoundNode::TypeUsage(_,_,_expr, Type::Uint(_,_))) = res {
         } else {
             panic!()
         }
@@ -741,18 +597,9 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(7, 14));
-        println!("{:?}", res);
-        if let Some(node) = res {
-            match &node {
-                FoundNode::StructDefName(contract, ident) => {
-                    assert!(contract.is_some());
-                    assert_eq!(ident.to_string(), "another_one");
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        if let Some(FoundNode::StructDefName(contract, ident)) = res {
+            assert!(contract.is_some());
+            assert_eq!(ident.to_string(), "another_one");
         } else {
             panic!()
         }
@@ -770,18 +617,9 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(1, 10));
-        println!("{:?}", res);
-        if let Some(node) = res {
-            match &node {
-                FoundNode::StructDefName(contract, ident) => {
-                    assert!(contract.is_none());
-                    assert_eq!(ident.to_string(), "one");
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        if let Some(FoundNode::StructDefName(contract, ident)) = res {
+            assert!(contract.is_none());
+            assert_eq!(ident.to_string(), "one");
         } else {
             panic!()
         }
@@ -799,22 +637,10 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(8, 18));
-        println!("{:?}", res);
-        if let Some(node) = res {
-            match &node {
-                FoundNode::StructDefPropertyName(contract, _var, ident) => {
-                    assert!(!contract.is_none());
-                    if let Some(name) = ident {
-                        assert_eq!(name.to_string(), "storedData1");
-                    } else {
-                        panic!()
-                    }
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        
+        if let Some(FoundNode::StructDefPropertyName(contract, _var, Some(ident))) = res {
+            assert!(contract.is_some());
+            assert_eq!(ident.to_string(), "storedData1");
         } else {
             panic!()
         }
@@ -832,22 +658,10 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(2, 17));
-        println!("{:?}", res);
-        if let Some(node) = res {
-            match &node {
-                FoundNode::StructDefPropertyName(contract, _var, ident) => {
-                    assert!(contract.is_none());
-                    if let Some(name) = ident {
-                        assert_eq!(name.to_string(), "storedData1");
-                    } else {
-                        panic!()
-                    }
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        
+        if let Some(FoundNode::StructDefPropertyName(contract, _var, Some(ident))) = res {
+            assert!(contract.is_none());
+            assert_eq!(ident.to_string(), "storedData1");
         } else {
             panic!()
         }
@@ -865,18 +679,10 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(12, 14));
-        println!("{:?}", res);
-        if let Some(node) = res {
-            match &node {
-                FoundNode::EnumDefName(contract, _ennum, ident) => {
-                    assert!(!contract.is_none());
-                    assert_eq!(ident.to_string(), "another_one");
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        
+        if let Some(FoundNode::EnumDefName(contract, _ennum, ident)) = res {
+            assert!(contract.is_some());
+            assert_eq!(ident.to_string(), "another_one");
         } else {
             panic!()
         }
@@ -894,18 +700,10 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(14, 12));
-        println!("{:?}", res);
-        if let Some(node) = res {
-            match &node {
-                FoundNode::EnumDefValue(contract, _ennum, _variant, ident) => {
-                    assert!(!contract.is_none());
-                    assert_eq!(ident.to_string(), "Tuesday");
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        
+        if let Some(FoundNode::EnumDefValue(contract, _ennum, _variant, ident)) = res {
+            assert!(contract.is_some());
+            assert_eq!(ident.to_string(), "Tuesday");
         } else {
             panic!()
         }
@@ -923,18 +721,10 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(1, 8));
-        println!("{:?}", res);
-        if let Some(node) = res {
-            match &node {
-                FoundNode::EnumDefName(contract, _ennum, ident) => {
-                    assert!(contract.is_none());
-                    assert_eq!(ident.to_string(), "one");
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        
+        if let Some(FoundNode::EnumDefName(contract, _ennum, ident)) = res {
+            assert!(contract.is_none());
+            assert_eq!(ident.to_string(), "one");
         } else {
             panic!()
         }
@@ -952,18 +742,10 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(3, 8));
-        println!("{:?}", res);
-        if let Some(node) = res {
-            match &node {
-                FoundNode::EnumDefValue(contract, _ennum, _variant, ident) => {
-                    assert!(contract.is_none());
-                    assert_eq!(ident.to_string(), "Tuesday");
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        
+        if let Some(FoundNode::EnumDefValue(contract, _ennum, _variant, ident)) = res {
+            assert!(contract.is_none());
+            assert_eq!(ident.to_string(), "Tuesday");
         } else {
             panic!()
         }
@@ -981,18 +763,10 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(1, 8));
-        println!("{:?}", res);
-        if let Some(node) = res {
-            match &node {
-                FoundNode::ErrorDefName(contract, _err, ident) => {
-                    assert!(contract.is_none());
-                    assert_eq!(ident.to_string(), "one");
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        
+        if let Some(FoundNode::ErrorDefName(contract, _err, ident)) = res {
+            assert!(contract.is_none());
+            assert_eq!(ident.to_string(), "one");
         } else {
             panic!()
         }
@@ -1010,18 +784,10 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(4, 16));
-        println!("{:?}", res);
-        if let Some(node) = res {
-            match &node {
-                FoundNode::ErrorDefName(contract, _err, ident) => {
-                    assert!(!contract.is_none());
-                        assert_eq!(ident.to_string(), "another_one");
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        
+        if let Some(FoundNode::ErrorDefName(contract, _err, ident)) = res {
+            assert!(contract.is_some());
+            assert_eq!(ident.to_string(), "another_one");
         } else {
             panic!()
         }
@@ -1039,23 +805,14 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(4, 33));
-        println!("{:?}", res);
-        if let Some(node) = res {
-            match &node {
-                FoundNode::ErrorDefParameter(contract, _err, ident) => {
-                    assert!(!contract.is_none());
-                    if let Some(name) = &ident.name {
-                        assert_eq!(name.to_string(), "val1");
-                    }
-                    else {
-                        panic!()
-                    }
-                }
-                _ => {
-                    panic!()
-                }
+        
+        if let Some(FoundNode::ErrorDefParameter(contract, _err, ident)) = res {
+            assert!(contract.is_some());
+            if let Some(name) = &ident.name {
+                assert_eq!(name.to_string(), "val1");
+            } else {
+                panic!()
             }
-
         } else {
             panic!()
         }
@@ -1073,23 +830,15 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(1, 21));
-        println!("{:?}", res);
-        if let Some(node) = res {
-            match &node {
-                FoundNode::ErrorDefParameter(contract, _err, ident) => {
-                    assert!(contract.is_none());
-                    if let Some(name) = &ident.name {
-                        assert_eq!(name.to_string(), "val1");
-                    }
-                    else {
-                        panic!()
-                    }
-                }
-                _ => {
-                    panic!()
-                }
+        
+        if let Some(FoundNode::ErrorDefParameter(contract, _err, ident)) = res {
+            assert!(contract.is_none());
+            if let Some(name) = &ident.name {
+                assert_eq!(name.to_string(), "val1");
             }
-
+            else {
+                panic!()
+            }
         } else {
             panic!()
         }
@@ -1107,17 +856,9 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(4, 16));
-        println!("{:?}", res);
-        if let Some(node) = res {
-            match &node {
-                FoundNode::EventDefName(_contract, _err, ident) => {
-                    assert_eq!(ident.to_string(), "another_one");
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        
+        if let Some(FoundNode::EventDefName(_contract, _err, ident) ) = res {
+            assert_eq!(ident.to_string(), "another_one");
         } else {
             panic!()
         }
@@ -1135,21 +876,13 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(4, 32));
-        println!("{:?}", res);
-        if let Some(node) = res {
-            match &node {
-                FoundNode::EventDefParameter(_contract, _err, ident) => {
-                    if let Some(name) = &ident.name {
-                        assert_eq!(name.to_string(), "val1");
-                    } else {
-                      panic!();
-                    }
-                }
-                _ => {
-                    panic!()
-                }
-            }
 
+        if let Some(FoundNode::EventDefParameter(_contract, _err, ident)) = res {
+            if let Some(name) = &ident.name {
+                assert_eq!(name.to_string(), "val1");
+            } else {
+                panic!()
+            }
         } else {
             panic!()
         }
@@ -1168,17 +901,9 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(5, 14));
-        println!("{:?}", res);
-        if let Some(node) = res {
-            match &node {
-                FoundNode::IdentUsageName(_contract, _func, _expr, ident) => {
-                    assert_eq!(ident.to_string(), "storedData");
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        
+        if let Some(FoundNode::IdentUsageName(_contract, _func, _expr, ident)) = res {
+            assert_eq!(ident.to_string(), "storedData");
         } else {
             panic!()
         }
@@ -1196,17 +921,9 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(9, 22));
-        println!("{:?}", res);
-        if let Some(node) = res {
-            match &node {
-                FoundNode::IdentUsageName(_contract, _func, _expr, ident) => {
-                    assert_eq!(ident.to_string(), "storedData");
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        
+        if let Some(FoundNode::IdentUsageName(_contract, _func, _expr, ident) ) = res {
+            assert_eq!(ident.to_string(), "storedData");
         } else {
             panic!()
         }
@@ -1224,17 +941,9 @@ mod tests {
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(5, 22));
-        println!("{:?}", res);
-        if let Some(node) = res {
-            match &node {
-                FoundNode::IdentUsageName(_contract, _func, _expr, ident) => {
-                    assert_eq!(ident.to_string(), "x");
-                }
-                _ => {
-                    panic!()
-                }
-            }
-
+        
+        if let Some(FoundNode::IdentUsageName(_contract, _func, _expr, ident)) = res {
+            assert_eq!(ident.to_string(), "x");
         } else {
             panic!()
         }

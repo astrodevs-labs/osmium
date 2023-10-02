@@ -6,6 +6,12 @@ contract Test {
         pure
         returns (function() external fun)
     {
+        if (true) {
+            assembly {
+                fun.selector := newSelector
+                fun.address := newAddress
+            }
+        }
         assembly {
             fun.selector := newSelector
             fun.address := newAddress

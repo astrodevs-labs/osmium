@@ -330,12 +330,12 @@ mod tests {
                     assert_eq!(contract.name.to_string(), "One");
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -357,12 +357,12 @@ mod tests {
                     assert_eq!(modifier.name.to_string(), "ERC20");
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
     #[test]
@@ -383,12 +383,12 @@ mod tests {
                     assert_eq!(modifier.name.to_string(), "ERC721");
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -413,17 +413,17 @@ mod tests {
                                 assert_eq!(sol_path.to_string(), "One");
                          }
                          _ => {
-                             assert!(false)
+                             panic!()
                          }
                      }
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -445,16 +445,16 @@ mod tests {
                     if let Some(name) = &f.name {
                         assert_eq!(name.to_string(), "set");
                     } else {
-                        assert!(false)
+                        panic!()
                     }
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -478,17 +478,17 @@ mod tests {
                             assert_eq!(ident.to_string(), "test");
                         }
                         _ => {
-                            assert!(false)
+                            panic!()
                         }
                     }
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -510,16 +510,16 @@ mod tests {
                     if let Some(name) = &ident {
                         assert_eq!(name.to_string(), "x");
                     } else {
-                        assert!(false)
+                        panic!()
                     }
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -541,12 +541,12 @@ mod tests {
                     assert_eq!(ident.to_string(), "storedData");
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -568,12 +568,12 @@ mod tests {
                     assert_eq!(ident.to_string(), "myConst");
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -595,16 +595,16 @@ mod tests {
                     if let Some(name) = ident {
                         assert_eq!(name.to_string(), "myString");
                     } else {
-                        assert!(false)
+                        panic!()
                     }
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -627,16 +627,16 @@ mod tests {
                 FoundNode::TypeUsage(_,_,_,ty) => {
                     match ty {
                         Type::String(_) => {assert!(true)}
-                        _ => {assert!(false)}
+                        _ => {panic!()}
                     }
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -660,16 +660,16 @@ mod tests {
                         Expr::Ident(ident) => {
                             assert_eq!(ident.to_string(), "another_one");
                         }
-                        _ => {assert!(false)}
+                        _ => {panic!()}
                     }
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -693,16 +693,16 @@ mod tests {
                         Type::Custom(ident) => {
                             assert_eq!(ident.to_string(), "another_one");
                         }
-                        _ => {assert!(false)}
+                        _ => {panic!()}
                     }
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -724,16 +724,16 @@ mod tests {
                 FoundNode::TypeUsage(_,_,expr, ty) => {
                     match ty {
                         Type::Uint(_, _) => {}
-                        _ => {assert!(false)}
+                        _ => {panic!()}
                     }
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -757,12 +757,12 @@ mod tests {
                     assert_eq!(ident.to_string(), "another_one");
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -786,12 +786,12 @@ mod tests {
                     assert_eq!(ident.to_string(), "one");
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -815,16 +815,16 @@ mod tests {
                     if let Some(name) = ident {
                         assert_eq!(name.to_string(), "storedData1");
                     } else {
-                        assert!(false)
+                        panic!()
                     }
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -848,16 +848,16 @@ mod tests {
                     if let Some(name) = ident {
                         assert_eq!(name.to_string(), "storedData1");
                     } else {
-                        assert!(false)
+                        panic!()
                     }
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -881,12 +881,12 @@ mod tests {
                     assert_eq!(ident.to_string(), "another_one");
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -910,12 +910,12 @@ mod tests {
                     assert_eq!(ident.to_string(), "Tuesday");
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -939,12 +939,12 @@ mod tests {
                     assert_eq!(ident.to_string(), "one");
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -968,12 +968,12 @@ mod tests {
                     assert_eq!(ident.to_string(), "Tuesday");
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -997,12 +997,12 @@ mod tests {
                     assert_eq!(ident.to_string(), "one");
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -1026,12 +1026,12 @@ mod tests {
                         assert_eq!(ident.to_string(), "another_one");
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -1056,16 +1056,16 @@ mod tests {
                         assert_eq!(name.to_string(), "val1");
                     }
                     else {
-                        assert!(false)
+                        panic!()
                     }
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -1090,16 +1090,16 @@ mod tests {
                         assert_eq!(name.to_string(), "val1");
                     }
                     else {
-                        assert!(false)
+                        panic!()
                     }
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -1122,12 +1122,12 @@ mod tests {
                     assert_eq!(ident.to_string(), "another_one");
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -1150,16 +1150,16 @@ mod tests {
                     if let Some(name) = &ident.name {
                         assert_eq!(name.to_string(), "val1");
                     } else {
-                      assert!(false);
+                      panic!();
                     }
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -1183,12 +1183,12 @@ mod tests {
                     assert_eq!(ident.to_string(), "storedData");
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -1211,12 +1211,12 @@ mod tests {
                     assert_eq!(ident.to_string(), "storedData");
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 
@@ -1239,12 +1239,12 @@ mod tests {
                     assert_eq!(ident.to_string(), "x");
                 }
                 _ => {
-                    assert!(false)
+                    panic!()
                 }
             }
 
         } else {
-            assert!(false)
+            panic!()
         }
     }
 

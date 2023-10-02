@@ -4,10 +4,10 @@
  * author: 0xSwapFeeder
  */
 use syn_solidity::*;
-use proc_macro2::LineColumn;
-use syn::ExprLit;
-use syn_solidity::kw::contract;
-use syn_solidity::visit::{visit_expr_new, visit_variable_declaration};
+
+
+
+use syn_solidity::visit::{visit_variable_declaration};
 use crate::retriever::finder::find_node::FoundNode;
 
 mod find_node;
@@ -21,6 +21,7 @@ macro_rules! is_in_range {
     };
 }
 
+#[derive(Default)]
 pub struct Position {
     line: usize,
     char: usize,
@@ -36,14 +37,7 @@ impl Position {
 
 }
 
-impl Default for Position {
-    fn default() -> Self {
-        Self {
-            line: 0,
-            char: 0,
-        }
-    }
-}
+
 
 struct FinderVisitor {
     current_contract: Option<ItemContract>,
@@ -91,7 +85,7 @@ impl FinderVisitor {
                 }
             }
         }
-        return false;
+        false
     }
 }
 
@@ -126,8 +120,7 @@ impl<'ast> Visit<'ast> for FinderVisitor {
     // Therefore we can not goto or list_ref any variable used in a new expr
     fn visit_expr_new(&mut self, new: &'ast ExprNew) {
         if is_in_range!(new.ty.span().start(), new.ty.span().end(), self.to_find) {
-            self.found = Some(FoundNode::ContractInstantiation(self.current_contract.clone().unwrap().clone(), self.current_function.clone(), new.clone()));
-            return;
+            self.found = Some(FoundNode::ContractInstantiation(self.current_contract.clone().unwrap(), self.current_function.clone(), new.clone()));
         }
     }
 
@@ -142,8 +135,8 @@ impl<'ast> Visit<'ast> for FinderVisitor {
     fn visit_variable_declaration(&mut self, var: &'ast VariableDeclaration) {
         if is_in_range!(var.span().start(), var.span().end(), self.to_find) {
             self.current_variable = Some(var.clone());
-            let s = var.name.span().start();
-            let e = var.name.span().end();
+            let _s = var.name.span().start();
+            let _e = var.name.span().end();
             if is_in_range!(var.name.span().start(), var.name.span().end(), self.to_find) {
                     self.found = Some(FoundNode::VariableDefName(self.current_contract.clone(), self.current_function.clone(), var.clone(), var.name.clone()));
                     return;
@@ -175,8 +168,8 @@ impl<'ast> Visit<'ast> for FinderVisitor {
     }
 
     fn visit_item_contract(&mut self, contract: &'ast ItemContract) {
-        let contract_start = contract.brace_token.span().start();
-        let contract_end = contract.brace_token.span().end();
+        let _contract_start = contract.brace_token.span().start();
+        let _contract_end = contract.brace_token.span().end();
         self.current_contract = Some(contract.clone());
         if is_in_range!(contract.span().start(), contract.span().end(), self.to_find) {
             self.found = Some(FoundNode::ContractDefName(contract.clone()));
@@ -224,12 +217,12 @@ impl<'ast> Visit<'ast> for FinderVisitor {
     fn visit_item_event(&mut self, event: &'ast ItemEvent) {
         self.current_event = Some(event.clone());
         if is_in_range!(event.name.span().start(), event.name.span().end(), self.to_find) {
-            self.found = Some(FoundNode::EventDefName(self.current_contract.clone().unwrap().clone(), event.clone(), event.name.clone()));
+            self.found = Some(FoundNode::EventDefName(self.current_contract.clone().unwrap(), event.clone(), event.name.clone()));
             return;
         }
         for param in &event.parameters {
             if is_in_range!(param.name.span().start(), param.name.span().end(), self.to_find) {
-                self.found = Some(FoundNode::EventDefParameter(self.current_contract.clone().unwrap().clone(), event.clone(), param.clone()));
+                self.found = Some(FoundNode::EventDefParameter(self.current_contract.clone().unwrap(), event.clone(), param.clone()));
                 return;
             }
         }
@@ -269,7 +262,6 @@ impl<'ast> Visit<'ast> for FinderVisitor {
         }
         if is_in_range!(ident.span().start(), ident.span().end(), self.to_find) {
             self.found = Some(FoundNode::IdentUsageName(self.current_contract.clone(), self.current_function.clone(), self.current_expr.clone(), ident.clone()));
-            return;
         }
     }
 
@@ -353,7 +345,7 @@ mod tests {
         let res = retrieve_node_from_position(&ast, Position::new(1, 28));
         if let Some(node) = res {
             match &node {
-                FoundNode::ContractDefInheritance(contract, modifier) => {
+                FoundNode::ContractDefInheritance(_contract, modifier) => {
                     assert_eq!(modifier.name.to_string(), "ERC20");
                 }
                 _ => {
@@ -379,7 +371,7 @@ mod tests {
         let res = retrieve_node_from_position(&ast, Position::new(1, 34));
         if let Some(node) = res {
             match &node {
-                FoundNode::ContractDefInheritance(contract, modifier) => {
+                FoundNode::ContractDefInheritance(_contract, modifier) => {
                     assert_eq!(modifier.name.to_string(), "ERC721");
                 }
                 _ => {
@@ -407,7 +399,7 @@ mod tests {
         println!("{:?}", res);
         if let Some(node) = res {
             match &node {
-                FoundNode::ContractInstantiation(contract, func, expr) => {
+                FoundNode::ContractInstantiation(_contract, _func, expr) => {
                      match &expr.ty {
                          Type::Custom(sol_path) => {
                                 assert_eq!(sol_path.to_string(), "One");
@@ -472,7 +464,7 @@ mod tests {
         let res = retrieve_node_from_position(&ast, Position::new(9, 18));
         if let Some(node) = res {
             match &node {
-                FoundNode::IdentUsageCall(contract, func, expr) => {
+                FoundNode::IdentUsageCall(_contract, _func, expr) => {
                     match &*expr.expr {
                         Expr::Ident(ident) => {
                             assert_eq!(ident.to_string(), "test");
@@ -506,7 +498,7 @@ mod tests {
         let res = retrieve_node_from_position(&ast, Position::new(3, 23));
         if let Some(node) = res {
             match &node {
-                FoundNode::FunctionDefParameterName(contract, func, var, ident) => {
+                FoundNode::FunctionDefParameterName(_contract, _func, _var, ident) => {
                     if let Some(name) = &ident {
                         assert_eq!(name.to_string(), "x");
                     } else {
@@ -537,7 +529,7 @@ mod tests {
         let res = retrieve_node_from_position(&ast, Position::new(2, 13));
         if let Some(node) = res {
             match &node {
-                FoundNode::PropertyDefName(contract, var, ident) => {
+                FoundNode::PropertyDefName(_contract, _var, ident) => {
                     assert_eq!(ident.to_string(), "storedData");
                 }
                 _ => {
@@ -564,7 +556,7 @@ mod tests {
         let res = retrieve_node_from_position(&ast, Position::new(1, 21));
         if let Some(node) = res {
             match &node {
-                FoundNode::ConstantVariableDefName(var, ident ) => {
+                FoundNode::ConstantVariableDefName(_var, ident ) => {
                     assert_eq!(ident.to_string(), "myConst");
                 }
                 _ => {
@@ -591,7 +583,7 @@ mod tests {
         let res = retrieve_node_from_position(&ast, Position::new(4, 17));
         if let Some(node) = res {
             match &node {
-                FoundNode::VariableDefName(contract, func, var , ident) => {
+                FoundNode::VariableDefName(_contract, _func, _var , ident) => {
                     if let Some(name) = ident {
                         assert_eq!(name.to_string(), "myString");
                     } else {
@@ -688,7 +680,7 @@ mod tests {
         println!("{:?}", res);
         if let Some(node) = res {
             match &node {
-                FoundNode::TypeUsage(_,_,expr, ty) => {
+                FoundNode::TypeUsage(_,_,_expr, ty) => {
                     match ty {
                         Type::Custom(ident) => {
                             assert_eq!(ident.to_string(), "another_one");
@@ -721,7 +713,7 @@ mod tests {
         println!("{:?}", res);
         if let Some(node) = res {
             match &node {
-                FoundNode::TypeUsage(_,_,expr, ty) => {
+                FoundNode::TypeUsage(_,_,_expr, ty) => {
                     match ty {
                         Type::Uint(_, _) => {}
                         _ => {panic!()}
@@ -753,7 +745,7 @@ mod tests {
         if let Some(node) = res {
             match &node {
                 FoundNode::StructDefName(contract, ident) => {
-                    assert_eq!(contract.is_some(), true);
+                    assert!(contract.is_some());
                     assert_eq!(ident.to_string(), "another_one");
                 }
                 _ => {
@@ -782,7 +774,7 @@ mod tests {
         if let Some(node) = res {
             match &node {
                 FoundNode::StructDefName(contract, ident) => {
-                    assert_eq!(contract.is_none(), true);
+                    assert!(contract.is_none());
                     assert_eq!(ident.to_string(), "one");
                 }
                 _ => {
@@ -810,8 +802,8 @@ mod tests {
         println!("{:?}", res);
         if let Some(node) = res {
             match &node {
-                FoundNode::StructDefPropertyName(contract, var, ident) => {
-                    assert_eq!(contract.is_none(), false);
+                FoundNode::StructDefPropertyName(contract, _var, ident) => {
+                    assert!(!contract.is_none());
                     if let Some(name) = ident {
                         assert_eq!(name.to_string(), "storedData1");
                     } else {
@@ -843,8 +835,8 @@ mod tests {
         println!("{:?}", res);
         if let Some(node) = res {
             match &node {
-                FoundNode::StructDefPropertyName(contract, var, ident) => {
-                    assert_eq!(contract.is_none(), true);
+                FoundNode::StructDefPropertyName(contract, _var, ident) => {
+                    assert!(contract.is_none());
                     if let Some(name) = ident {
                         assert_eq!(name.to_string(), "storedData1");
                     } else {
@@ -876,8 +868,8 @@ mod tests {
         println!("{:?}", res);
         if let Some(node) = res {
             match &node {
-                FoundNode::EnumDefName(contract, ennum, ident) => {
-                    assert_eq!(contract.is_none(), false);
+                FoundNode::EnumDefName(contract, _ennum, ident) => {
+                    assert!(!contract.is_none());
                     assert_eq!(ident.to_string(), "another_one");
                 }
                 _ => {
@@ -905,8 +897,8 @@ mod tests {
         println!("{:?}", res);
         if let Some(node) = res {
             match &node {
-                FoundNode::EnumDefValue(contract, ennum, variant, ident) => {
-                    assert_eq!(contract.is_none(), false);
+                FoundNode::EnumDefValue(contract, _ennum, _variant, ident) => {
+                    assert!(!contract.is_none());
                     assert_eq!(ident.to_string(), "Tuesday");
                 }
                 _ => {
@@ -934,8 +926,8 @@ mod tests {
         println!("{:?}", res);
         if let Some(node) = res {
             match &node {
-                FoundNode::EnumDefName(contract, ennum, ident) => {
-                    assert_eq!(contract.is_none(), true);
+                FoundNode::EnumDefName(contract, _ennum, ident) => {
+                    assert!(contract.is_none());
                     assert_eq!(ident.to_string(), "one");
                 }
                 _ => {
@@ -963,8 +955,8 @@ mod tests {
         println!("{:?}", res);
         if let Some(node) = res {
             match &node {
-                FoundNode::EnumDefValue(contract, ennum, variant, ident) => {
-                    assert_eq!(contract.is_none(), true);
+                FoundNode::EnumDefValue(contract, _ennum, _variant, ident) => {
+                    assert!(contract.is_none());
                     assert_eq!(ident.to_string(), "Tuesday");
                 }
                 _ => {
@@ -992,8 +984,8 @@ mod tests {
         println!("{:?}", res);
         if let Some(node) = res {
             match &node {
-                FoundNode::ErrorDefName(contract, err, ident) => {
-                    assert_eq!(contract.is_none(), true);
+                FoundNode::ErrorDefName(contract, _err, ident) => {
+                    assert!(contract.is_none());
                     assert_eq!(ident.to_string(), "one");
                 }
                 _ => {
@@ -1021,8 +1013,8 @@ mod tests {
         println!("{:?}", res);
         if let Some(node) = res {
             match &node {
-                FoundNode::ErrorDefName(contract, err, ident) => {
-                    assert_eq!(contract.is_none(), false);
+                FoundNode::ErrorDefName(contract, _err, ident) => {
+                    assert!(!contract.is_none());
                         assert_eq!(ident.to_string(), "another_one");
                 }
                 _ => {
@@ -1050,8 +1042,8 @@ mod tests {
         println!("{:?}", res);
         if let Some(node) = res {
             match &node {
-                FoundNode::ErrorDefParameter(contract, err, ident) => {
-                    assert_eq!(contract.is_none(), false);
+                FoundNode::ErrorDefParameter(contract, _err, ident) => {
+                    assert!(!contract.is_none());
                     if let Some(name) = &ident.name {
                         assert_eq!(name.to_string(), "val1");
                     }
@@ -1084,8 +1076,8 @@ mod tests {
         println!("{:?}", res);
         if let Some(node) = res {
             match &node {
-                FoundNode::ErrorDefParameter(contract, err, ident) => {
-                    assert_eq!(contract.is_none(), true);
+                FoundNode::ErrorDefParameter(contract, _err, ident) => {
+                    assert!(contract.is_none());
                     if let Some(name) = &ident.name {
                         assert_eq!(name.to_string(), "val1");
                     }
@@ -1118,7 +1110,7 @@ mod tests {
         println!("{:?}", res);
         if let Some(node) = res {
             match &node {
-                FoundNode::EventDefName(contract, err, ident) => {
+                FoundNode::EventDefName(_contract, _err, ident) => {
                     assert_eq!(ident.to_string(), "another_one");
                 }
                 _ => {
@@ -1146,7 +1138,7 @@ mod tests {
         println!("{:?}", res);
         if let Some(node) = res {
             match &node {
-                FoundNode::EventDefParameter(contract, err, ident) => {
+                FoundNode::EventDefParameter(_contract, _err, ident) => {
                     if let Some(name) = &ident.name {
                         assert_eq!(name.to_string(), "val1");
                     } else {
@@ -1179,7 +1171,7 @@ mod tests {
         println!("{:?}", res);
         if let Some(node) = res {
             match &node {
-                FoundNode::IdentUsageName(contract, func, expr, ident) => {
+                FoundNode::IdentUsageName(_contract, _func, _expr, ident) => {
                     assert_eq!(ident.to_string(), "storedData");
                 }
                 _ => {
@@ -1207,7 +1199,7 @@ mod tests {
         println!("{:?}", res);
         if let Some(node) = res {
             match &node {
-                FoundNode::IdentUsageName(contract, func, expr, ident) => {
+                FoundNode::IdentUsageName(_contract, _func, _expr, ident) => {
                     assert_eq!(ident.to_string(), "storedData");
                 }
                 _ => {
@@ -1235,7 +1227,7 @@ mod tests {
         println!("{:?}", res);
         if let Some(node) = res {
             match &node {
-                FoundNode::IdentUsageName(contract, func, expr, ident) => {
+                FoundNode::IdentUsageName(_contract, _func, _expr, ident) => {
                     assert_eq!(ident.to_string(), "x");
                 }
                 _ => {

@@ -1,11 +1,11 @@
-use syn::token::Struct;
+
 /**
  * find_node.rs
  * Enum for all possible ast types that can be found
  * author: 0xMemoryGrinder
  */
 
-use syn_solidity::{ExprNew, ItemContract, ItemEnum, ItemFunction, VariableDeclaration, ExprCall, SolIdent, VariableDefinition, Type, VarDeclDecl, Expr, SolPath, File, Variant, Item, ItemEvent, ItemError, Modifier, EventParameter};
+use syn_solidity::{ExprNew, ItemContract, ItemEnum, ItemFunction, VariableDeclaration, ExprCall, SolIdent, VariableDefinition, Type, Expr, Variant, ItemEvent, ItemError, Modifier, EventParameter};
 
 #[derive(Debug)]
 pub enum FoundNode {

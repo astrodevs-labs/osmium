@@ -43,17 +43,11 @@ impl RuleType for NoInlineAssembly {
         let mut res = Vec::new();
 
         for contract in retriever::retrieve_contract_nodes(&file.data) {
-            for function in retriever::retrieve_functions_nodes(&contract) {
-                if function.body().is_none() {
-                    continue;
-                }
-                let wow = function.body().unwrap();
-                for stmt in wow.iter() {
+            for stmt in retriever::retrieve_stmts_nodes(&contract) {
                     if let Stmt::Assembly(_) = stmt {
                         let location = (stmt.span().start(), stmt.span().end());
                         res.push(self.create_diag(file, location));
                     }
-                }
             }
         }
         res

@@ -1,5 +1,4 @@
-
-import "../using/one.sol";abstract contract One is ERC20{
+abstract contract One is ERC20 {
     uint storedData;
     function set(uint x) public {
         storedData = x;

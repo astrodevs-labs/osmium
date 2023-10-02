@@ -18,18 +18,21 @@ pub enum FoundNode {
     // Functions
     FunctionDefName(ItemContract, ItemFunction),
     FunctionDefParameterName(ItemContract, ItemFunction, VariableDeclaration, Option<SolIdent>),
-    FunctionUsageName(ItemContract, ItemFunction, ExprCall),
 
     // Properties/Variables/Constants
     PropertyDefName(ItemContract, VariableDefinition, SolIdent),
     ConstantVariableDefName(VariableDefinition, SolIdent),
     VariableDefName(Option<ItemContract>, Option<ItemFunction>, VariableDeclaration, Option<SolIdent>),
+
+    // Types and Identifiers
     TypeUsage(Option<ItemContract>, Option<ItemFunction>, Option<Expr>, Type),
+    IdentUsageCall(Option<ItemContract>, Option<ItemFunction>, ExprCall),
+    IdentUsageName(Option<ItemContract>, Option<ItemFunction>, Option<Expr>, SolIdent),
+
 
     // Structs
     StructDefName(Option<ItemContract>, SolIdent),
-    StructDefPropertyName(ItemContract, Option<ItemFunction>, VariableDeclaration, Option<SolIdent>),
-
+    StructDefPropertyName(Option<ItemContract>, VariableDeclaration, Option<SolIdent>),
 
     // Enum
     EnumDefName(Option<ItemContract>, ItemEnum, SolIdent),
@@ -39,14 +42,12 @@ pub enum FoundNode {
     ErrorDefName(Option<ItemContract>, ItemError, SolIdent),
     ErrorDefParameter(Option<ItemContract>, ItemError, VariableDeclaration),
 
+
+
     // Events
     EventDefName(ItemContract, ItemEvent, SolIdent),
     EventDefParameter(ItemContract, ItemEvent, EventParameter),
 
-    /// TODO!:
-    /// HOW TO DIFFERENTIATE BETWEEN THESE TWO?
-    VariableUsageName(Option<ItemContract>, Option<ItemFunction>, Expr, SolIdent),
-    StructInstantiation(ItemContract, Option<ItemFunction>, SolIdent),
 
     // Contracts
     //ContractScope(ItemContract, Option<ItemFunction>, SolPath),

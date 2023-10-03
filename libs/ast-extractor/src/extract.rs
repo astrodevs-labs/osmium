@@ -13,6 +13,7 @@ pub fn extract_ast_from_content(content: &str) -> Result<syn_solidity::File, Ext
     Ok(ast)
 }
 
+
 #[cfg(test)]
 mod tests {
     use super::*;

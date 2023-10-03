@@ -8,4 +8,8 @@ contract One {
         uint storedData1;
         uint storedData2;
     }
+
+    function test() public view {
+        another_one test = another_one(0, 0);
+    }
 }

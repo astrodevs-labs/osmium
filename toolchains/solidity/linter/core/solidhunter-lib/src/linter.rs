@@ -1,6 +1,6 @@
 use crate::errors::SolidHunterError;
-use crate::rules::factory::RuleFactory;
 use crate::rules::create_default_rules;
+use crate::rules::factory::RuleFactory;
 use crate::rules::rule_impl::parse_rules;
 use crate::rules::types::*;
 use crate::types::*;
@@ -23,12 +23,12 @@ pub struct SolidLinter {
 
 impl Default for SolidLinter {
     fn default() -> Self {
-        SolidLinter::new(&".solidhunter.json".to_string())
+        SolidLinter::new(".solidhunter.json")
     }
 }
 
 impl SolidLinter {
-    pub fn new(rules_config: &String) -> Self {
+    pub fn new(rules_config: &str) -> Self {
         let mut linter = SolidLinter {
             files: Vec::new(),
             rule_factory: RuleFactory::default(),
@@ -39,7 +39,7 @@ impl SolidLinter {
     }
 
     pub fn new_fileless() -> Self {
-        let default_rules = create_default_rules();       
+        let default_rules = create_default_rules();
         let mut linter = SolidLinter {
             files: Vec::new(),
             rule_factory: RuleFactory::default(),
@@ -102,10 +102,10 @@ impl SolidLinter {
         Ok(res)
     }
 
-    pub fn parse_content(&mut self, filepath: String, content: &String) -> LintResult {
+    pub fn parse_content(&mut self, filepath: String, content: &str) -> LintResult {
         let res = ast_extractor::extract::extract_ast_from_content(content)?;
 
-        self._add_file(filepath.as_str(), res, content.as_str());
+        self._add_file(filepath.as_str(), res, content);
         let mut res: Vec<LintDiag> = Vec::new();
 
         for rule in &self.rules {

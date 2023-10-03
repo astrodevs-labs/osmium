@@ -105,4 +105,5 @@ test_directories! {
     NoInlineAssembly,
     FunctionVisibility,
     OneContractPerFile,
+    CustomErrors,
 }

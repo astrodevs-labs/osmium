@@ -102,6 +102,7 @@ test_directories! {
     FunctionParamNameCamelCase,
     UseForbiddenName,
     ReasonString,
+    FunctionVisibility,
     NoInlineAssembly,
-    CustomErrors,
+    CustomErrors
 }

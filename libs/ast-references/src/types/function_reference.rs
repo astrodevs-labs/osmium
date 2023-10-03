@@ -7,7 +7,7 @@ use std::cell::RefCell;
 
 use std::fmt;
 use std::rc::Rc;
-use syn_solidity::FunctionKind;
+use ast_extractor::FunctionKind;
 
 use crate::types::location::Location;
 use crate::types::contract_reference::ContractReference;
@@ -64,7 +64,7 @@ impl PartialEq for FunctionReference {
  mod tests {
     use std::cell::RefCell; 
     use proc_macro2::Span;
-    use syn_solidity::kw::function;
+    use ast_extractor::kw::function;
 
     use crate::types::{location::{Bound, Location}, file_reference::FileReference};
 

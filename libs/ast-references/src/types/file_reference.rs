@@ -106,7 +106,7 @@ impl Hash for FileReference {
  mod tests {
     use std::cell::RefCell; 
     use proc_macro2::Span;
-    use syn_solidity::Type;
+    use ast_extractor::Type;
 
     use crate::types::location::{Bound, Location};
 

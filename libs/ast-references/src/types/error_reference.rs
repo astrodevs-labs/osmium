@@ -7,7 +7,7 @@
 use std::fmt;
 use std::rc::Rc;
 use std::cell::RefCell;
-use syn_solidity::{Type, Storage};
+use ast_extractor::{Type, Storage};
 use crate::types::location::Location;
 use crate::types::file_reference::FileReference;
 use crate::types::contract_reference::ContractReference;

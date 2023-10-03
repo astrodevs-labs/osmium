@@ -17,7 +17,7 @@ use std::cell::RefCell;
 use std::fs;
 use std::rc::Rc;
 use std::str::FromStr;
-use syn_solidity::{
+use ast_extractor::{
     ItemContract, ItemEnum, ItemError, ItemEvent, ItemFunction, ItemStruct, Spanned,
     VariableDefinition, Visit,
 };
@@ -66,7 +66,7 @@ impl<'ast> Visit<'ast> for FileVisitor {
                 .borrow_mut()
                 .add_variable(variable_reference);
         }
-        syn_solidity::visit::visit_variable_definition(self, i)
+        ast_extractor::visit::visit_variable_definition(self, i)
     }
 
     fn visit_item_enum(&mut self, i: &'ast ItemEnum) {
@@ -95,7 +95,7 @@ impl<'ast> Visit<'ast> for FileVisitor {
         } else {
             self.file_reference.borrow_mut().add_enum(enum_reference);
         }
-        syn_solidity::visit::visit_item_enum(self, i)
+        ast_extractor::visit::visit_item_enum(self, i)
     }
 
     fn visit_item_contract(&mut self, i: &ItemContract) {
@@ -125,7 +125,7 @@ impl<'ast> Visit<'ast> for FileVisitor {
                 .unwrap()
                 .clone(),
         );
-        syn_solidity::visit::visit_item_contract(self, i);
+        ast_extractor::visit::visit_item_contract(self, i);
         self.current_contract = None;
     }
 
@@ -155,7 +155,7 @@ impl<'ast> Visit<'ast> for FileVisitor {
         } else {
             self.file_reference.borrow_mut().add_event(event_reference);
         }
-        syn_solidity::visit::visit_item_event(self, i)
+        ast_extractor::visit::visit_item_event(self, i)
     }
 
     fn visit_item_function(&mut self, i: &'ast ItemFunction) {
@@ -182,7 +182,7 @@ impl<'ast> Visit<'ast> for FileVisitor {
                 .borrow_mut()
                 .add_function(&Rc::new(RefCell::new(function_reference)));
         }
-        syn_solidity::visit::visit_item_function(self, i);
+        ast_extractor::visit::visit_item_function(self, i);
     }
 
     fn visit_item_struct(&mut self, i: &'ast ItemStruct) {
@@ -213,7 +213,7 @@ impl<'ast> Visit<'ast> for FileVisitor {
                 .borrow_mut()
                 .add_struct(struct_reference);
         }
-        syn_solidity::visit::visit_item_struct(self, i)
+        ast_extractor::visit::visit_item_struct(self, i)
     }
 
     fn visit_item_error(&mut self, i: &'ast ItemError) {
@@ -242,14 +242,14 @@ impl<'ast> Visit<'ast> for FileVisitor {
         } else {
             self.file_reference.borrow_mut().add_error(error_reference);
         }
-        syn_solidity::visit::visit_item_error(self, i)
+        ast_extractor::visit::visit_item_error(self, i)
     }
 }
 
 pub fn retrieve_file_reference_from_path(path: String) -> Rc<RefCell<FileReference>> {
     let source = fs::read_to_string(path.to_string()).unwrap();
     let tokens = TokenStream::from_str(source.as_str()).unwrap();
-    let ast = syn_solidity::parse2(tokens).unwrap();
+    let ast = ast_extractor::parse2(tokens).unwrap();
     let mut visitor = FileVisitor::new(path.to_string());
     visitor.visit_file(&ast);
     visitor.file_reference
@@ -279,21 +279,21 @@ mod tests {
             .borrow_mut()
             .add_contract(contract_ref);
         visitor.current_contract = Some(visitor.file_reference.borrow().contracts[0].clone());
-        let file = ast_extractor::extract::extract_ast_from(source).unwrap();
+        let file = ast_extractor::extract::extract_ast_from_content(&source).unwrap();
         let contract = file.items.iter().find(|item| match item {
-            syn_solidity::Item::Contract(contract) => true,
+            ast_extractor::Item::Contract(_) => true,
             _ => false,
         });
         let contract = match contract {
-            Some(syn_solidity::Item::Contract(contract)) => contract,
+            Some(ast_extractor::Item::Contract(contract)) => contract,
             _ => panic!("No contract found"),
         };
         let variables = contract.body.iter().find(|item| match item {
-            syn_solidity::Item::Variable(_) => true,
+            ast_extractor::Item::Variable(_) => true,
             _ => false,
         });
         let variables = match variables {
-            Some(syn_solidity::Item::Variable(variables)) => variables,
+            Some(ast_extractor::Item::Variable(variables)) => variables,
             _ => panic!("No variables found"),
         };
         visitor.visit_variable_definition(variables);
@@ -316,13 +316,13 @@ mod tests {
         let source = fs::read_to_string(&path).unwrap();
 
         let mut visitor = FileVisitor::new(path_str.clone());
-        let file = ast_extractor::extract::extract_ast_from(source).unwrap();
+        let file = ast_extractor::extract::extract_ast_from_content(&source).unwrap();
         let variable = file.items.iter().find(|item| match item {
-            syn_solidity::Item::Variable(contract) => true,
+            ast_extractor::Item::Variable(_) => true,
             _ => false,
         });
         let variable = match variable {
-            Some(syn_solidity::Item::Variable(var)) => var,
+            Some(ast_extractor::Item::Variable(var)) => var,
             _ => panic!("Expect variable declaration"),
         };
         visitor.visit_variable_definition(variable);
@@ -349,21 +349,21 @@ mod tests {
             .borrow_mut()
             .add_contract(contract_ref);
         visitor.current_contract = Some(visitor.file_reference.borrow().contracts[0].clone());
-        let file = ast_extractor::extract::extract_ast_from(source).unwrap();
+        let file = ast_extractor::extract::extract_ast_from_content(&source).unwrap();
         let contract = file.items.iter().find(|item| match item {
-            syn_solidity::Item::Contract(contract) => true,
+            ast_extractor::Item::Contract(_) => true,
             _ => false,
         });
         let contract = match contract {
-            Some(syn_solidity::Item::Contract(contract)) => contract,
+            Some(ast_extractor::Item::Contract(contract)) => contract,
             _ => panic!("No contract found"),
         };
         let enums = contract.body.iter().find(|item| match item {
-            syn_solidity::Item::Enum(_) => true,
+            ast_extractor::Item::Enum(_) => true,
             _ => false,
         });
         let enums = match enums {
-            Some(syn_solidity::Item::Enum(enums)) => enums,
+            Some(ast_extractor::Item::Enum(enums)) => enums,
             _ => panic!("No enums found"),
         };
         visitor.visit_item_enum(enums);
@@ -386,13 +386,13 @@ mod tests {
         let source = fs::read_to_string(&path).unwrap();
 
         let mut visitor = FileVisitor::new(path_str.clone());
-        let file = ast_extractor::extract::extract_ast_from(source).unwrap();
+        let file = ast_extractor::extract::extract_ast_from_content(&source).unwrap();
         let enums = file.items.iter().find(|item| match item {
-            syn_solidity::Item::Enum(contract) => true,
+            ast_extractor::Item::Enum(_) => true,
             _ => false,
         });
         let enums = match enums {
-            Some(syn_solidity::Item::Enum(var)) => var,
+            Some(ast_extractor::Item::Enum(var)) => var,
             _ => panic!("Expect enums declaration"),
         };
         visitor.visit_item_enum(enums);
@@ -409,13 +409,13 @@ mod tests {
         let source = fs::read_to_string(&path).unwrap();
 
         let mut visitor = FileVisitor::new(path_str.clone());
-        let file = ast_extractor::extract::extract_ast_from(source).unwrap();
+        let file = ast_extractor::extract::extract_ast_from_content(&source).unwrap();
         let contracts = file.items.iter().find(|item| match item {
-            syn_solidity::Item::Contract(contract) => true,
+            ast_extractor::Item::Contract(_) => true,
             _ => false,
         });
         let contracts = match contracts {
-            Some(syn_solidity::Item::Contract(var)) => var,
+            Some(ast_extractor::Item::Contract(var)) => var,
             _ => panic!("Expect contracts declaration"),
         };
         visitor.visit_item_contract(contracts);
@@ -432,13 +432,21 @@ mod tests {
         let source = fs::read_to_string(&path).unwrap();
 
         let mut visitor = FileVisitor::new(path_str.clone());
-        let file = ast_extractor::extract::extract_ast_from(source).unwrap();
-        let events = file.items.iter().find(|item| match item {
-            syn_solidity::Item::Event(contract) => true,
+        let file = ast_extractor::extract::extract_ast_from_content(&source).unwrap();
+        let contract = file.items.iter().find(|item| match item {
+            ast_extractor::Item::Contract(_) => true,
+            _ => false,
+        });
+        let contract = match contract {
+            Some(ast_extractor::Item::Contract(contract)) => contract,
+            _ => panic!("No contract found"),
+        };
+        let events = contract.body.iter().find(|item| match item {
+            ast_extractor::Item::Event(_) => true,
             _ => false,
         });
         let events = match events {
-            Some(syn_solidity::Item::Event(var)) => var,
+            Some(ast_extractor::Item::Event(var)) => var,
             _ => panic!("Expect events declaration"),
         };
         visitor.visit_item_event(events);
@@ -465,21 +473,21 @@ mod tests {
             .borrow_mut()
             .add_contract(contract_ref);
         visitor.current_contract = Some(visitor.file_reference.borrow().contracts[0].clone());
-        let file = ast_extractor::extract::extract_ast_from(source).unwrap();
+        let file = ast_extractor::extract::extract_ast_from_content(&source).unwrap();
         let contract = file.items.iter().find(|item| match item {
-            syn_solidity::Item::Contract(contract) => true,
+            ast_extractor::Item::Contract(_) => true,
             _ => false,
         });
         let contract = match contract {
-            Some(syn_solidity::Item::Contract(contract)) => contract,
+            Some(ast_extractor::Item::Contract(contract)) => contract,
             _ => panic!("No contract found"),
         };
         let function = contract.body.iter().find(|item| match item {
-            syn_solidity::Item::Function(_) => true,
+            ast_extractor::Item::Function(_) => true,
             _ => false,
         });
         let function = match function {
-            Some(syn_solidity::Item::Function(function)) => function,
+            Some(ast_extractor::Item::Function(function)) => function,
             _ => panic!("No function found"),
         };
         visitor.visit_item_function(function);
@@ -512,21 +520,21 @@ mod tests {
             .borrow_mut()
             .add_contract(contract_ref);
         visitor.current_contract = Some(visitor.file_reference.borrow().contracts[0].clone());
-        let file = ast_extractor::extract::extract_ast_from(source).unwrap();
+        let file = ast_extractor::extract::extract_ast_from_content(&source).unwrap();
         let contract = file.items.iter().find(|item| match item {
-            syn_solidity::Item::Contract(contract) => true,
+            ast_extractor::Item::Contract(_) => true,
             _ => false,
         });
         let contract = match contract {
-            Some(syn_solidity::Item::Contract(contract)) => contract,
+            Some(ast_extractor::Item::Contract(contract)) => contract,
             _ => panic!("No contract found"),
         };
         let structs = contract.body.iter().find(|item| match item {
-            syn_solidity::Item::Struct(_) => true,
+            ast_extractor::Item::Struct(_) => true,
             _ => false,
         });
         let structs = match structs {
-            Some(syn_solidity::Item::Struct(structs)) => structs,
+            Some(ast_extractor::Item::Struct(structs)) => structs,
             _ => panic!("No structs found"),
         };
         visitor.visit_item_struct(structs);
@@ -549,13 +557,13 @@ mod tests {
         let source = fs::read_to_string(&path).unwrap();
 
         let mut visitor = FileVisitor::new(path_str.clone());
-        let file = ast_extractor::extract::extract_ast_from(source).unwrap();
+        let file = ast_extractor::extract::extract_ast_from_content(&source).unwrap();
         let structs = file.items.iter().find(|item| match item {
-            syn_solidity::Item::Struct(contract) => true,
+            ast_extractor::Item::Struct(_) => true,
             _ => false,
         });
         let structs = match structs {
-            Some(syn_solidity::Item::Struct(var)) => var,
+            Some(ast_extractor::Item::Struct(var)) => var,
             _ => panic!("Expect structs declaration"),
         };
         visitor.visit_item_struct(structs);
@@ -572,13 +580,13 @@ mod tests {
         let source = fs::read_to_string(&path).unwrap();
 
         let mut visitor = FileVisitor::new(path_str.clone());
-        let file = ast_extractor::extract::extract_ast_from(source).unwrap();
+        let file = ast_extractor::extract::extract_ast_from_content(&source).unwrap();
         let errors = file.items.iter().find(|item| match item {
-            syn_solidity::Item::Error(contract) => true,
+            ast_extractor::Item::Error(_) => true,
             _ => false,
         });
         let errors = match errors {
-            Some(syn_solidity::Item::Error(var)) => var,
+            Some(ast_extractor::Item::Error(var)) => var,
             _ => panic!("Expect errors declaration"),
         };
         visitor.visit_item_error(errors);

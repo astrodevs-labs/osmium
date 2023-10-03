@@ -117,7 +117,7 @@ mod tests {
     use std::cell::RefCell;
 
     use proc_macro2::Span;
-    use syn_solidity::{kw::function, Type};
+    use ast_extractor::{kw::function, Type};
 
     use crate::types::location::Bound;
 
@@ -188,7 +188,7 @@ mod tests {
         )));
         let function = Rc::new(RefCell::new(FunctionReference::new(
             "TestFunction".to_string(),
-            syn_solidity::FunctionKind::Function(function(proc_macro2::Span::call_site())),
+            ast_extractor::FunctionKind::Function(function(proc_macro2::Span::call_site())),
             Location::new(
                 "File.test".to_string(),
                 Bound { line: 0, column: 0 },

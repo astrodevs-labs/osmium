@@ -19,7 +19,6 @@ version = "0.1.0"
 dependencies = [
  "ast-extractor",
  "proc-macro2",
- "syn-solidity",
 ]
 
 [[package]]
@@ -59,9 +58,9 @@ dependencies = [
 
 [[package]]
 name = "syn-solidity"
-version = "0.3.2"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "397f229dc34c7b8231b6ef85502f9ca4e3425b8625e6d403bb74779e6b1917b5"
+checksum = "1b8a5a633f1172a0c80b1516a988e7e8efa7ce9cededf56590f54e593e4513b3"
 dependencies = [
  "paste",
  "proc-macro2",

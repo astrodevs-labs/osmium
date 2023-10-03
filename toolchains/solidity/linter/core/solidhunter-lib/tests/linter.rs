@@ -103,4 +103,6 @@ test_directories! {
     UseForbiddenName,
     ReasonString,
     FunctionVisibility,
+    NoInlineAssembly,
+    CustomErrors
 }

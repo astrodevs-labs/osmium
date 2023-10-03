@@ -108,4 +108,5 @@ test_directories! {
     CustomErrors,
     EventNameCamelCase
     ConstNameSnakeCase,
+    StateVisibility,
 }

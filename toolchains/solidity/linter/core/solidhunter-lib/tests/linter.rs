@@ -103,4 +103,5 @@ test_directories! {
     UseForbiddenName,
     ReasonString,
     NoInlineAssembly,
+    CustomErrors,
 }

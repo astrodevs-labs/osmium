@@ -3,15 +3,19 @@ use crate::rules::types::*;
 use crate::types::*;
 use ast_extractor::*;
 
-pub const RULE_ID: &str = "no-inline-assembly";
-const MESSAGE: &str = "Avoid to use inline assembly. It is acceptable only in rare cases";
+pub const RULE_ID: &str = "custom-errors";
 
-pub struct NoInlineAssembly {
+pub struct CustomErrors {
     data: RuleEntry,
 }
 
-impl NoInlineAssembly {
-    fn create_diag(&self, file: &SolidFile, location: (LineColumn, LineColumn)) -> LintDiag {
+impl CustomErrors {
+    fn create_diag(
+        &self,
+        file: &SolidFile,
+        location: (LineColumn, LineColumn),
+        diag_type: String,
+    ) -> LintDiag {
         LintDiag {
             id: RULE_ID.to_string(),
             range: Range {
@@ -24,7 +28,7 @@ impl NoInlineAssembly {
                     character: location.1.column,
                 },
             },
-            message: MESSAGE.to_string(),
+            message: format!("Use Custom Errors instead of {} statements", diag_type),
             severity: Some(self.data.severity),
             code: None,
             source: None,
@@ -34,15 +38,27 @@ impl NoInlineAssembly {
     }
 }
 
-impl RuleType for NoInlineAssembly {
+impl RuleType for CustomErrors {
     fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
 
         for contract in retriever::retrieve_contract_nodes(&file.data) {
             for stmt in retriever::retrieve_stmts_nodes(&contract) {
-                if let Stmt::Assembly(_) = stmt {
-                    let location = (stmt.span().start(), stmt.span().end());
-                    res.push(self.create_diag(file, location));
+                if let Stmt::Revert(revert) = &stmt {
+                    if let Expr::Tuple(_) = &revert.expr {
+                        let location = (revert.span().start(), revert.span().end());
+                        res.push(self.create_diag(file, location, "revert".to_string()));
+                    }
+                }
+                if let Stmt::Expr(expr) = &stmt {
+                    if let Expr::Call(call) = &expr.expr {
+                        if let Expr::Ident(ref ident) = *(call.expr) {
+                            if *ident == "require" || *ident == "assert" {
+                                let location = (expr.span().start(), expr.span().end());
+                                res.push(self.create_diag(file, location, ident.to_string()));
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -50,9 +66,9 @@ impl RuleType for NoInlineAssembly {
     }
 }
 
-impl NoInlineAssembly {
+impl CustomErrors {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let rule = NoInlineAssembly { data };
+        let rule = CustomErrors { data };
         Box::new(rule)
     }
 

@@ -15,7 +15,10 @@ pub fn create_default_rules() -> Vec<RuleEntry> {
 pub fn create_rules() -> RulesMap {
     let mut rules: HashMap<String, RuleBuilder> = HashMap::new();
 
-    rules.insert(no_inline_assembly::RULE_ID.to_string(), NoInlineAssembly::create);
+    rules.insert(
+        no_inline_assembly::RULE_ID.to_string(),
+        NoInlineAssembly::create,
+    );
 
     rules
 }

@@ -69,35 +69,6 @@ impl<'ast> Visit<'ast> for FileVisitor {
         ast_extractor::visit::visit_variable_definition(self, i)
     }
 
-    fn visit_item_enum(&mut self, i: &'ast ItemEnum) {
-        let enum_reference = EnumReference::new(
-            i.name.to_string(),
-            Location::new(
-                self.file_reference.borrow_mut().path.clone(),
-                Bound::new(
-                    i.name.span().start().line as u32,
-                    i.name.span().start().column as u32,
-                ),
-                Bound::new(
-                    i.name.span().start().line as u32,
-                    i.name.span().start().column as u32,
-                ),
-            ),
-            self.current_contract.as_ref(),
-            Some(&self.file_reference),
-        );
-        if self.current_contract.is_some() {
-            self.current_contract
-                .as_ref()
-                .unwrap()
-                .borrow_mut()
-                .add_enum(&Rc::new(RefCell::new(enum_reference)));
-        } else {
-            self.file_reference.borrow_mut().add_enum(enum_reference);
-        }
-        ast_extractor::visit::visit_item_enum(self, i)
-    }
-
     fn visit_item_contract(&mut self, i: &ItemContract) {
         let contract_reference = ContractReference::new(
             i.name.to_string(),
@@ -127,6 +98,64 @@ impl<'ast> Visit<'ast> for FileVisitor {
         );
         ast_extractor::visit::visit_item_contract(self, i);
         self.current_contract = None;
+    }
+
+    fn visit_item_enum(&mut self, i: &'ast ItemEnum) {
+        let enum_reference = EnumReference::new(
+            i.name.to_string(),
+            Location::new(
+                self.file_reference.borrow_mut().path.clone(),
+                Bound::new(
+                    i.name.span().start().line as u32,
+                    i.name.span().start().column as u32,
+                ),
+                Bound::new(
+                    i.name.span().start().line as u32,
+                    i.name.span().start().column as u32,
+                ),
+            ),
+            self.current_contract.as_ref(),
+            Some(&self.file_reference),
+        );
+        if self.current_contract.is_some() {
+            self.current_contract
+                .as_ref()
+                .unwrap()
+                .borrow_mut()
+                .add_enum(&Rc::new(RefCell::new(enum_reference)));
+        } else {
+            self.file_reference.borrow_mut().add_enum(enum_reference);
+        }
+        ast_extractor::visit::visit_item_enum(self, i)
+    }
+
+    fn visit_item_error(&mut self, i: &'ast ItemError) {
+        let error_reference = ErrorReference::new(
+            i.name.to_string(),
+            Location::new(
+                self.file_reference.borrow_mut().path.clone(),
+                Bound::new(
+                    i.name.span().start().line as u32,
+                    i.name.span().start().column as u32,
+                ),
+                Bound::new(
+                    i.name.span().end().line as u32,
+                    i.name.span().end().column as u32,
+                ),
+            ),
+            self.current_contract.as_ref(),
+            Some(&self.file_reference),
+        );
+        if self.current_contract.is_some() {
+            self.current_contract
+                .as_ref()
+                .unwrap()
+                .borrow_mut()
+                .add_error(&Rc::new(RefCell::new(error_reference)));
+        } else {
+            self.file_reference.borrow_mut().add_error(error_reference);
+        }
+        ast_extractor::visit::visit_item_error(self, i)
     }
 
     fn visit_item_event(&mut self, i: &'ast ItemEvent) {
@@ -214,35 +243,6 @@ impl<'ast> Visit<'ast> for FileVisitor {
                 .add_struct(struct_reference);
         }
         ast_extractor::visit::visit_item_struct(self, i)
-    }
-
-    fn visit_item_error(&mut self, i: &'ast ItemError) {
-        let error_reference = ErrorReference::new(
-            i.name.to_string(),
-            Location::new(
-                self.file_reference.borrow_mut().path.clone(),
-                Bound::new(
-                    i.name.span().start().line as u32,
-                    i.name.span().start().column as u32,
-                ),
-                Bound::new(
-                    i.name.span().end().line as u32,
-                    i.name.span().end().column as u32,
-                ),
-            ),
-            self.current_contract.as_ref(),
-            Some(&self.file_reference),
-        );
-        if self.current_contract.is_some() {
-            self.current_contract
-                .as_ref()
-                .unwrap()
-                .borrow_mut()
-                .add_error(&Rc::new(RefCell::new(error_reference)));
-        } else {
-            self.file_reference.borrow_mut().add_error(error_reference);
-        }
-        ast_extractor::visit::visit_item_error(self, i)
     }
 }
 

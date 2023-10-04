@@ -98,6 +98,14 @@ impl<'ast> Visit<'ast> for FinderVisitor {
         }
     }
 
+    fn visit_stmt_var_decl(&mut self, stmt_var_decl: &'ast StmtVarDecl) {
+        if is_in_range!(stmt_var_decl.span().start(), stmt_var_decl.span().end(), self.to_find) {
+            println!("stmt: {:?}", stmt_var_decl);
+            visit::visit_stmt_var_decl(self, stmt_var_decl);
+        }
+    }
+
+
     fn visit_expr(&mut self, expr: &'ast Expr) {
         if is_in_range!(expr.span().start(), expr.span().end(), self.to_find) {
             println!("expr: {:?}", expr);
@@ -105,7 +113,6 @@ impl<'ast> Visit<'ast> for FinderVisitor {
             visit::visit_expr(self, expr);
         }
     }
-
 
     fn visit_expr_call(&mut self, call: &'ast ExprCall) {
         if is_in_range!(call.span().start(), call.span().end(), self.to_find) {
@@ -124,9 +131,18 @@ impl<'ast> Visit<'ast> for FinderVisitor {
         }
     }
 
+    fn visit_ident(&mut self, ident: &'ast SolIdent) {
+        if self.found.is_some() {
+            return;
+        }
+        if is_in_range!(ident.span().start(), ident.span().end(), self.to_find) {
+            self.found = Some(FoundNode::IdentUsageName(self.current_contract.clone(), self.current_function.clone(), self.current_expr.clone(), ident.clone()));
+        }
+    }
+
     fn visit_type(&mut self, ty: &'ast Type) {
-        println!("type: {:?}", ty);
         if is_in_range!(ty.span().start(), ty.span().end(), self.to_find) {
+            println!("type: {:?}", ty);
             self.found = Some(FoundNode::TypeUsage(self.current_contract.clone(), self.current_function.clone(), self.current_expr.clone(), ty.clone()));
             visit::visit_type(self, ty);
         }
@@ -146,12 +162,6 @@ impl<'ast> Visit<'ast> for FinderVisitor {
 
     }
 
-    fn visit_stmt_var_decl(&mut self, stmt_var_decl: &'ast StmtVarDecl) {
-        if is_in_range!(stmt_var_decl.span().start(), stmt_var_decl.span().end(), self.to_find) {
-            visit::visit_stmt_var_decl(self, stmt_var_decl);
-        }
-    }
-
     fn visit_variable_definition(&mut self, var: &'ast VariableDefinition) {
         if is_in_range!(var.span().start(), var.span().end(), self.to_find) {
             self.current_property = Some(var.clone());
@@ -168,6 +178,7 @@ impl<'ast> Visit<'ast> for FinderVisitor {
     }
 
     fn visit_item_contract(&mut self, contract: &'ast ItemContract) {
+        println!("contract: {:?}", contract);
         let _contract_start = contract.brace_token.span().start();
         let _contract_end = contract.brace_token.span().end();
         self.current_contract = Some(contract.clone());
@@ -231,6 +242,7 @@ impl<'ast> Visit<'ast> for FinderVisitor {
     }
 
     fn visit_item_function(&mut self, function: &'ast ItemFunction) {
+        println!("function: {:?}", function);
         self.current_function = Some(function.clone());
         if is_in_range!(function.name.span().start(), function.name.span().end(), self.to_find) {
             self.found = Some(FoundNode::FunctionDefName(self.current_contract.clone().unwrap(), function.clone()));
@@ -245,24 +257,18 @@ impl<'ast> Visit<'ast> for FinderVisitor {
                 }
             }
         }
+        if let Some(ret) = function.return_type() {
+            visit::visit_type(self, &ret);
+        }
         if let FunctionBody::Block(block) = &function.body {
+            let _block_start = block.span().start();
+            let _block_end = block.span().end();
             if is_in_range!(block.span().start(), block.span().end(), self.to_find) {
                 visit::visit_item_function(self, function);
             }
         }
-        if let Some(ret) = function.return_type() {
-            visit::visit_type(self, &ret);
-        }
-        self.current_function = None;
-    }
 
-    fn visit_ident(&mut self, ident: &'ast SolIdent) {
-        if self.found.is_some() {
-            return;
-        }
-        if is_in_range!(ident.span().start(), ident.span().end(), self.to_find) {
-            self.found = Some(FoundNode::IdentUsageName(self.current_contract.clone(), self.current_function.clone(), self.current_expr.clone(), ident.clone()));
-        }
+        self.current_function = None;
     }
 
     fn visit_item_struct(&mut self, strukt: &'ast ItemStruct) {
@@ -900,7 +906,7 @@ mod tests {
 
         let tokens = TokenStream::from_str(source.as_str()).unwrap();
         let ast = parse2(tokens).unwrap();
-        let res = retrieve_node_from_position(&ast, Position::new(5, 14));
+        let res = retrieve_node_from_position(&ast, Position::new(16, 36));
         
         if let Some(FoundNode::IdentUsageName(_contract, _func, _expr, ident)) = res {
             assert_eq!(ident.to_string(), "storedData");
@@ -942,6 +948,27 @@ mod tests {
         let ast = parse2(tokens).unwrap();
         let res = retrieve_node_from_position(&ast, Position::new(5, 22));
         
+        if let Some(FoundNode::IdentUsageName(_contract, _func, _expr, ident)) = res {
+            assert_eq!(ident.to_string(), "x");
+        } else {
+            panic!()
+        }
+    }
+
+    #[test]
+    fn test_retrieve_const_usage() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("tests");
+        path.push("files");
+        path.push("contracts");
+        path.push("two.sol");
+        let source = fs::read_to_string(path).unwrap();
+
+        let tokens = TokenStream::from_str(source.as_str()).unwrap();
+        let ast = parse2(tokens).unwrap();
+        let res = retrieve_node_from_position(&ast, Position::new(16, 29));
+        println!("{:?}", res);
+
         if let Some(FoundNode::IdentUsageName(_contract, _func, _expr, ident)) = res {
             assert_eq!(ident.to_string(), "x");
         } else {

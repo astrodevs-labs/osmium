@@ -23,11 +23,14 @@ use super::event_reference::EventReference;
 
 pub struct ContractReference {
     pub name: String,
+    pub is_library: bool,
     pub location: Location,
     pub file: Rc<RefCell<FileReference>>,
     pub structs: Vec<Rc<RefCell<StructReference>>>,
     pub functions: Vec<Rc<RefCell<FunctionReference>>>,
     pub properties: Vec<Rc<RefCell<VariableReference>>>,
+    pub variables: Vec<Rc<RefCell<VariableReference>>>,
+    pub constants: Vec<Rc<RefCell<VariableReference>>>,
     pub errors: Vec<Rc<RefCell<ErrorReference>>>,
     pub events: Vec<Rc<RefCell<EventReference>>>,
     pub enums: Vec<Rc<RefCell<EnumReference>>>,
@@ -42,10 +45,13 @@ impl ContractReference {
         name: String,
         location: Location,
         file: &Rc<RefCell<FileReference>>,
+        is_library: bool,
     ) -> ContractReference {
         ContractReference {
             name: name,
+            is_library: is_library,
             location: location,
+
             file: file.clone(),
             structs: Vec::new(),
             functions: Vec::new(),

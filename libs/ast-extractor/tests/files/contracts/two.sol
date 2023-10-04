@@ -8,11 +8,12 @@ abstract contract One {
     function get() public view returns (uint) {
         return storedData;
     }
+    uint8 constant myConst = 1;
 }
 
 abstract contract Two {
-    uint storedData;
     function set(uint x) public {
+        uint storedData = One.myConst;
         storedData = x;
     }
 

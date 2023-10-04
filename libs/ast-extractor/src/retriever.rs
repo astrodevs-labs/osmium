@@ -20,7 +20,8 @@ mod udt;
 pub use udt::*;
 
 mod using;
-mod finder;
+pub mod finder;
+pub use finder::*;
 
 pub use using::*;
 

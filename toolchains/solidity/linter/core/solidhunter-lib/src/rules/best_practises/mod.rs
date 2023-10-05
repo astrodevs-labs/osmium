@@ -21,7 +21,6 @@ use crate::rules::best_practises::global_import::GlobalImport;
 use crate::rules::best_practises::line_maxlen::LineMaxLen;
 use crate::rules::best_practises::max_states_count::MaxStatesCount;
 use crate::rules::best_practises::one_contract_per_file::OneContractPerFile;
-use crate::rules::best_practises::no_empty_block::NoEmptyBlock;
 use crate::rules::best_practises::reason_string::ReasonString;
 use crate::rules::RuleBuilder;
 

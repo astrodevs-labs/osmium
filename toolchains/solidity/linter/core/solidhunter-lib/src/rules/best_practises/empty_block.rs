@@ -1,6 +1,10 @@
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
+use ast_extractor::{
+    retriever::{retrieve_block_nodes, retrieve_contract_nodes},
+    Spanned,
+};
 
 // const DEFAULT_SEVERITY: &str = "warn";
 const DEFAULT_MESSAGE: &str = "should not be an empty block";
@@ -13,66 +17,59 @@ pub struct EmptyBlock {
 impl RuleType for EmptyBlock {
     fn diagnose(&self, _file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
-        let _report = check_empty_block(_file);
-        if let Some(report) = _report {
-            res.push(LintDiag {
-                id: RULE_ID.to_string(),
-                severity: Some(Severity::WARNING),
-                range: report,
-                code: None,
-                source: None,
-                message: DEFAULT_MESSAGE.to_string(),
-                uri: _file.path.clone(),
-                source_file_content: _file.content.clone(),
-            })
+        let _reports = check_empty_block(_file);
+        for report in _reports.iter() {
+            if let Some(report) = report {
+                res.push(LintDiag {
+                    id: RULE_ID.to_string(),
+                    severity: Some(Severity::WARNING),
+                    range: report.clone(),
+                    code: None,
+                    source: None,
+                    message: DEFAULT_MESSAGE.to_string(),
+                    uri: _file.path.clone(),
+                    source_file_content: _file.content.clone(),
+                })
+            }
         }
-        print!("{:?}", res);
-        println!("");
         res
     }
 }
 
-fn check_empty_block(file: &SolidFile) -> Option<Range> {
-    let mut res: Option<Range> = None;
-    let mut line_index = 1;
-    let mut current_index = 1;
+fn check_empty_block(file: &SolidFile) -> Vec<Option<Range>> {
+    let mut res: Vec<Option<Range>> = Vec::new();
 
-    file.content.lines().for_each(|line| {
-        let left_bracket_index = line.find("{");
-        if left_bracket_index.is_some() {
-            let mut index_in_line = 1;
-            for (_, c) in file
-                .content
-                .chars()
-                .enumerate()
-                .skip(current_index + left_bracket_index.unwrap())
-            {
-                if (c != ' ') && (c != '\n') && (c != '}') {
-                    break;
-                }
-                if c == '\n' {
-                    line_index += 1;
-                    index_in_line = 0;
-                }
-                if c == '}' {
-                    res = Some(Range {
-                        start: Position {
-                            line: line_index,
-                            character: left_bracket_index.unwrap() + 1,
-                        },
-                        end: Position {
-                            line: line_index,
-                            character: left_bracket_index.unwrap() + 1 + index_in_line,
-                        },
-                    });
-                    break;
-                }
-                index_in_line += 1;
-            }
+    let contracts = retrieve_contract_nodes(&file.data);
+    for contract in contracts.iter() {
+        if contract.body.is_empty() {
+            res.push(Some(Range {
+                start: Position {
+                    line: contract.span().start().line,
+                    character: contract.span().start().column + 1,
+                },
+                end: Position {
+                    line: contract.span().end().line,
+                    character: contract.span().end().column,
+                },
+            }));
         }
-        line_index += 1;
-        current_index += line.len() + 1;
-    });
+    }
+
+    let blocks = retrieve_block_nodes(&file.data);
+    for block in blocks.iter() {
+        if block.stmts.is_empty() {
+            res.push(Some(Range {
+                start: Position {
+                    line: block.span().start().line,
+                    character: block.span().start().column + 1,
+                },
+                end: Position {
+                    line: block.span().end().line,
+                    character: block.span().end().column,
+                },
+            }));
+        }
+    }
     res
 }
 

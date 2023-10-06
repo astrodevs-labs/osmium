@@ -5,6 +5,7 @@ use std::collections::HashMap;
 pub mod line_maxlen;
 pub mod custom_errors;
 pub mod function_max_lines;
+pub mod global_import;
 pub mod max_states_count;
 pub mod reason_string;
 
@@ -14,6 +15,7 @@ pub mod one_contract_per_file;
 
 use crate::rules::best_practises::custom_errors::CustomErrors;
 use crate::rules::best_practises::function_max_lines::FunctionMaxLines;
+use crate::rules::best_practises::global_import::GlobalImport;
 use crate::rules::best_practises::line_maxlen::LineMaxLen;
 use crate::rules::best_practises::max_states_count::MaxStatesCount;
 use crate::rules::best_practises::one_contract_per_file::OneContractPerFile;
@@ -28,6 +30,7 @@ pub fn create_default_rules() -> Vec<RuleEntry> {
         ReasonString::create_default(),
         OneContractPerFile::create_default(),
         CustomErrors::create_default(),
+        GlobalImport::create_default(),
     ]
 }
 
@@ -50,6 +53,7 @@ pub fn create_rules() -> RulesMap {
         one_contract_per_file::RULE_ID.to_string(),
         OneContractPerFile::create,
     );
+    rules.insert(global_import::RULE_ID.to_string(), GlobalImport::create);
 
     rules
 }

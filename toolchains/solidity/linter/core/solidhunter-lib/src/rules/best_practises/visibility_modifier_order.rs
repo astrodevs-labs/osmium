@@ -1,3 +1,6 @@
+use ast_extractor::retriever::{retrieve_contract_nodes, retrieve_functions_nodes};
+use ast_extractor::Spanned;
+
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
@@ -10,46 +13,56 @@ pub struct VisibilityModiferOrder {
     _data: RuleEntry,
 }
 
-// je retourne une erreur si la visibility modifier
-// n'est pas juste apres nom_de_fonction()
-
 impl RuleType for VisibilityModiferOrder {
     fn diagnose(&self, _file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
-        let mut line_index = 1;
 
-        _file.content.lines().for_each(|line| {
-            if line.find("function").is_some() {
-                let line_splitted = line.split_whitespace().collect::<Vec<&str>>();
-                if line_splitted[2] != "public" && line_splitted[2] != "private" {
-                    let start_index = line.find(line_splitted[2]).unwrap();
-                    let range = Range {
-                        start: Position {
-                            line: line_index,
-                            character: start_index + 1,
-                        },
-                        end: Position {
-                            line: line_index,
-                            character: start_index + line_splitted[2].len(),
-                        },
-                    };
-                    res.push(LintDiag {
-                        id: RULE_ID.to_string(),
-                        range: range,
-                        severity: Some(Severity::WARNING),
-                        code: None,
-                        source: None,
-                        message: DEFAULT_MESSAGE.to_string(),
-                        uri: _file.path.clone(),
-                        source_file_content: _file.content.clone(),
-                    });
-                }
-            }
-            line_index += 1;
-        });
+        let reports = check_visibility_modifier_order(_file);
+        for report in reports {
+            res.push(LintDiag {
+                id: RULE_ID.to_string(),
+                range: report,
+                severity: Some(Severity::WARNING),
+                code: None,
+                source: None,
+                message: DEFAULT_MESSAGE.to_string(),
+                uri: _file.path.clone(),
+                source_file_content: _file.content.clone(),
+            });
+        }
         println!("res {:?}", res);
         res
     }
+}
+
+fn check_visibility_modifier_order(file: &SolidFile) -> Vec<Range> {
+    let mut reports = Vec::new();
+
+    let contracts = retrieve_contract_nodes(&file.data);
+    for contract in contracts {
+        let functions = retrieve_functions_nodes(&contract);
+        for function in functions {
+            let mut is_attributes = false;
+            function.attributes.iter().for_each(|attributes| {
+                if attributes.modifier().is_some() || attributes.mutability().is_some() {
+                    is_attributes = true;
+                }
+                if attributes.visibility().is_some() && is_attributes {
+                    reports.push(Range {
+                        start: Position {
+                            line: attributes.span().start().line,
+                            character: attributes.span().start().column,
+                        },
+                        end: Position {
+                            line: attributes.span().end().line,
+                            character: attributes.span().end().column,
+                        },
+                    });
+                }
+            });
+        }
+    }
+    reports
 }
 
 impl VisibilityModiferOrder {

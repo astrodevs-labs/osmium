@@ -6,7 +6,8 @@ use crate::rules::types::*;
 use crate::types::*;
 
 pub const RULE_ID: &str = "private-vars-leading-underscore";
-const MESSAGE: &str = "Private and internal names must start with a single underscore";
+const MESSAGE_PRIVATE: &str = "Private and internal names must start with a single underscore";
+const MESSAGE_PUBLIC: &str = "Only private and internal names must start with a single underscore";
 
 const DEFAULT_STRICT: bool = false;
 
@@ -20,6 +21,7 @@ impl PrivateVarsLeadingUnderscore {
         &self,
         location: (ast_extractor::LineColumn, ast_extractor::LineColumn),
         file: &SolidFile,
+        message: String,
     ) -> LintDiag {
         LintDiag {
             id: RULE_ID.to_string(),
@@ -33,7 +35,7 @@ impl PrivateVarsLeadingUnderscore {
                     character: location.1.column,
                 },
             },
-            message: MESSAGE.to_string(),
+            message,
             severity: Some(self.data.severity),
             code: None,
             source: None,
@@ -52,6 +54,32 @@ impl RuleType for PrivateVarsLeadingUnderscore {
             let functions = ast_extractor::retriever::retrieve_functions_nodes(&contract);
 
             for function in functions {
+                if self.config["strict"].as_bool().unwrap_or(DEFAULT_STRICT) {
+                    for argument in function.arguments {
+                        if let Some(name) = argument.name {
+                            let leading_underscore = name.as_string().starts_with('_');
+
+                            if !leading_underscore {
+                                let span = name.span();
+                                res.push(self.create_diag((span.start(), span.end()), file, MESSAGE_PRIVATE.to_string()));
+                            }
+                        }
+                    }
+
+                    if let Some(returns) = function.returns {
+                        for return_arg in returns.returns {
+                            if let Some(name) = return_arg.name {
+                                let leading_underscore = name.as_string().starts_with('_');
+
+                                if !leading_underscore {
+                                    let span = name.span();
+                                    res.push(self.create_diag((span.start(), span.end()), file, MESSAGE_PRIVATE.to_string()));
+                                }
+                            }
+                        }
+                    }
+                }
+
                 let is_private = match function.attributes.visibility() {
                     Some(val) => match val {
                         Private(_) => true,
@@ -66,7 +94,12 @@ impl RuleType for PrivateVarsLeadingUnderscore {
 
                     if !leading_underscore && is_private {
                         let span = name.span();
-                        res.push(self.create_diag((span.start(), span.end()), file));
+                        res.push(self.create_diag((span.start(), span.end()), file, MESSAGE_PRIVATE.to_string()));
+                    }
+
+                    if leading_underscore && !is_private {
+                        let span = name.span();
+                        res.push(self.create_diag((span.start(), span.end()), file, MESSAGE_PUBLIC.to_string()));
                     }
                 }
             }
@@ -86,7 +119,11 @@ impl RuleType for PrivateVarsLeadingUnderscore {
 
                     if !leading_underscore && is_private {
                         let span = var.name.span();
-                        res.push(self.create_diag((span.start(), span.end()), file));
+                        res.push(self.create_diag((span.start(), span.end()), file, MESSAGE_PRIVATE.to_string()));
+                    }
+                    if leading_underscore && !is_private {
+                        let span = var.name.span();
+                        res.push(self.create_diag((span.start(), span.end()), file, MESSAGE_PRIVATE.to_string()));
                     }
                 }
             }
@@ -100,11 +137,13 @@ impl PrivateVarsLeadingUnderscore {
         let mut strict = DEFAULT_STRICT;
 
         if !data.data.is_empty() {
-            strict = match data.data[0].as_bool() {
-                Some(val) => val as bool,
-                None => DEFAULT_STRICT,
-            };
+            if let Some(val) = data.data[0].as_object() {
+                if let Some(val) = val["strict"].as_bool() {
+                    strict = val;
+                }
+            }
         }
+
         let rule = PrivateVarsLeadingUnderscore {
             data,
             config: serde_json::json!({

@@ -37,16 +37,6 @@
       "data": []
     },
     {
-      "id": "func-name-camelcase",
-      "severity": "WARNING",
-      "data": []
-    },
-    {
-      "id": "func-param-name-camelcase",
-      "severity": "WARNING",
-      "data": []
-    },
-    {
       "id": "use-forbidden-name",
       "severity": "WARNING",
       "data": []
@@ -60,7 +50,7 @@
       "id": "private-vars-leading-underscore",
       "severity": "WARNING",
       "data": [{
-        "strict": false
+        "strict": true
       }]
     }
   ]

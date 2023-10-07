@@ -264,58 +264,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@osmium-toolchains/solidity-linter-extension@workspace:toolchains/solidity/linter/extension":
-  version: 0.0.0-use.local
-  resolution: "@osmium-toolchains/solidity-linter-extension@workspace:toolchains/solidity/linter/extension"
-  dependencies:
-    "@types/glob": ^8.1.0
-    "@types/mocha": ^10.0.1
-    "@types/node": 20.2.5
-    "@types/vscode": ^1.82.0
-    "@typescript-eslint/eslint-plugin": ^5.59.8
-    "@typescript-eslint/parser": ^5.59.8
-    "@vscode/test-electron": ^2.3.2
-    eslint: ^8.41.0
-    glob: ^8.1.0
-    mocha: ^10.2.0
-    ts-loader: ^9.4.3
-    typescript: ^5.1.3
-    vscode-languageclient: ^8.1.0
-    webpack: ^5.85.0
-    webpack-cli: ^5.1.1
-  languageName: unknown
-  linkType: soft
-
-"@osmium-toolchains/solidity@workspace:toolchains/solidity":
-  version: 0.0.0-use.local
-  resolution: "@osmium-toolchains/solidity@workspace:toolchains/solidity"
-  languageName: unknown
-  linkType: soft
-
-"@osmium/manager@workspace:manager":
-  version: 0.0.0-use.local
-  resolution: "@osmium/manager@workspace:manager"
-  languageName: unknown
-  linkType: soft
-
-"@osmium/solidity-linter-core@workspace:toolchains/solidity/linter/core":
-  version: 0.0.0-use.local
-  resolution: "@osmium/solidity-linter-core@workspace:toolchains/solidity/linter/core"
-  languageName: unknown
-  linkType: soft
-
-"@osmium/solidity-linter@workspace:toolchains/solidity/linter":
-  version: 0.0.0-use.local
-  resolution: "@osmium/solidity-linter@workspace:toolchains/solidity/linter"
-  languageName: unknown
-  linkType: soft
-
-"@osmium/solidity-lsp@workspace:toolchains/solidity/lsp":
-  version: 0.0.0-use.local
-  resolution: "@osmium/solidity-lsp@workspace:toolchains/solidity/lsp"
-  languageName: unknown
-  linkType: soft
-
 "@pkgjs/parseargs@npm:^0.11.0":
   version: 0.11.0
   resolution: "@pkgjs/parseargs@npm:0.11.0"
@@ -2632,6 +2580,58 @@ __metadata:
   checksum: 09281999441f2fe9c33a5eeab76700795365a061563d66b098923eb719251a42bdbe432790d35064d0816ead9296dbeb1ad51a733edf4167c96bd5d0882e428a
   languageName: node
   linkType: hard
+
+"osmium-manager@workspace:manager":
+  version: 0.0.0-use.local
+  resolution: "osmium-manager@workspace:manager"
+  languageName: unknown
+  linkType: soft
+
+"osmium-solidity-linter-core@workspace:toolchains/solidity/linter/core":
+  version: 0.0.0-use.local
+  resolution: "osmium-solidity-linter-core@workspace:toolchains/solidity/linter/core"
+  languageName: unknown
+  linkType: soft
+
+"osmium-solidity-linter-extension@workspace:toolchains/solidity/linter/extension":
+  version: 0.0.0-use.local
+  resolution: "osmium-solidity-linter-extension@workspace:toolchains/solidity/linter/extension"
+  dependencies:
+    "@types/glob": ^8.1.0
+    "@types/mocha": ^10.0.1
+    "@types/node": 20.2.5
+    "@types/vscode": ^1.82.0
+    "@typescript-eslint/eslint-plugin": ^5.59.8
+    "@typescript-eslint/parser": ^5.59.8
+    "@vscode/test-electron": ^2.3.2
+    eslint: ^8.41.0
+    glob: ^8.1.0
+    mocha: ^10.2.0
+    ts-loader: ^9.4.3
+    typescript: ^5.1.3
+    vscode-languageclient: ^8.1.0
+    webpack: ^5.85.0
+    webpack-cli: ^5.1.1
+  languageName: unknown
+  linkType: soft
+
+"osmium-solidity-linter@workspace:toolchains/solidity/linter":
+  version: 0.0.0-use.local
+  resolution: "osmium-solidity-linter@workspace:toolchains/solidity/linter"
+  languageName: unknown
+  linkType: soft
+
+"osmium-solidity-lsp@workspace:toolchains/solidity/lsp":
+  version: 0.0.0-use.local
+  resolution: "osmium-solidity-lsp@workspace:toolchains/solidity/lsp"
+  languageName: unknown
+  linkType: soft
+
+"osmium-solidity@workspace:toolchains/solidity":
+  version: 0.0.0-use.local
+  resolution: "osmium-solidity@workspace:toolchains/solidity"
+  languageName: unknown
+  linkType: soft
 
 "osmium@workspace:.":
   version: 0.0.0-use.local

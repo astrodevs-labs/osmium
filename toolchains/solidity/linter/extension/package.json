@@ -1,5 +1,5 @@
 {
-  "name": "@osmium-toolchains/solidity-linter-extension",
+  "name": "osmium-solidity-linter-extension",
   "displayName": "solidhunter",
   "description": "",
   "version": "0.0.1",

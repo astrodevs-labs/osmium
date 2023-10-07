@@ -82,7 +82,7 @@ jobs:
             })
             console.log(affectedWorkspaces)
             const toolchainsWorkspaces = affectedWorkspaces.filter(workspace => {
-              return workspace.name.startsWith('@osmium-toolchains/')
+              return workspace.name.match(/^osmium-(?!manager)[^-\s]+$/)
             }).map(workspace => ({
                 name: workspace.name
             }))
@@ -97,18 +97,18 @@ jobs:
                 name: workspace.name
             }))
             const extensionsWorkspaces = affectedWorkspaces.filter(workspace => {
-              return workspace.name.match(/@osmium\/(?:manager|(?!\w+-\w+-\w+)(?:\w+-\w+))/)
+              return workspace.name.match(/^osmium-(?:manager|(?!\w+-\w+-\w+)(?:\w+-\w+))$/)
             }).map(workspace => ({
                 name: workspace.name
             }))
             const extensionsFoldersWorkspaces = affectedWorkspaces.filter(workspace => {
-              return workspace.name.match(/@osmium\/\w+-\w+-\w+/)
+              return workspace.name.match(/^osmium-\w+-\w+-\w+$/)
             }).map(workspace => ({
                 name: workspace.name
             }))
 
             const missingExtensionsWorkspaces = extensionsFoldersWorkspaces.map(workspaceFolder => {
-              const extensionName = workspaceFolder.name.split('-').slice(0, 2).join('-')
+              const extensionName = workspaceFolder.name.split('-').slice(0, 3).join('-')
               const extensionWorkspace = extensionsWorkspaces.find(workspace => {
                 return workspace.name === extensionName
               })

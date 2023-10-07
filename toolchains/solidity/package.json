@@ -1,5 +1,5 @@
 {
-  "name": "@osmium-toolchains/solidity",
+  "name": "osmium-solidity",
   "version": "0.0.1",
   "workspaces": [
     "*"

@@ -12,8 +12,8 @@ export async function activate(context: ExtensionContext) {
 	const binaryPath = path.join(context.extensionPath, 'core');
 	console.log(binaryPath);
 
-	const workspacePath = workspace.workspaceFolders?.[0].uri.fsPath;
-	const configPath = path.join(workspace.workspaceFolders?.[0].uri.fsPath, '.solidhunter.json');
+	const workspacePath = workspace.workspaceFolders?.[0].uri.fsPath!;
+	const configPath = path.join(workspacePath, '.solidhunter.json');
 
 	if (!workspacePath) {
 		return;

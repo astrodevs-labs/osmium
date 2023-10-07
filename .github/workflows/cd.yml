@@ -5,8 +5,7 @@ on:
     branches:
       - main
       - dev
-#  pull_request:
-#    branches: [master]
+  workflow_dispatch:
 
 jobs:
   find-last-commit:
@@ -102,7 +101,9 @@ jobs:
           yarn workspace ${{ matrix.workspace.name }} build
 
       - name: Publish
-        run: yarn workspace ${{ matrix.workspace.name }} dlx @vscode/vsce publish ${{ github.ref_name == 'dev' && '--pre-release' || '' }} ${{ steps.tag.outputs.result }}
+        run: yarn workspace ${{ matrix.workspace.name }} run publish ${{ github.ref_name == 'dev' && '--pre-release' || '' }} ${{ steps.tag.outputs.result }}
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
               
       #- name: Run latest-tag
       #  uses: EndBug/latest-tag@latest

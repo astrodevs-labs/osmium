@@ -1,5 +1,5 @@
 {
-  "name": "@osmium/manager",
+  "name": "osmium-manager",
   "version": "0.0.1",
   "main": "index.js",
   "license": "MIT",

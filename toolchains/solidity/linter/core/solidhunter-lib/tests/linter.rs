@@ -160,5 +160,6 @@ test_directories! {
     NoConsole,
     ExplicitTypes,
     ImplicitTypes,
+    PayableFallback,
     GlobalImport
 }

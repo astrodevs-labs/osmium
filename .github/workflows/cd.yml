@@ -5,8 +5,7 @@ on:
     branches:
       - main
       - dev
-#  pull_request:
-#    branches: [master]
+  workflow_dispatch:
 
 jobs:
   find-last-commit:

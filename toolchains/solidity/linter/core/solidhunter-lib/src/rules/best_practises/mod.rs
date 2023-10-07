@@ -7,6 +7,7 @@ pub mod custom_errors;
 pub mod function_max_lines;
 pub mod global_import;
 pub mod max_states_count;
+pub mod no_empty_block;
 pub mod reason_string;
 
 pub mod one_contract_per_file;
@@ -19,6 +20,7 @@ use crate::rules::best_practises::global_import::GlobalImport;
 use crate::rules::best_practises::line_maxlen::LineMaxLen;
 use crate::rules::best_practises::max_states_count::MaxStatesCount;
 use crate::rules::best_practises::one_contract_per_file::OneContractPerFile;
+use crate::rules::best_practises::no_empty_block::NoEmptyBlock;
 use crate::rules::best_practises::reason_string::ReasonString;
 use crate::rules::RuleBuilder;
 
@@ -31,6 +33,7 @@ pub fn create_default_rules() -> Vec<RuleEntry> {
         OneContractPerFile::create_default(),
         CustomErrors::create_default(),
         GlobalImport::create_default(),
+        NoEmptyBlock::create_default(),
     ]
 }
 
@@ -54,6 +57,7 @@ pub fn create_rules() -> RulesMap {
         OneContractPerFile::create,
     );
     rules.insert(global_import::RULE_ID.to_string(), GlobalImport::create);
+    rules.insert(no_empty_block::RULE_ID.to_string(), NoEmptyBlock::create);
 
     rules
 }

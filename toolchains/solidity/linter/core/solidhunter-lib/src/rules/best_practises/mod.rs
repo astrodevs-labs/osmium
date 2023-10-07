@@ -7,6 +7,7 @@ pub mod custom_errors;
 pub mod function_max_lines;
 pub mod max_states_count;
 pub mod reason_string;
+pub mod unused_var;
 
 pub mod one_contract_per_file;
 
@@ -18,6 +19,7 @@ use crate::rules::best_practises::line_maxlen::LineMaxLen;
 use crate::rules::best_practises::max_states_count::MaxStatesCount;
 use crate::rules::best_practises::one_contract_per_file::OneContractPerFile;
 use crate::rules::best_practises::reason_string::ReasonString;
+use crate::rules::best_practises::unused_var::UnusedVar;
 use crate::rules::RuleBuilder;
 
 pub fn create_default_rules() -> Vec<RuleEntry> {
@@ -28,6 +30,7 @@ pub fn create_default_rules() -> Vec<RuleEntry> {
         ReasonString::create_default(),
         OneContractPerFile::create_default(),
         CustomErrors::create_default(),
+        UnusedVar::create_default(),
     ]
 }
 
@@ -50,6 +53,7 @@ pub fn create_rules() -> RulesMap {
         one_contract_per_file::RULE_ID.to_string(),
         OneContractPerFile::create,
     );
+    rules.insert(unused_var::RULE_ID.to_string(), UnusedVar::create);
 
     rules
 }

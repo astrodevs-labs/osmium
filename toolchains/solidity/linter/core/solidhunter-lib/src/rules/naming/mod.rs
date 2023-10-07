@@ -12,6 +12,7 @@ use crate::rules::naming::foundry_func_name::FoundryFuncName;
 use crate::rules::types::{RuleEntry, RulesMap};
 use crate::rules::RuleBuilder;
 use std::collections::HashMap;
+use crate::rules::naming::private_vars_leading_underscore::PrivateVarsLeadingUnderscore;
 
 #[macro_use]
 pub(crate) mod func_param_name_camelcase;
@@ -37,6 +38,7 @@ pub fn create_default_rules() -> Vec<RuleEntry> {
         FuncVisibility::create_default(),
         EventNameCamelCase::create_default(),
         ConstNameSnakeCase::create_default(),
+        PrivateVarsLeadingUnderscore::create_default(),
         VarNameMixedCase::create_default(),
         ModifierNameMixedcase::create_default(),
         NamedParametersMapping::create_default(),
@@ -75,6 +77,10 @@ pub fn create_rules() -> RulesMap {
     rules.insert(
         const_name_snakecase::RULE_ID.to_string(),
         ConstNameSnakeCase::create,
+    );
+    rules.insert(
+        private_vars_leading_underscore::RULE_ID.to_string(),
+        PrivateVarsLeadingUnderscore::create,
     );
     rules.insert(
         var_name_mixedcase::RULE_ID.to_string(),

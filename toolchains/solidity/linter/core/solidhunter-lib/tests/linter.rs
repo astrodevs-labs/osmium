@@ -1,5 +1,5 @@
 use solidhunter_lib::linter::SolidLinter;
-use solidhunter_lib::types::Position;
+use solidhunter_lib::types::{LintDiag, Position};
 use std::{fs, path::PathBuf};
 
 struct Finding {
@@ -55,27 +55,29 @@ fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>) {
     let result = linter.parse_file(String::from(source));
     let mut found_findings: Vec<&Finding> = Vec::new();
     let mut not_found_findings: Vec<&Finding> = Vec::new();
+    let mut not_needed_findings: Vec<&LintDiag> = Vec::new();
+    let mut not_needed_found = false;
+    let mut not_found = false;
 
     match result {
         Ok(diags) => {
-            assert_eq!(
-                diags.len(),
-                expected_findings.len(),
-                "Wrong number of findings for {}",
-                source
-            );
             let mut found;
-
             for (_, diag) in diags.iter().enumerate() {
+                found = false;
                 for (_, expected_finding) in expected_findings.iter().enumerate() {
                     if (diag.range.start == expected_finding.start)
                         && (diag.range.end == expected_finding.end)
                         && (diag.id == expected_finding.id)
                     {
                         found_findings.push(expected_finding.clone());
+                        found = true;
                         break;
                     }
                 }
+                if !found {
+                    not_needed_findings.push(diag);
+                }
+
             }
             for (_, expected_finding) in expected_findings.iter().enumerate() {
                 found = false;
@@ -92,8 +94,22 @@ fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>) {
                     not_found_findings.push(expected_finding.clone());
                 }
             }
+            if not_needed_findings.len() > 0 {
+                println!("Diagnostics not expected:");
+                for (_, finding) in not_needed_findings.iter().enumerate() {
+                    println!(
+                        "{}:{}:{}:{}:{}",
+                        finding.id,
+                        finding.range.start.line,
+                        finding.range.start.character,
+                        finding.range.end.line,
+                        finding.range.end.character
+                    );
+                }
+                not_needed_found = true;
+            }
             if not_found_findings.len() > 0 {
-                println!("Missing diagnostics:");
+                println!("\nMissing diagnostics:");
                 for (_, finding) in not_found_findings.iter().enumerate() {
                     println!(
                         "{}:{}:{}:{}:{}",
@@ -104,8 +120,9 @@ fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>) {
                         finding.end.character
                     );
                 }
+                not_found = true;
             }
-            assert_eq!(found_findings.len(), expected_findings.len(), "There are some missing diagnostics!");
+            assert_eq!(not_needed_found == true || not_found == true, false, "There are some missing or not needed diagnostics:\n Not needed found: {}\n Not found: {}", not_needed_findings.len(), not_found_findings.len());
         }
         Err(e) => {
             panic!("{}", e);

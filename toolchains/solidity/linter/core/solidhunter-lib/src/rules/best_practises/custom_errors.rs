@@ -16,7 +16,6 @@ impl CustomErrors {
         location: (LineColumn, LineColumn),
         diag_type: String,
     ) -> LintDiag {
-        println!("{:?}", location);
         LintDiag {
             id: RULE_ID.to_string(),
             range: Range {

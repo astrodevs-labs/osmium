@@ -49,7 +49,7 @@ impl RuleType for OneContractPerFile {
             return res;
         }
 
-        for contract in contracts {
+        for contract in &contracts[1..] {
             let span = contract.name.span();
             res.push(self.create_diag((span.start(), span.end()), file));
         }

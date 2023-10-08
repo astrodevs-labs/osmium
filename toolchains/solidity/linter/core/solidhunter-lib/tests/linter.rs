@@ -64,7 +64,7 @@ fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>) {
                 "Wrong number of findings for {}",
                 source
             );
-            let mut found = false;
+            let mut found;
 
             for (_, diag) in diags.iter().enumerate() {
                 for (_, expected_finding) in expected_findings.iter().enumerate() {

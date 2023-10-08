@@ -158,5 +158,6 @@ test_directories! {
     ConstNameSnakeCase,
     StateVisibility,
     EmptyBlock,
+    NoConsole,
     GlobalImport
 }

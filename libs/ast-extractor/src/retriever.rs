@@ -10,6 +10,15 @@ pub use error::*;
 mod event;
 pub use event::*;
 
+mod expr_call;
+pub use expr_call::*;
+
+mod expr_member;
+pub use expr_member::*;
+
+mod import_directive;
+pub use import_directive::*;
+
 mod function;
 pub use function::*;
 
@@ -30,6 +39,3 @@ pub use stmts::*;
 mod block;
 pub use block::*;
 pub use finder::*;
-
-mod expr_call;
-pub use expr_call::*;

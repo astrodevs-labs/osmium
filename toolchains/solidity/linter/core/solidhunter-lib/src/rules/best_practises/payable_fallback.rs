@@ -63,12 +63,12 @@ fn check_attribute(mut res: Vec<Option<Range>>, function: ItemFunction) -> Vec<O
         }
     }
     if !is_payable {
-        res.push(create_diag(function));
+        res.push(create_report(function));
     }
     res
 }
 
-fn create_diag(function: ItemFunction) -> Option<Range> {
+fn create_report(function: ItemFunction) -> Option<Range> {
     let res = Some(Range {
         start: Position {
             line: function.attributes.span().start().line,

@@ -158,5 +158,7 @@ test_directories! {
     StateVisibility,
     EmptyBlock,
     NoConsole,
+    ExplicitTypes,
+    ImplicitTypes,
     GlobalImport
 }

@@ -166,4 +166,5 @@ test_directories! {
     ModifierNameMixedcase,
     GlobalImport,
     NotRelyOnTime
+    NamedParametersMapping,
 }

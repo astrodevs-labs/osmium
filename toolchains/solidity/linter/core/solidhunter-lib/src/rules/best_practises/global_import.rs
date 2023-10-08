@@ -17,19 +17,17 @@ impl RuleType for GlobalImport {
         let mut res = Vec::new();
 
         let reports = check_global_import(_file);
-        for report in reports {
-            if let Some(rep) = report {
-                res.push(LintDiag {
-                    id: RULE_ID.to_string(),
-                    range: rep,
-                    severity: Some(Severity::WARNING),
-                    code: None,
-                    source: None,
-                    message: DEFAULT_MESSAGE.to_string(),
-                    uri: _file.path.clone(),
-                    source_file_content: _file.content.clone(),
-                });
-            }
+        for report in reports.into_iter().flatten() {
+            res.push(LintDiag {
+                id: RULE_ID.to_string(),
+                range: report,
+                severity: Some(Severity::WARNING),
+                code: None,
+                source: None,
+                message: DEFAULT_MESSAGE.to_string(),
+                uri: _file.path.clone(),
+                source_file_content: _file.content.clone(),
+            });
         }
         println!("res: {:?}", res);
         res

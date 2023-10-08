@@ -8,6 +8,7 @@ use crate::rules::naming::modifier_name_mixedcase::ModifierNameMixedcase;
 use crate::rules::naming::named_parameters_mapping::NamedParametersMapping;
 use crate::rules::naming::use_forbidden_name::UseForbiddenName;
 use crate::rules::naming::var_name_mixedcase::VarNameMixedCase;
+use crate::rules::naming::foundry_func_name::FoundryFuncName;
 use crate::rules::types::{RuleEntry, RulesMap};
 use crate::rules::RuleBuilder;
 use std::collections::HashMap;
@@ -23,6 +24,7 @@ pub(crate) mod modifier_name_mixedcase;
 pub(crate) mod named_parameters_mapping;
 pub(crate) mod use_forbidden_name;
 pub(crate) mod var_name_mixedcase;
+pub(crate) mod foundry_func_name;
 
 // List all rules
 
@@ -38,6 +40,7 @@ pub fn create_default_rules() -> Vec<RuleEntry> {
         VarNameMixedCase::create_default(),
         ModifierNameMixedcase::create_default(),
         NamedParametersMapping::create_default(),
+        FoundryFuncName::create_default(),
     ]
 }
 
@@ -80,6 +83,10 @@ pub fn create_rules() -> RulesMap {
     rules.insert(
         modifier_name_mixedcase::RULE_ID.to_string(),
         ModifierNameMixedcase::create,
+    );
+    rules.insert(
+        foundry_func_name::RULE_ID.to_string(),
+        FoundryFuncName::create,
     );
 
     rules

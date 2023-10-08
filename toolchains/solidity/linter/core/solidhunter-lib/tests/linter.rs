@@ -167,5 +167,6 @@ test_directories! {
     GlobalImport,
     NotRelyOnTime,
     NamedParametersMapping,
-    Ordering
+    Ordering,
+    FoundryFunctionName
 }

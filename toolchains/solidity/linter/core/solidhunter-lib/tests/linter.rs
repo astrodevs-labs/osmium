@@ -164,5 +164,6 @@ test_directories! {
     VisibilityModifierOrder,
     VarNameMixedCase,
     ModifierNameMixedcase,
-    GlobalImport
+    GlobalImport,
+    NotRelyOnTime
 }

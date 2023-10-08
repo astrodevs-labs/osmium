@@ -53,6 +53,9 @@ fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>) {
     let mut linter: SolidLinter = SolidLinter::new(&String::from(config));
 
     let result = linter.parse_file(String::from(source));
+    let mut found_findings: Vec<&Finding> = Vec::new();
+    let mut not_found_findings: Vec<&Finding> = Vec::new();
+
     match result {
         Ok(diags) => {
             assert_eq!(
@@ -69,12 +72,40 @@ fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>) {
                         && (diag.range.end == expected_finding.end)
                         && (diag.id == expected_finding.id)
                     {
-                        found = true;
+                        found_findings.push(expected_finding.clone());
                         break;
                     }
                 }
             }
-            assert_eq!(found, true, "Can't find the diagnostic for {}", source);
+            for (_, expected_finding) in expected_findings.iter().enumerate() {
+                found = false;
+                for (_, found_finding) in found_findings.iter().enumerate() {
+                    if (expected_finding.start == found_finding.start)
+                        && (expected_finding.end == found_finding.end)
+                        && (expected_finding.id == found_finding.id)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                if found == false {
+                    not_found_findings.push(expected_finding.clone());
+                }
+            }
+            if not_found_findings.len() > 0 {
+                println!("Missing diagnostics:");
+                for (_, finding) in not_found_findings.iter().enumerate() {
+                    println!(
+                        "{}:{}:{}:{}:{}",
+                        finding.id,
+                        finding.start.line,
+                        finding.start.character,
+                        finding.end.line,
+                        finding.end.character
+                    );
+                }
+            }
+            assert_eq!(found_findings.len(), expected_findings.len(), "There are some missing diagnostics!");
         }
         Err(e) => {
             panic!("{}", e);

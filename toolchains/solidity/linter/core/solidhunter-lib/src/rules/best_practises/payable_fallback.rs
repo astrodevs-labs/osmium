@@ -32,7 +32,6 @@ impl RuleType for PayableFallback {
                 })
             }
         }
-        println!("res {:?}", res);
         res
     }
 }

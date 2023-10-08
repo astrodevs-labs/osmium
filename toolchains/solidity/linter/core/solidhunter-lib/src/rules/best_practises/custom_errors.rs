@@ -16,6 +16,7 @@ impl CustomErrors {
         location: (LineColumn, LineColumn),
         diag_type: String,
     ) -> LintDiag {
+        println!("{:?}", location);
         LintDiag {
             id: RULE_ID.to_string(),
             range: Range {
@@ -46,7 +47,7 @@ impl RuleType for CustomErrors {
             for stmt in retriever::retrieve_stmts_nodes(&contract) {
                 if let Stmt::Revert(revert) = &stmt {
                     if let Expr::Tuple(_) = &revert.expr {
-                        let location = (revert.span().start(), revert.span().end());
+                        let location = (revert.span().start(), revert.expr.span().end());
                         res.push(self.create_diag(file, location, "revert".to_string()));
                     }
                 }
@@ -54,7 +55,7 @@ impl RuleType for CustomErrors {
                     if let Expr::Call(call) = &expr.expr {
                         if let Expr::Ident(ref ident) = *(call.expr) {
                             if *ident == "require" || *ident == "assert" {
-                                let location = (expr.span().start(), expr.span().end());
+                                let location = (call.span().start(), call.span().end());
                                 res.push(self.create_diag(file, location, ident.to_string()));
                             }
                         }

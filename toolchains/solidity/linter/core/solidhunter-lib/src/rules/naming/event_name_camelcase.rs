@@ -39,8 +39,8 @@ impl EventNameCamelCase {
     }
 }
 
-fn is_camel_case(name: &String) -> bool {
-    if !(name.chars().nth(0).unwrap_or(' ') >= 'A' && name.chars().nth(0).unwrap_or(' ') <= 'Z') {
+fn is_camel_case(name: &str) -> bool {
+    if !(name.chars().next().unwrap_or(' ') >= 'A' && name.chars().next().unwrap_or(' ') <= 'Z') {
         return false;
     }
     if name.contains('_') || name.contains('-') {
@@ -55,7 +55,7 @@ impl RuleType for EventNameCamelCase {
         let contracts = ast_extractor::retriever::retrieve_contract_nodes(&file.data);
 
         for event in ast_extractor::retriever::retrieve_events_file_nodes(&file.data) {
-            if !is_camel_case(&event.name.as_string()) {
+            if !is_camel_case(&event.name.to_string()) {
                 let span = event.name.span();
                 res.push(self.create_diag((span.start(), span.end()), file));
             }
@@ -63,7 +63,7 @@ impl RuleType for EventNameCamelCase {
 
         for contract in contracts {
             for event in ast_extractor::retriever::retrieve_events_contract_nodes(&contract) {
-                if !is_camel_case(&event.name.as_string()) {
+                if !is_camel_case(&event.name.to_string()) {
                     let span = event.name.span();
                     res.push(self.create_diag((span.start(), span.end()), file));
                 }

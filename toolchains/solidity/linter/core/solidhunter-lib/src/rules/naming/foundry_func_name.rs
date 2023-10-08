@@ -41,6 +41,9 @@ impl FoundryFuncName {
 
 impl RuleType for FoundryFuncName {
     fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
+        if !file.path.ends_with(".t.sol") {
+            return vec![];
+        }
         let mut res = Vec::new();
         let re = regex::Regex::new(r"^test(Fork)?(Fuzz)?(Fail)?(_)?(Revert(If_|When_){1})?\w{1,}$").unwrap();
         let contracts = ast_extractor::retriever::retrieve_contract_nodes(&file.data);

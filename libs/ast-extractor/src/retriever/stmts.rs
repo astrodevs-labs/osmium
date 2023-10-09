@@ -11,9 +11,7 @@ struct SmtsVisitor {
 
 impl SmtsVisitor {
     pub fn new() -> Self {
-        Self {
-            stmts: Vec::new(),
-        }
+        Self { stmts: Vec::new() }
     }
 }
 

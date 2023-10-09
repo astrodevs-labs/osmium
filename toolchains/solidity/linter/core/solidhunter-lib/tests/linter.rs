@@ -168,5 +168,5 @@ test_directories! {
     NotRelyOnTime,
     NamedParametersMapping,
     Ordering,
-    FoundryFunctionName
+    PrivateVarsLeadingUnderscore
 }

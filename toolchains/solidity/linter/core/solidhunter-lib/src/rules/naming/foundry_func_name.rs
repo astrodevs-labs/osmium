@@ -1,4 +1,5 @@
 use ast_extractor::Spanned;
+use serde_json::Value;
 
 use crate::linter::SolidFile;
 use crate::rules::types::*;
@@ -46,22 +47,29 @@ impl RuleType for FoundryFuncName {
             return vec![];
         }
         let mut res = Vec::new();
-        let re = regex::Regex::new(r"^test(Fork)?(Fuzz)?(Fail)?(_)?(Revert(If_|When_){1})?\w{1,}$").unwrap();
+        let re = regex::Regex::new(r"^test(Fork)?(Fuzz)?(Fail)?(_)?(Revert(If_|When_){1})?\w{1,}$")
+            .unwrap();
         let contracts = ast_extractor::retriever::retrieve_contract_nodes(&file.data);
 
         for contract in contracts {
             for function in ast_extractor::retriever::retrieve_functions_nodes(&contract) {
-                let visibility = function.attributes.iter().find(|attr| matches!(attr, ast_extractor::FunctionAttribute::Visibility(_)));
+                let visibility = function
+                    .attributes
+                    .iter()
+                    .find(|attr| matches!(attr, ast_extractor::FunctionAttribute::Visibility(_)));
                 let visibility = match visibility {
                     Some(ast_extractor::FunctionAttribute::Visibility(visibility)) => visibility,
                     _ => continue,
                 };
 
-                if !matches!(visibility, ast_extractor::Visibility::Public(_)) && !matches!(visibility, ast_extractor::Visibility::External(_)) {
+                if !matches!(visibility, ast_extractor::Visibility::Public(_))
+                    && !matches!(visibility, ast_extractor::Visibility::External(_))
+                {
                     continue;
                 }
                 if let Some(name) = function.name {
-                    if !re.is_match(&name.as_string()) && !self.excluded.contains(&name.as_string()) {
+                    if !re.is_match(&name.as_string()) && !self.excluded.contains(&name.as_string())
+                    {
                         let span = name.span();
                         res.push(self.create_diag((span.start(), span.end()), file));
                     }
@@ -74,7 +82,15 @@ impl RuleType for FoundryFuncName {
 
 impl FoundryFuncName {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let rule = FoundryFuncName { excluded: data.data.clone(), data };
+        let mut excluded: Vec<String> = Vec::new();
+        data.data.iter().for_each(|value| {
+            if let Value::String(val) = value {
+                excluded.push(val.to_string());
+            } else {
+                eprintln!("Invalid value for rule foundry-func-name: {:?}", value);
+            }
+        });
+        let rule = FoundryFuncName { excluded, data };
         Box::new(rule)
     }
 

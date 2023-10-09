@@ -101,16 +101,14 @@ impl RuleType for ExplicitTypes {
 
 impl ExplicitTypes {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let mut value;
-        if !data.data.is_empty(){
-            value = match &data.data[0] {
+        let value = if !data.data.is_empty() {
+            match &data.data[0] {
                 Value::String(val) => val.as_str(),
                 _ => DEFAULT_RULE,
             }
-        }
-        else {
-            value = DEFAULT_RULE;
-        }
+        } else {
+            DEFAULT_RULE
+        };
         let rule = ExplicitTypes {
             rule: value.to_string(),
             data,

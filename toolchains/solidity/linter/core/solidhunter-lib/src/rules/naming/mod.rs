@@ -1,32 +1,32 @@
 use crate::rules::naming::const_name_snakecase::ConstNameSnakeCase;
 use crate::rules::naming::contract_name_pascalcase::ContractNamePascalCase;
 use crate::rules::naming::event_name_camelcase::EventNameCamelCase;
+use crate::rules::naming::foundry_func_name::FoundryFuncName;
 use crate::rules::naming::func_name_camelcase::FuncNameCamelCase;
 use crate::rules::naming::func_param_name_camelcase::FuncParamNameCamelcase;
 use crate::rules::naming::func_visibility::FuncVisibility;
 use crate::rules::naming::modifier_name_mixedcase::ModifierNameMixedcase;
 use crate::rules::naming::named_parameters_mapping::NamedParametersMapping;
+use crate::rules::naming::private_vars_leading_underscore::PrivateVarsLeadingUnderscore;
 use crate::rules::naming::use_forbidden_name::UseForbiddenName;
 use crate::rules::naming::var_name_mixedcase::VarNameMixedCase;
-use crate::rules::naming::foundry_func_name::FoundryFuncName;
 use crate::rules::types::{RuleEntry, RulesMap};
 use crate::rules::RuleBuilder;
 use std::collections::HashMap;
-use crate::rules::naming::private_vars_leading_underscore::PrivateVarsLeadingUnderscore;
 
 #[macro_use]
 pub(crate) mod func_param_name_camelcase;
 pub(crate) mod const_name_snakecase;
 pub(crate) mod contract_name_pascalcase;
 pub(crate) mod event_name_camelcase;
+pub(crate) mod foundry_func_name;
 pub(crate) mod func_name_camelcase;
 pub(crate) mod func_visibility;
 pub(crate) mod modifier_name_mixedcase;
 pub(crate) mod named_parameters_mapping;
+pub(crate) mod private_vars_leading_underscore;
 pub(crate) mod use_forbidden_name;
 pub(crate) mod var_name_mixedcase;
-pub(crate) mod foundry_func_name;
-pub(crate) mod private_vars_leading_underscore;
 
 // List all rules
 

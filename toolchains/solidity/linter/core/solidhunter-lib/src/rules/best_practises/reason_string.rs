@@ -70,10 +70,10 @@ impl RuleType for ReasonString {
                     false
                 }
             }) {
-                if let Expr::Lit(ast_extractor::Lit::Str(lit_str)) = expr_string {
+                if let Expr::Lit(Lit::Str(lit_str)) = expr_string {
                     let actual_string = lit_str.values[0].token().to_string();
 
-                    if actual_string.len() > self.max_length as usize {
+                    if actual_string.len() > self.max_length {
                         let location = (
                             lit_str.values[0].span().start(),
                             lit_str.values[0].span().end(),

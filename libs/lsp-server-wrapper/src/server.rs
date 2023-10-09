@@ -3,9 +3,9 @@ use std::error::Error;
 
 use std::rc::{Rc, Weak};
 
-use lsp_server::{Connection, IoThreads, Message, Response};
-use crate::{Client, LanguageServer};
 use crate::service::LspService;
+use crate::{Client, LanguageServer};
+use lsp_server::{Connection, IoThreads, Message, Response};
 
 pub(crate) trait LspServer {
     fn send(&self, msg: Message);
@@ -15,7 +15,7 @@ struct InnerLspStdioServer {
     connection: Connection,
     io_threads: IoThreads,
     client: Rc<RefCell<Client>>,
-    self_ref: Weak<LspStdioServer>
+    self_ref: Weak<LspStdioServer>,
 }
 
 pub struct LspStdioServer {
@@ -31,14 +31,15 @@ impl<'a> LspStdioServer {
                 connection,
                 io_threads,
                 client,
-                self_ref: me.clone()
-            }
+                self_ref: me.clone(),
+            },
         })
     }
 
-
-
-    fn run_initialization<S: LanguageServer>(&self, service: &LspService<S>) -> Result<(), Box<dyn Error>> {
+    fn run_initialization<S: LanguageServer>(
+        &self,
+        service: &LspService<S>,
+    ) -> Result<(), Box<dyn Error>> {
         let (initialize_id, initialize_params) = self.inner.connection.initialize_start()?;
         let res = service.call_request("initialize", initialize_params)?;
         let res = match res {
@@ -49,29 +50,39 @@ impl<'a> LspStdioServer {
         let resp = Response::new_ok(initialize_id, res);
         self.inner.connection.sender.send(resp.into()).unwrap();
         match &self.inner.connection.receiver.recv() {
-            Ok(Message::Notification(n)) => {
-                service.call_notification(&n.method, n.params.clone()).map_err(|e| {
+            Ok(Message::Notification(n)) => service
+                .call_notification(&n.method, n.params.clone())
+                .map_err(|e| {
                     eprintln!("Error: {}", e);
                     e
-                })
-            }
+                }),
             Ok(msg) => {
-                return Err(format!(r#"expected initialized notification, got: {msg:?}"#).to_owned().into());
+                return Err(
+                    format!(r#"expected initialized notification, got: {msg:?}"#)
+                        .to_owned()
+                        .into(),
+                );
             }
             Err(e) => {
-                return Err(format!("expected initialized notification, got error: {e}",).to_owned().into())
+                return Err(
+                    format!("expected initialized notification, got error: {e}",)
+                        .to_owned()
+                        .into(),
+                )
             }
         }?;
 
         Ok(())
-
     }
 
     pub fn serve<S: LanguageServer, F>(this: Rc<Self>, init: F) -> Result<(), Box<dyn Error>>
-        where
-            F: FnOnce(Rc<RefCell<Client>>) -> S + 'a,
+    where
+        F: FnOnce(Rc<RefCell<Client>>) -> S + 'a,
     {
-        this.inner.client.borrow_mut().set_server(this.inner.self_ref.clone());
+        this.inner
+            .client
+            .borrow_mut()
+            .set_server(this.inner.self_ref.clone());
         let client = this.inner.client.clone();
         let service = LspService::new(client, init);
         this.run_initialization(&service)?;
@@ -90,7 +101,7 @@ impl<'a> LspStdioServer {
                         Ok(is_shutdown) => is_shutdown,
                         Err(e) => {
                             eprintln!("Handle shutdown Error: {}", e);
-                            continue
+                            continue;
                         }
                     };
                     let result = service.call_request(&req.method, req.params);
@@ -98,10 +109,14 @@ impl<'a> LspStdioServer {
                         Ok(result) => result,
                         Err(e) => {
                             eprintln!("Call request Error: {}", e);
-                            continue
+                            continue;
                         }
                     };
-                    let resp = Response { id, result, error: None };
+                    let resp = Response {
+                        id,
+                        result,
+                        error: None,
+                    };
                     if is_shutdown {
                         eprintln!("Shutting down");
                         return Ok(());
@@ -134,10 +149,5 @@ impl LspServer for LspStdioServer {
         let _ = self.inner.connection.sender.send(msg).map_err(|e| {
             eprintln!("Error: {}", e);
         });
-
     }
 }
-
-
-
-

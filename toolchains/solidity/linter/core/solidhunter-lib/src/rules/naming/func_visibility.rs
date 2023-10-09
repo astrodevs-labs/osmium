@@ -93,8 +93,8 @@ impl FuncVisibility {
             id: RULE_ID.to_string(),
             severity: Severity::WARNING,
             data: vec![serde_json::json!({
-                    "strict": DEFAULT_IGNORE_CONSTRUCTORS,
-                }),],
+                "strict": DEFAULT_IGNORE_CONSTRUCTORS,
+            })],
         }
     }
 }

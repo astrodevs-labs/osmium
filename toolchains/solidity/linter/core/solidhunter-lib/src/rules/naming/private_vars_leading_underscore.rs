@@ -1,5 +1,5 @@
-use ast_extractor::{Item, Spanned};
 use ast_extractor::Visibility::{Internal, Private};
+use ast_extractor::{Item, Spanned};
 
 use crate::linter::SolidFile;
 use crate::rules::types::*;
@@ -61,7 +61,11 @@ impl RuleType for PrivateVarsLeadingUnderscore {
 
                             if !leading_underscore {
                                 let span = name.span();
-                                res.push(self.create_diag((span.start(), span.end()), file, MESSAGE_PRIVATE.to_string()));
+                                res.push(self.create_diag(
+                                    (span.start(), span.end()),
+                                    file,
+                                    MESSAGE_PRIVATE.to_string(),
+                                ));
                             }
                         }
                     }
@@ -73,7 +77,11 @@ impl RuleType for PrivateVarsLeadingUnderscore {
 
                                 if !leading_underscore {
                                     let span = name.span();
-                                    res.push(self.create_diag((span.start(), span.end()), file, MESSAGE_PRIVATE.to_string()));
+                                    res.push(self.create_diag(
+                                        (span.start(), span.end()),
+                                        file,
+                                        MESSAGE_PRIVATE.to_string(),
+                                    ));
                                 }
                             }
                         }
@@ -81,11 +89,7 @@ impl RuleType for PrivateVarsLeadingUnderscore {
                 }
 
                 let is_private = match function.attributes.visibility() {
-                    Some(val) => match val {
-                        Private(_) => true,
-                        Internal(_) => true,
-                        _ => false,
-                    },
+                    Some(val) => matches!(val, Private(_) | Internal(_)),
                     None => true,
                 };
 
@@ -94,12 +98,19 @@ impl RuleType for PrivateVarsLeadingUnderscore {
 
                     if !leading_underscore && is_private {
                         let span = name.span();
-                        res.push(self.create_diag((span.start(), span.end()), file, MESSAGE_PRIVATE.to_string()));
+                        res.push(self.create_diag(
+                            (span.start(), span.end()),
+                            file,
+                            MESSAGE_PRIVATE.to_string(),
+                        ));
                     }
-
                     if leading_underscore && !is_private {
                         let span = name.span();
-                        res.push(self.create_diag((span.start(), span.end()), file, MESSAGE_PUBLIC.to_string()));
+                        res.push(self.create_diag(
+                            (span.start(), span.end()),
+                            file,
+                            MESSAGE_PUBLIC.to_string(),
+                        ));
                     }
                 }
             }
@@ -107,11 +118,7 @@ impl RuleType for PrivateVarsLeadingUnderscore {
             for node_var in contract.body.iter() {
                 if let Item::Variable(var) = node_var {
                     let is_private = match var.attributes.visibility() {
-                        Some(val) => match val {
-                            Private(_) => true,
-                            Internal(_) => true,
-                            _ => false,
-                        },
+                        Some(val) => matches!(val, Private(_) | Internal(_)),
                         None => true,
                     };
 
@@ -119,11 +126,19 @@ impl RuleType for PrivateVarsLeadingUnderscore {
 
                     if !leading_underscore && is_private {
                         let span = var.name.span();
-                        res.push(self.create_diag((span.start(), span.end()), file, MESSAGE_PRIVATE.to_string()));
+                        res.push(self.create_diag(
+                            (span.start(), span.end()),
+                            file,
+                            MESSAGE_PRIVATE.to_string(),
+                        ));
                     }
                     if leading_underscore && !is_private {
                         let span = var.name.span();
-                        res.push(self.create_diag((span.start(), span.end()), file, MESSAGE_PRIVATE.to_string()));
+                        res.push(self.create_diag(
+                            (span.start(), span.end()),
+                            file,
+                            MESSAGE_PUBLIC.to_string(),
+                        ));
                     }
                 }
             }
@@ -157,11 +172,9 @@ impl PrivateVarsLeadingUnderscore {
         RuleEntry {
             id: RULE_ID.to_string(),
             severity: Severity::WARNING,
-            data: vec![
-                serde_json::json!({
-                    "strict": DEFAULT_STRICT,
-                }),
-            ],
+            data: vec![serde_json::json!({
+                "strict": DEFAULT_STRICT,
+            })],
         }
     }
 }

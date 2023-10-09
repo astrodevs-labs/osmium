@@ -1,12 +1,19 @@
 use std::{cell::RefCell, rc::Rc};
 
-use lsp_server_wrapper::{ LanguageServer, Client, lsp_types::{InitializeParams, InitializeResult, InitializedParams, MessageType, ServerCapabilities, TextDocumentSyncCapability, TextDocumentSyncKind, DidOpenTextDocumentParams, DidChangeTextDocumentParams, Diagnostic, DiagnosticSeverity, Range, Position, Url}, Result, LspStdioServer };
+use lsp_server_wrapper::{
+    lsp_types::{
+        Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams, DidOpenTextDocumentParams,
+        InitializeParams, InitializeResult, InitializedParams, MessageType, Position, Range,
+        ServerCapabilities, TextDocumentSyncCapability, TextDocumentSyncKind, Url,
+    },
+    Client, LanguageServer, LspStdioServer, Result,
+};
 use solidhunter_lib::{linter::SolidLinter, types::LintDiag};
 
 struct Backend {
     client: Rc<RefCell<Client>>,
     config_file_path: String,
-    linter: RefCell<Option<SolidLinter>>
+    linter: RefCell<Option<SolidLinter>>,
 }
 
 impl LanguageServer for Backend {
@@ -24,8 +31,13 @@ impl LanguageServer for Backend {
     }
 
     fn initialized(&self, _: InitializedParams) {
-        eprintln!("Initializing server with config file: {:?}", self.config_file_path);
-        self.client.as_ref().borrow()
+        eprintln!(
+            "Initializing server with config file: {:?}",
+            self.config_file_path
+        );
+        self.client
+            .as_ref()
+            .borrow()
             .log_message(MessageType::INFO, "Server initialized!");
 
         let file_res = std::fs::read_to_string(&self.config_file_path);
@@ -33,23 +45,30 @@ impl LanguageServer for Backend {
         if let Ok(file) = file_res {
             self.linter.borrow_mut().replace(SolidLinter::new(&file));
         } else {
-            self.linter.borrow_mut().replace(SolidLinter::new_fileless());
+            self.linter
+                .borrow_mut()
+                .replace(SolidLinter::new_fileless());
         }
 
-        self.client.as_ref().borrow()
+        self.client
+            .as_ref()
+            .borrow()
             .log_message(MessageType::INFO, "Linter initialized!");
-
     }
 
     fn shutdown(&self) -> Result<()> {
-        self.client.as_ref().borrow()
+        self.client
+            .as_ref()
+            .borrow()
             .log_message(MessageType::INFO, "Server shutdown!");
         Ok(())
     }
 
     fn did_open(&self, params: DidOpenTextDocumentParams) {
         eprintln!("file opened!");
-        self.client.as_ref().borrow()
+        self.client
+            .as_ref()
+            .borrow()
             .log_message(MessageType::INFO, "file opened!");
 
         let filepath = filepath_from_uri(&params.text_document.uri);
@@ -58,19 +77,33 @@ impl LanguageServer for Backend {
         let diags_res = linter.parse_content(filepath, &params.text_document.text);
 
         if let Ok(diags) = diags_res {
-            let diags = diags.iter().map(|d| diagnostic_from_lintdiag(d.clone())).collect();
+            let diags = diags
+                .iter()
+                .map(|d| diagnostic_from_lintdiag(d.clone()))
+                .collect();
             eprintln!("diags: {:?}", diags);
-            self.client.as_ref().borrow().log_message(MessageType::INFO, "diags: ");
-            self.client.as_ref().borrow().publish_diagnostics(params.text_document.uri.clone(), diags, None);
+            self.client
+                .as_ref()
+                .borrow()
+                .log_message(MessageType::INFO, "diags: ");
+            self.client.as_ref().borrow().publish_diagnostics(
+                params.text_document.uri.clone(),
+                diags,
+                None,
+            );
         } else if let Err(e) = diags_res {
-            self.client.as_ref().borrow().log_message(MessageType::ERROR, e.to_string());
+            self.client
+                .as_ref()
+                .borrow()
+                .log_message(MessageType::ERROR, e.to_string());
         }
-        
     }
 
     fn did_change(&self, params: DidChangeTextDocumentParams) {
         eprintln!("file changed!");
-        self.client.as_ref().borrow()
+        self.client
+            .as_ref()
+            .borrow()
             .log_message(MessageType::INFO, "file changed!");
 
         let filepath = filepath_from_uri(&params.text_document.uri);
@@ -79,11 +112,21 @@ impl LanguageServer for Backend {
         let diags_res = linter.parse_content(filepath, &params.content_changes[0].text);
 
         if let Ok(diags) = diags_res {
-            let diags = diags.iter().map(|d| diagnostic_from_lintdiag(d.clone())).collect();
+            let diags = diags
+                .iter()
+                .map(|d| diagnostic_from_lintdiag(d.clone()))
+                .collect();
             eprintln!("diags: {:?}", diags);
-            self.client.as_ref().borrow().publish_diagnostics(params.text_document.uri.clone(), diags, None);
+            self.client.as_ref().borrow().publish_diagnostics(
+                params.text_document.uri.clone(),
+                diags,
+                None,
+            );
         } else if let Err(e) = diags_res {
-            self.client.as_ref().borrow().log_message(MessageType::ERROR, e.to_string());
+            self.client
+                .as_ref()
+                .borrow()
+                .log_message(MessageType::ERROR, e.to_string());
         }
     }
 }
@@ -120,9 +163,9 @@ fn diagnostic_from_lintdiag(diag: LintDiag) -> Diagnostic {
 pub fn run_server(config_file_path: String) {
     eprintln!("starting LSP server");
     let server = LspStdioServer::new();
-    let _ = LspStdioServer::serve(server, |client| Backend { 
+    let _ = LspStdioServer::serve(server, |client| Backend {
         client,
         config_file_path,
-        linter: RefCell::new(None)
+        linter: RefCell::new(None),
     });
 }

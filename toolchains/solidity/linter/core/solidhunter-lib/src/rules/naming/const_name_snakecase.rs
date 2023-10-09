@@ -1,4 +1,4 @@
-use ast_extractor::{Item, retriever, Spanned};
+use ast_extractor::{retriever, Item, Spanned};
 
 use crate::linter::SolidFile;
 use crate::rules::types::*;

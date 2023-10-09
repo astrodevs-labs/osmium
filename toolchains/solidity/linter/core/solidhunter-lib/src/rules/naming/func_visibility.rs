@@ -1,10 +1,11 @@
-use ast_extractor::Spanned;
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
+use ast_extractor::Spanned;
 
 pub const RULE_ID: &str = "func-visibility";
-const MESSAGE: &str = "Explicitly mark visibility in function (public, private, internal, external)";
+const MESSAGE: &str =
+    "Explicitly mark visibility in function (public, private, internal, external)";
 
 pub const DEFAULT_IGNORE_CONSTRUCTORS: bool = false;
 
@@ -48,13 +49,20 @@ impl RuleType for FuncVisibility {
 
         for contract in contracts {
             for function in ast_extractor::retriever::retrieve_functions_nodes(&contract) {
-                if function.attributes.visibility().is_some() || (function.kind.is_constructor() && self.ignore_constructors) {
+                if function.attributes.visibility().is_some()
+                    || (function.kind.is_constructor() && self.ignore_constructors)
+                {
                     continue;
                 }
                 if function.kind.is_function() {
-                    res.push(self.create_diag((function.kind.span().start(), function.span().end()), file));
+                    res.push(
+                        self.create_diag(
+                            (function.kind.span().start(), function.span().end()),
+                            file,
+                        ),
+                    );
                 } else {
-                    let span =  function.kind.span();
+                    let span = function.kind.span();
                     res.push(self.create_diag((span.start(), span.end()), file));
                 }
             }

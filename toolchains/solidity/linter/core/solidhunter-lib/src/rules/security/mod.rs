@@ -11,7 +11,10 @@ use crate::rules::security::state_visibility::StateVisibility;
 use crate::rules::RuleBuilder;
 
 pub fn create_default_rules() -> Vec<RuleEntry> {
-    vec![NoInlineAssembly::create_default(), StateVisibility::create_default()]
+    vec![
+        NoInlineAssembly::create_default(),
+        StateVisibility::create_default(),
+    ]
 }
 
 pub fn create_rules() -> RulesMap {

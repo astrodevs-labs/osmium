@@ -1,23 +1,22 @@
-use crate::rules::naming::contract_name_pascalcase::ContractNamePascalCase;
-use crate::rules::naming::func_name_camelcase::FuncNameCamelCase;
-use crate::rules::naming::func_visibility::FuncVisibility;
-use crate::rules::naming::event_name_camelcase::EventNameCamelCase;
 use crate::rules::naming::const_name_snakecase::ConstNameSnakeCase;
+use crate::rules::naming::contract_name_pascalcase::ContractNamePascalCase;
+use crate::rules::naming::event_name_camelcase::EventNameCamelCase;
+use crate::rules::naming::func_name_camelcase::FuncNameCamelCase;
 use crate::rules::naming::func_param_name_camelcase::FuncParamNameCamelcase;
+use crate::rules::naming::func_visibility::FuncVisibility;
 use crate::rules::naming::use_forbidden_name::UseForbiddenName;
 use crate::rules::types::{RuleEntry, RulesMap};
 use crate::rules::RuleBuilder;
 use std::collections::HashMap;
 
-
 #[macro_use]
 pub(crate) mod func_param_name_camelcase;
-pub(crate) mod contract_name_pascalcase;
-pub(crate) mod func_name_camelcase;
-pub(crate) mod use_forbidden_name;
-pub(crate) mod func_visibility;
-pub(crate) mod event_name_camelcase;
 pub(crate) mod const_name_snakecase;
+pub(crate) mod contract_name_pascalcase;
+pub(crate) mod event_name_camelcase;
+pub(crate) mod func_name_camelcase;
+pub(crate) mod func_visibility;
+pub(crate) mod use_forbidden_name;
 
 // List all rules
 
@@ -52,17 +51,14 @@ pub fn create_rules() -> RulesMap {
         use_forbidden_name::RULE_ID.to_string(),
         UseForbiddenName::create,
     );
-    rules.insert(
-        func_visibility::RULE_ID.to_string(),
-        FuncVisibility::create,
-    );
+    rules.insert(func_visibility::RULE_ID.to_string(), FuncVisibility::create);
     rules.insert(
         event_name_camelcase::RULE_ID.to_string(),
         EventNameCamelCase::create,
     );
     rules.insert(
         const_name_snakecase::RULE_ID.to_string(),
-        ConstNameSnakeCase::create
+        ConstNameSnakeCase::create,
     );
 
     rules

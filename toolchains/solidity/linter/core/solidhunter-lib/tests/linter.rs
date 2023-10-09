@@ -77,7 +77,6 @@ fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>) {
                 if !found {
                     not_needed_findings.push(diag);
                 }
-
             }
             for (_, expected_finding) in expected_findings.iter().enumerate() {
                 found = false;
@@ -158,5 +157,6 @@ test_directories! {
     ConstNameSnakeCase,
     StateVisibility,
     EmptyBlock,
+    NoConsole,
     GlobalImport
 }

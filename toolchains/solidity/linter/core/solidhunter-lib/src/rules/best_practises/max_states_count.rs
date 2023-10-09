@@ -67,10 +67,11 @@ impl RuleType for MaxStatesCount {
 impl MaxStatesCount {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
         let mut max_states = DEFAULT_MAX_STATES;
+
         if !data.data.is_empty() {
-            max_states = match data.data[0].parse::<usize>() {
-                Ok(v) => v,
-                Err(_) => DEFAULT_MAX_STATES,
+            max_states = match data.data[0].as_u64() {
+                Some(val) => val as usize,
+                None => DEFAULT_MAX_STATES,
             };
         }
         let rule = MaxStatesCount { max_states, data };
@@ -81,7 +82,7 @@ impl MaxStatesCount {
         RuleEntry {
             id: RULE_ID.to_string(),
             severity: Severity::WARNING,
-            data: vec!["15".to_string()],
+            data: vec![serde_json::Value::String(DEFAULT_MAX_STATES.to_string())],
         }
     }
 }

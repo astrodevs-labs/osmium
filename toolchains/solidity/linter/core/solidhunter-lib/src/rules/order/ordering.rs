@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use ast_extractor::{Spanned, Visit, visit, FunctionKind, Visibility};
+use ast_extractor::{visit, FunctionKind, Spanned, Visibility, Visit};
 
 use crate::linter::SolidFile;
 use crate::rules::types::*;
@@ -27,11 +27,7 @@ impl OrderingVisitor {
             (FileItemType::Import, vec![None, Some(FileItemType::Pragma)]),
             (
                 FileItemType::Enum,
-                vec![
-                    None,
-                    Some(FileItemType::Pragma),
-                    Some(FileItemType::Import),
-                ],
+                vec![None, Some(FileItemType::Pragma), Some(FileItemType::Import)],
             ),
             (
                 FileItemType::Struct,
@@ -75,9 +71,10 @@ impl OrderingVisitor {
                     Some(FileItemType::ContractLibrary),
                 ],
             ),
-        ].iter()
-            .cloned()
-            .collect();
+        ]
+        .iter()
+        .cloned()
+        .collect();
 
         let authorized_contract_items: HashMap<ContractItemType, Vec<Option<ContractItemType>>> = [
             (ContractItemType::Udt, vec![None]),
@@ -87,7 +84,11 @@ impl OrderingVisitor {
             ),
             (
                 ContractItemType::Enum,
-                vec![None, Some(ContractItemType::Udt), Some(ContractItemType::Struct)],
+                vec![
+                    None,
+                    Some(ContractItemType::Udt),
+                    Some(ContractItemType::Struct),
+                ],
             ),
             (
                 ContractItemType::Property,
@@ -224,9 +225,10 @@ impl OrderingVisitor {
                     Some(ContractItemType::InternalFunction),
                 ],
             ),
-        ].iter()
-            .cloned()
-            .collect();
+        ]
+        .iter()
+        .cloned()
+        .collect();
         OrderingVisitor {
             file,
             data,
@@ -268,7 +270,7 @@ impl OrderingVisitor {
 
     fn is_authorized_file_item(&self, item: FileItemType) -> bool {
         if let Some(authorized_items) = self.authorized_file_items.get(&item) {
-            let res =  authorized_items.contains(&self.file_current_item);
+            let res = authorized_items.contains(&self.file_current_item);
             return res;
         }
         true
@@ -320,9 +322,12 @@ impl<'ast> Visit<'ast> for OrderingVisitor {
     }
 
     fn visit_item_contract(&mut self, contract_def: &'ast ast_extractor::ItemContract) {
-        if contract_def.is_interface() && !self.is_authorized_file_item(FileItemType::ContractInterface) ||
-        contract_def.is_library() && !self.is_authorized_file_item(FileItemType::ContractLibrary) ||
-        !self.is_authorized_file_item(FileItemType::Contract) {
+        if contract_def.is_interface()
+            && !self.is_authorized_file_item(FileItemType::ContractInterface)
+            || contract_def.is_library()
+                && !self.is_authorized_file_item(FileItemType::ContractLibrary)
+            || !self.is_authorized_file_item(FileItemType::Contract)
+        {
             let location = (contract_def.span().start(), contract_def.span().end());
             self.reports.push(self.create_diag(&self.file, location));
         } else {
@@ -334,7 +339,7 @@ impl<'ast> Visit<'ast> for OrderingVisitor {
         self.inside_contract = false;
     }
 
-    fn visit_item_udt(&mut self,udt: &'ast ast_extractor::ItemUdt) {
+    fn visit_item_udt(&mut self, udt: &'ast ast_extractor::ItemUdt) {
         if !self.is_authorized_contract_item(ContractItemType::Udt) {
             let location = (udt.span().start(), udt.span().end());
             self.reports.push(self.create_diag(&self.file, location));
@@ -343,7 +348,7 @@ impl<'ast> Visit<'ast> for OrderingVisitor {
         }
     }
 
-    fn visit_variable_definition(&mut self,var: &'ast ast_extractor::VariableDefinition) {
+    fn visit_variable_definition(&mut self, var: &'ast ast_extractor::VariableDefinition) {
         if !self.is_authorized_contract_item(ContractItemType::Property) {
             let location = (var.span().start(), var.span().end());
             self.reports.push(self.create_diag(&self.file, location));
@@ -352,7 +357,7 @@ impl<'ast> Visit<'ast> for OrderingVisitor {
         }
     }
 
-    fn visit_item_event(&mut self,event: &'ast ast_extractor::ItemEvent) {
+    fn visit_item_event(&mut self, event: &'ast ast_extractor::ItemEvent) {
         if !self.is_authorized_contract_item(ContractItemType::Event) {
             let location = (event.span().start(), event.span().end());
             self.reports.push(self.create_diag(&self.file, location));
@@ -361,8 +366,7 @@ impl<'ast> Visit<'ast> for OrderingVisitor {
         }
     }
 
-    fn visit_item_function(&mut self,function: &'ast ast_extractor::ItemFunction) {
-
+    fn visit_item_function(&mut self, function: &'ast ast_extractor::ItemFunction) {
         match function.kind {
             FunctionKind::Modifier(_) => {
                 if !self.is_authorized_contract_item(ContractItemType::Modifier) {
@@ -371,7 +375,7 @@ impl<'ast> Visit<'ast> for OrderingVisitor {
                 } else {
                     self.contract_current_item = Some(ContractItemType::Modifier);
                 }
-            },
+            }
             FunctionKind::Constructor(_) => {
                 if !self.is_authorized_contract_item(ContractItemType::Constructor) {
                     let location = (function.span().start(), function.span().end());
@@ -379,7 +383,7 @@ impl<'ast> Visit<'ast> for OrderingVisitor {
                 } else {
                     self.contract_current_item = Some(ContractItemType::Constructor);
                 }
-            },
+            }
             FunctionKind::Receive(_) => {
                 if !self.is_authorized_contract_item(ContractItemType::Receive) {
                     let location = (function.span().start(), function.span().end());
@@ -387,17 +391,20 @@ impl<'ast> Visit<'ast> for OrderingVisitor {
                 } else {
                     self.contract_current_item = Some(ContractItemType::Receive);
                 }
-            },
+            }
             FunctionKind::Fallback(_) => {
                 if !self.is_authorized_contract_item(ContractItemType::FallBack) {
                     let location = (function.span().start(), function.span().end());
                     self.reports.push(self.create_diag(&self.file, location));
                 } else {
                     self.contract_current_item = Some(ContractItemType::FallBack);
-                }  
-            },   
+                }
+            }
             FunctionKind::Function(_) => {
-                let visibility = function.attributes.iter().find(|attr| matches!(attr, ast_extractor::FunctionAttribute::Visibility(_)));
+                let visibility = function
+                    .attributes
+                    .iter()
+                    .find(|attr| matches!(attr, ast_extractor::FunctionAttribute::Visibility(_)));
                 let visibility = match visibility {
                     Some(ast_extractor::FunctionAttribute::Visibility(visibility)) => visibility,
                     _ => return,
@@ -411,7 +418,7 @@ impl<'ast> Visit<'ast> for OrderingVisitor {
                         } else {
                             self.contract_current_item = Some(ContractItemType::ExternalFunction);
                         }
-                    },
+                    }
                     Visibility::Public(_) => {
                         if !self.is_authorized_contract_item(ContractItemType::PublicFunction) {
                             let location = (function.span().start(), function.span().end());
@@ -419,7 +426,7 @@ impl<'ast> Visit<'ast> for OrderingVisitor {
                         } else {
                             self.contract_current_item = Some(ContractItemType::PublicFunction);
                         }
-                    },
+                    }
                     Visibility::Internal(_) => {
                         if !self.is_authorized_contract_item(ContractItemType::InternalFunction) {
                             let location = (function.span().start(), function.span().end());
@@ -427,7 +434,7 @@ impl<'ast> Visit<'ast> for OrderingVisitor {
                         } else {
                             self.contract_current_item = Some(ContractItemType::InternalFunction);
                         }
-                    },
+                    }
                     Visibility::Private(_) => {
                         if !self.is_authorized_contract_item(ContractItemType::PrivateFunction) {
                             let location = (function.span().start(), function.span().end());
@@ -435,21 +442,17 @@ impl<'ast> Visit<'ast> for OrderingVisitor {
                         } else {
                             self.contract_current_item = Some(ContractItemType::PrivateFunction);
                         }
-                    },
+                    }
                 }
-
             }
         }
     }
-
-
 }
 
 #[derive(Debug, Clone)]
 pub struct Ordering {
     data: RuleEntry,
 }
-
 
 impl RuleType for Ordering {
     fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
@@ -501,4 +504,3 @@ enum ContractItemType {
     InternalFunction,
     PrivateFunction,
 }
-

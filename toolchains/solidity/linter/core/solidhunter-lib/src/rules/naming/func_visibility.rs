@@ -76,9 +76,9 @@ impl FuncVisibility {
         let mut ignore_constructors = DEFAULT_IGNORE_CONSTRUCTORS;
 
         if !data.data.is_empty() {
-            ignore_constructors = match data.data[0].parse::<bool>() {
-                Ok(v) => v,
-                Err(_) => DEFAULT_IGNORE_CONSTRUCTORS,
+            ignore_constructors = match data.data[0].as_bool() {
+                Some(val) => val,
+                None => DEFAULT_IGNORE_CONSTRUCTORS,
             };
         }
         let rule = FuncVisibility {
@@ -92,7 +92,9 @@ impl FuncVisibility {
         RuleEntry {
             id: RULE_ID.to_string(),
             severity: Severity::WARNING,
-            data: vec![DEFAULT_IGNORE_CONSTRUCTORS.to_string()],
+            data: vec![serde_json::json!({
+                "strict": DEFAULT_IGNORE_CONSTRUCTORS,
+            })],
         }
     }
 }

@@ -4,7 +4,7 @@ use crate::types::*;
 
 pub const RULE_ID: &str = "line-max-len";
 
-const DEFAULT_LENGTH: u32 = 80;
+const DEFAULT_LENGTH: usize = 80;
 
 pub struct LineMaxLen {
     max_len: usize,
@@ -52,8 +52,17 @@ impl RuleType for LineMaxLen {
 
 impl LineMaxLen {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
+        let mut max_number_lines = DEFAULT_LENGTH;
+
+        if !data.data.is_empty() {
+            max_number_lines = match data.data[0].as_u64() {
+                Some(val) => val as usize,
+                None => DEFAULT_LENGTH,
+            };
+        }
+
         let rule = LineMaxLen {
-            max_len: data.data[0].parse::<usize>().unwrap(),
+            max_len: max_number_lines,
             data,
         };
         Box::new(rule)
@@ -63,7 +72,7 @@ impl LineMaxLen {
         RuleEntry {
             id: RULE_ID.to_string(),
             severity: Severity::WARNING,
-            data: vec![DEFAULT_LENGTH.to_string()],
+            data: vec![serde_json::Value::String(DEFAULT_LENGTH.to_string())],
         }
     }
 }

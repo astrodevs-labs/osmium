@@ -106,9 +106,9 @@ impl FunctionMaxLines {
         let mut max_number_lines = DEFAULT_MAX_LINES;
 
         if !data.data.is_empty() {
-            max_number_lines = match data.data[0].parse::<usize>() {
-                Ok(v) => v,
-                Err(_) => DEFAULT_MAX_LINES,
+            max_number_lines = match data.data[0].as_u64() {
+                Some(v) => v as usize,
+                None => DEFAULT_MAX_LINES,
             };
         }
         let rule = FunctionMaxLines {
@@ -122,7 +122,7 @@ impl FunctionMaxLines {
         RuleEntry {
             id: RULE_ID.to_string(),
             severity: Severity::WARNING,
-            data: vec![DEFAULT_MAX_LINES.to_string()],
+            data: vec![serde_json::Value::String(DEFAULT_MAX_LINES.to_string())],
         }
     }
 }

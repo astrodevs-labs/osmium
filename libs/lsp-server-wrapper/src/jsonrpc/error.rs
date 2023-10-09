@@ -139,8 +139,8 @@ impl Error {
 
     /// Creates a new "invalid params" error (`-32602`).
     pub fn invalid_params<M>(message: M) -> Self
-        where
-            M: Into<Cow<'static, str>>,
+    where
+        M: Into<Cow<'static, str>>,
     {
         Error {
             code: ErrorCode::InvalidParams,

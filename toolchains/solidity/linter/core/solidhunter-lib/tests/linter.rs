@@ -157,5 +157,6 @@ test_directories! {
     EventNameCamelCase,
     ConstNameSnakeCase,
     StateVisibility,
+    EmptyBlock,
     GlobalImport
 }

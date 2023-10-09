@@ -163,5 +163,6 @@ test_directories! {
     PayableFallback,
     VisibilityModifierOrder,
     VarNameMixedCase,
+    ModifierNameMixedcase,
     GlobalImport
 }

@@ -1,0 +1,65 @@
+{
+  "name": "solidhunter",
+  "includes": [],
+  "plugins": [],
+  "rules": [
+    {
+      "id": "line-max-len",
+      "severity": "WARNING",
+      "data": [
+        "80"
+      ]
+    },
+    {
+      "id": "max-states-count",
+      "severity": "WARNING",
+      "data": [
+        "15"
+      ]
+    },
+    {
+      "id": "function-max-lines",
+      "severity": "WARNING",
+      "data": [
+        "20"
+      ]
+    },
+    {
+      "id": "reason-string",
+      "severity": "WARNING",
+      "data": [
+        "32"
+      ]
+    },
+    {
+      "id": "contract-name-pascalcase",
+      "severity": "WARNING",
+      "data": []
+    },
+    {
+      "id": "func-param-name-camelcase",
+      "severity": "WARNING",
+      "data": []
+    },
+    {
+      "id": "use-forbidden-name",
+      "severity": "WARNING",
+      "data": []
+    },
+    {
+      "id": "import-on-top",
+      "severity": "WARNING",
+      "data": []
+    },
+    {
+      "id": "const-name-snakecase",
+      "severity": "WARNING",
+      "data": []
+    },
+    {
+      "id": "modifier-name-mixedcase",
+      "severity": "WARNING",
+      "data": []
+    }
+  ]
+}

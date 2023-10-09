@@ -8,7 +8,7 @@ use std::fs;
 
 use glob::glob;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SolidFile {
     pub data: ast_extractor::File,
     pub path: String,

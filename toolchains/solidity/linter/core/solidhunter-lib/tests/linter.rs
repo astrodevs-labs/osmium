@@ -167,4 +167,5 @@ test_directories! {
     GlobalImport,
     NotRelyOnTime,
     NamedParametersMapping,
+    Ordering
 }

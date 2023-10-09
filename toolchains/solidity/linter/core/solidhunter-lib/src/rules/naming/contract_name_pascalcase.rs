@@ -45,8 +45,8 @@ impl RuleType for ContractNamePascalCase {
         let contracts = ast_extractor::retriever::retrieve_contract_nodes(&file.data);
 
         for contract in contracts {
-            if (contract.name.as_string().chars().nth(0).unwrap() >= 'a'
-                && contract.name.as_string().chars().nth(0).unwrap() <= 'z')
+            if (contract.name.as_string().chars().next().unwrap() >= 'a'
+                && contract.name.as_string().chars().next().unwrap() <= 'z')
                 || contract.name.as_string().contains('_')
                 || contract.name.as_string().contains('-')
             {

@@ -65,9 +65,10 @@ impl RuleType for NoConsole {
         }
 
         // Check imports
-        let mut blacklist: Vec<String> = Vec::new();
-        blacklist.push("hardhat/console.sol".to_string());
-        blacklist.push("forge-std/console".to_string()); // console?.sol (easier to blacklist this way)
+        let blacklist: Vec<String> = vec![
+            "hardhat/console.sol".to_string(),
+            "forge-std/console".to_string(), // console?.sol (easier to blacklist this way)
+        ];
 
         for header in retriever::retrieve_import_directive_nodes(&file.data) {
             if let ImportPath::Plain(pathplain) = &header.path {

@@ -9,8 +9,8 @@ pub mod function_max_lines;
 pub mod global_import;
 pub mod max_states_count;
 pub mod no_console;
-pub mod reason_string;
 pub mod one_contract_per_file;
+pub mod reason_string;
 
 // List all rules
 
@@ -20,8 +20,8 @@ use crate::rules::best_practises::function_max_lines::FunctionMaxLines;
 use crate::rules::best_practises::global_import::GlobalImport;
 use crate::rules::best_practises::line_maxlen::LineMaxLen;
 use crate::rules::best_practises::max_states_count::MaxStatesCount;
-use crate::rules::best_practises::one_contract_per_file::OneContractPerFile;
 use crate::rules::best_practises::no_console::NoConsole;
+use crate::rules::best_practises::one_contract_per_file::OneContractPerFile;
 use crate::rules::best_practises::reason_string::ReasonString;
 use crate::rules::RuleBuilder;
 

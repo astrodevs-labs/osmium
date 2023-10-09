@@ -1,6 +1,12 @@
 mod contract;
 pub use contract::*;
 
+mod variable_definition;
+pub use variable_definition::*;
+
+mod variable_declaration;
+pub use variable_declaration::*;
+
 mod r#enum;
 pub use r#enum::*;
 

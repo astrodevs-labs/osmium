@@ -1,0 +1,83 @@
+use ast_extractor::Spanned;
+
+use crate::linter::SolidFile;
+use crate::rules::types::*;
+use crate::types::*;
+
+pub const RULE_ID: &str = "var-name-mixedcase";
+const MESSAGE: &str = "variable should be in MixedCase";
+
+pub struct VarNameMixedCase {
+    data: RuleEntry,
+}
+
+impl VarNameMixedCase {
+    fn create_diag(
+        &self,
+        location: (ast_extractor::LineColumn, ast_extractor::LineColumn),
+        file: &SolidFile,
+    ) -> LintDiag {
+        LintDiag {
+            id: RULE_ID.to_string(),
+            range: Range {
+                start: Position {
+                    line: location.0.line,
+                    character: location.0.column + 1,
+                },
+                end: Position {
+                    line: location.1.line,
+                    character: location.1.column,
+                },
+            },
+            message: MESSAGE.to_string(),
+            severity: Some(self.data.severity),
+            code: None,
+            source: None,
+            uri: file.path.clone(),
+            source_file_content: file.content.clone(),
+        }
+    }
+}
+
+impl RuleType for VarNameMixedCase {
+    fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
+        let mut res = Vec::new();
+
+        let variables_definition =
+            ast_extractor::retriever::retrieve_variable_definition_nodes(&file.data);
+        for variable in variables_definition {
+            if variable.name.to_string()[1..].find('_').is_some() {
+                let span = variable.name.span();
+                res.push(self.create_diag((span.start(), span.end()), file));
+            }
+        }
+
+        let variables_declaration =
+            ast_extractor::retriever::retrieve_variable_declaration_nodes(&file.data);
+        for variable in variables_declaration {
+            if variable.name.is_some() {
+                let name = variable.name.unwrap();
+                if name.to_string()[1..].find('_').is_some() {
+                    let span = name.span();
+                    res.push(self.create_diag((span.start(), span.end()), file));
+                }
+            }
+        }
+        res
+    }
+}
+
+impl VarNameMixedCase {
+    pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
+        let rule = VarNameMixedCase { data };
+        Box::new(rule)
+    }
+
+    pub(crate) fn create_default() -> RuleEntry {
+        RuleEntry {
+            id: RULE_ID.to_string(),
+            severity: Severity::WARNING,
+            data: vec![],
+        }
+    }
+}

@@ -51,6 +51,15 @@ impl RuleType for FoundryFuncName {
 
         for contract in contracts {
             for function in ast_extractor::retriever::retrieve_functions_nodes(&contract) {
+                let visibility = function.attributes.iter().find(|attr| matches!(attr, ast_extractor::FunctionAttribute::Visibility(_)));
+                let visibility = match visibility {
+                    Some(ast_extractor::FunctionAttribute::Visibility(visibility)) => visibility,
+                    _ => continue,
+                };
+
+                if !matches!(visibility, ast_extractor::Visibility::Public(_)) && !matches!(visibility, ast_extractor::Visibility::External(_)) {
+                    continue;
+                }
                 if let Some(name) = function.name {
                     if !re.is_match(&name.as_string()) && !self.excluded.contains(&name.as_string()) {
                         let span = name.span();

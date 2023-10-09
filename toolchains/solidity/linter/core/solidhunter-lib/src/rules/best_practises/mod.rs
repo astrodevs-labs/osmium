@@ -9,7 +9,6 @@ pub mod function_max_lines;
 pub mod global_import;
 pub mod max_states_count;
 pub mod reason_string;
-
 pub mod one_contract_per_file;
 
 // List all rules
@@ -33,7 +32,6 @@ pub fn create_default_rules() -> Vec<RuleEntry> {
         OneContractPerFile::create_default(),
         CustomErrors::create_default(),
         GlobalImport::create_default(),
-        NoEmptyBlock::create_default(),
         EmptyBlock::create_default(),
     ]
 }
@@ -58,7 +56,6 @@ pub fn create_rules() -> RulesMap {
         OneContractPerFile::create,
     );
     rules.insert(global_import::RULE_ID.to_string(), GlobalImport::create);
-    rules.insert(no_empty_block::RULE_ID.to_string(), NoEmptyBlock::create);
     rules.insert(empty_block::RULE_ID.to_string(), EmptyBlock::create);
 
     rules

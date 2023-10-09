@@ -32,11 +32,6 @@
       ]
     },
     {
-      "id": "contract-name-pascalcase",
-      "severity": "WARNING",
-      "data": []
-    },
-    {
       "id": "func-name-camelcase",
       "severity": "WARNING",
       "data": []

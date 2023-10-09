@@ -18,19 +18,17 @@ impl RuleType for EmptyBlock {
     fn diagnose(&self, _file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let _reports = check_empty_block(_file);
-        for report in _reports.iter() {
-            if let Some(report) = report {
-                res.push(LintDiag {
-                    id: RULE_ID.to_string(),
-                    severity: Some(Severity::WARNING),
-                    range: report.clone(),
-                    code: None,
-                    source: None,
-                    message: DEFAULT_MESSAGE.to_string(),
-                    uri: _file.path.clone(),
-                    source_file_content: _file.content.clone(),
-                })
-            }
+        for report in _reports.iter().flatten() {
+            res.push(LintDiag {
+                id: RULE_ID.to_string(),
+                severity: Some(Severity::WARNING),
+                range: report.clone(),
+                code: None,
+                source: None,
+                message: DEFAULT_MESSAGE.to_string(),
+                uri: _file.path.clone(),
+                source_file_content: _file.content.clone(),
+            });
         }
         res
     }

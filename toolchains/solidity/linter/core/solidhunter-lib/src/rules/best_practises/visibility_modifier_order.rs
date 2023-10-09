@@ -30,7 +30,6 @@ impl RuleType for VisibilityModiferOrder {
                 source_file_content: _file.content.clone(),
             });
         }
-        println!("res {:?}", res);
         res
     }
 }

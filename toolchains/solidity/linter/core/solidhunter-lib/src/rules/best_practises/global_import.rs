@@ -29,7 +29,6 @@ impl RuleType for GlobalImport {
                 source_file_content: _file.content.clone(),
             });
         }
-        println!("res: {:?}", res);
         res
     }
 }

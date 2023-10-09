@@ -1,17 +1,17 @@
-mod server;
 mod client;
 mod jsonrpc;
+mod server;
 mod service;
 
+pub use crate::jsonrpc::{Error, Result};
+pub use client::Client;
 pub use lsp_types;
-use lsp_types::*;
 use lsp_types::request::{
     GotoDeclarationParams, GotoDeclarationResponse, GotoImplementationParams,
     GotoImplementationResponse, GotoTypeDefinitionParams, GotoTypeDefinitionResponse,
 };
-pub use crate::jsonrpc::{Error, Result};
+use lsp_types::*;
 use serde_json::Value;
-pub use client::Client;
 pub use server::LspStdioServer;
 pub use service::LspService;
 
@@ -497,10 +497,7 @@ pub trait LanguageServer {
     ///
     /// This request was introduced in specification version 3.15.0.
 
-    fn selection_range(
-        &self,
-        params: SelectionRangeParams,
-    ) -> Result<Option<Vec<SelectionRange>>> {
+    fn selection_range(&self, params: SelectionRangeParams) -> Result<Option<Vec<SelectionRange>>> {
         let _ = params;
         eprintln!("Got a textDocument/selectionRange request, but it is not implemented");
         Err(Error::method_not_found())
@@ -570,7 +567,9 @@ pub trait LanguageServer {
         params: SemanticTokensDeltaParams,
     ) -> Result<Option<SemanticTokensFullDeltaResult>> {
         let _ = params;
-        eprintln!("Got a textDocument/semanticTokens/full/delta request, but it is not implemented");
+        eprintln!(
+            "Got a textDocument/semanticTokens/full/delta request, but it is not implemented"
+        );
         Err(Error::method_not_found())
     }
 
@@ -1038,10 +1037,7 @@ pub trait LanguageServer {
     /// Servers can only use this new model if clients advertise support for it via the
     /// `workspace.symbol.resolve_support` capability.
 
-    fn symbol(
-        &self,
-        params: WorkspaceSymbolParams,
-    ) -> Result<Option<Vec<SymbolInformation>>> {
+    fn symbol(&self, params: WorkspaceSymbolParams) -> Result<Option<Vec<SymbolInformation>>> {
         let _ = params;
         eprintln!("Got a workspace/symbol request, but it is not implemented");
         Err(Error::method_not_found())
@@ -1090,7 +1086,9 @@ pub trait LanguageServer {
 
     fn did_change_workspace_folders(&self, params: DidChangeWorkspaceFoldersParams) {
         let _ = params;
-        eprintln!("Got a workspace/didChangeWorkspaceFolders notification, but it is not implemented");
+        eprintln!(
+            "Got a workspace/didChangeWorkspaceFolders notification, but it is not implemented"
+        );
     }
 
     /// The [`workspace/willCreateFiles`] request is sent from the client to the server before

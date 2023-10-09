@@ -1,0 +1,14 @@
+{
+  "name": "solidhunter",
+  "includes": [],
+  "plugins": [],
+  "rules": [
+    {
+      "id": "explicit-types",
+      "severity": "WARNING",
+      "data": [
+        "explicit"
+      ]
+    }
+  ]
+}

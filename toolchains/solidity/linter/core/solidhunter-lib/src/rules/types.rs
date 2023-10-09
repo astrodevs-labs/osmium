@@ -1,13 +1,14 @@
 use crate::linter::SolidFile;
 use crate::types::*;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::collections::HashMap;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RuleEntry {
     pub id: String,
     pub severity: Severity,
-    pub data: Vec<String>,
+    pub data: Vec<Value>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

@@ -8,10 +8,10 @@ pub const RULE_ID: &str = "reason-string";
 const DEFAULT_SEVERITY: Severity = Severity::WARNING;
 
 // Specific
-const DEFAULT_LENGTH: u32 = 32;
+const DEFAULT_LENGTH: usize = 32;
 
 pub struct ReasonString {
-    max_length: u32,
+    max_length: usize,
     data: RuleEntry,
 }
 
@@ -44,41 +44,11 @@ impl ReasonString {
     }
 }
 
-fn get_call_expressions(ast_nodes: &ast_extractor::File) -> Vec<ExprCall> {
-    let mut res = Vec::new();
-    let mut calls: Vec<ExprCall> = Vec::new();
-    let contract = ast_nodes
-        .items
-        .iter()
-        .filter_map(|item| match item {
-            ast_extractor::Item::Contract(contract) => Some(contract),
-            _ => None,
-        })
-        .next();
-
-    if let Some(contract) = contract {
-        res = ast_extractor::retriever::retrieve_functions_nodes(contract);
-    }
-    for func in res {
-        if let FunctionBody::Block(fn_body) = func.body {
-            for stmt in fn_body.stmts {
-                if let Stmt::Expr(stmt_expr) = stmt {
-                    if let Expr::Call(call_expr) = stmt_expr.expr {
-                        calls.push(call_expr);
-                    }
-                }
-            }
-        }
-    }
-    calls
-}
-
 impl RuleType for ReasonString {
     fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
-        let calls = get_call_expressions(&file.data);
 
-        for call_expr in calls {
+        for call_expr in retriever::retrieve_expr_call_nodes(&file.data) {
             let expr_require = match *call_expr.expr {
                 Expr::Ident(require_ident) => require_ident,
                 _ => continue,
@@ -100,10 +70,10 @@ impl RuleType for ReasonString {
                     false
                 }
             }) {
-                if let Expr::Lit(ast_extractor::Lit::Str(lit_str)) = expr_string {
+                if let Expr::Lit(Lit::Str(lit_str)) = expr_string {
                     let actual_string = lit_str.values[0].token().to_string();
 
-                    if actual_string.len() > self.max_length as usize {
+                    if actual_string.len() > self.max_length {
                         let location = (
                             lit_str.values[0].span().start(),
                             lit_str.values[0].span().end(),
@@ -136,10 +106,16 @@ impl RuleType for ReasonString {
 
 impl ReasonString {
     pub fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let rule = ReasonString {
-            max_length: data.data[0].parse::<u32>().unwrap(),
-            data,
-        };
+        let mut max_length = DEFAULT_LENGTH;
+
+        if !data.data.is_empty() {
+            max_length = match data.data[0].as_u64() {
+                Some(val) => val as usize,
+                None => DEFAULT_LENGTH,
+            };
+        }
+
+        let rule = ReasonString { max_length, data };
         Box::new(rule)
     }
 
@@ -147,7 +123,7 @@ impl ReasonString {
         RuleEntry {
             id: RULE_ID.to_string(),
             severity: DEFAULT_SEVERITY,
-            data: vec![DEFAULT_LENGTH.to_string()],
+            data: vec![serde_json::Value::String(DEFAULT_LENGTH.to_string())],
         }
     }
 }

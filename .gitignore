@@ -96,3 +96,12 @@ typings/
 !.yarn/sdks
 !.yarn/versions
 node_modules
+
+# intellij files
+.idea
+
+# vscode files
+.vscode
+
+# rust output files
+target

@@ -47,8 +47,8 @@ impl RuleType for FuncNameCamelCase {
         for contract in contracts {
             for function in ast_extractor::retriever::retrieve_functions_nodes(&contract) {
                 if let Some(name) = function.name {
-                    if !(name.as_string().chars().nth(0).unwrap_or(' ') >= 'a'
-                        && name.as_string().chars().nth(0).unwrap_or(' ') <= 'z')
+                    if !(name.as_string().chars().next().unwrap_or(' ') >= 'a'
+                        && name.as_string().chars().next().unwrap_or(' ') <= 'z')
                         || name.as_string().contains('_')
                         || name.as_string().contains('-')
                     {

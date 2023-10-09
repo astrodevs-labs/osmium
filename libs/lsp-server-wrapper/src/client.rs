@@ -1,19 +1,19 @@
-use std::cell::RefCell;
+use crate::jsonrpc::{self};
+use lsp_server::{Message, RequestId};
 use lsp_types::notification::*;
 use lsp_types::request::*;
 use lsp_types::*;
-use crate::jsonrpc::{self,};
-use std::fmt::Display;
-use std::rc::Weak;
-use lsp_server::{Message, RequestId};
 use serde::Serialize;
 use serde_json::Value;
+use std::cell::RefCell;
+use std::fmt::Display;
+use std::rc::Weak;
 use tracing::error;
 
 use crate::server::LspServer;
 
 #[derive(Clone)]
- pub(crate) struct ClientInner {
+pub(crate) struct ClientInner {
     server: Option<Weak<dyn LspServer>>,
     id: RefCell<u32>,
 }
@@ -60,10 +60,7 @@ impl Client {
     /// immediately return `Err` with JSON-RPC error code `-32002` ([read more]).
     ///
     /// [read more]: https://microsoft.github.io/language-server-protocol/specification#initialize
-    pub fn register_capability(
-        &self,
-        registrations: Vec<Registration>,
-    ) -> jsonrpc::Result<()> {
+    pub fn register_capability(&self, registrations: Vec<Registration>) -> jsonrpc::Result<()> {
         self.send_request::<RegisterCapability>(RegistrationParams { registrations })
     }
 
@@ -311,12 +308,7 @@ impl Client {
     /// # Initialization
     ///
     /// This notification will only be sent if the server is initialized.
-    pub fn publish_diagnostics(
-        &self,
-        uri: Url,
-        diags: Vec<Diagnostic>,
-        version: Option<i32>,
-    ) {
+    pub fn publish_diagnostics(&self, uri: Url, diags: Vec<Diagnostic>, version: Option<i32>) {
         self.send_notification::<PublishDiagnostics>(PublishDiagnosticsParams::new(
             uri, diags, version,
         ));
@@ -345,10 +337,7 @@ impl Client {
     /// # Compatibility
     ///
     /// This request was introduced in specification version 3.6.0.
-    pub fn configuration(
-        &self,
-        items: Vec<ConfigurationItem>,
-    ) -> jsonrpc::Result<Vec<Value>> {
+    pub fn configuration(&self, items: Vec<ConfigurationItem>) -> jsonrpc::Result<Vec<Value>> {
         self.send_request::<WorkspaceConfiguration>(ConfigurationParams { items })
     }
 
@@ -388,10 +377,7 @@ impl Client {
     /// immediately return `Err` with JSON-RPC error code `-32002` ([read more]).
     ///
     /// [read more]: https://microsoft.github.io/language-server-protocol/specification#initialize
-    pub fn apply_edit(
-        &self,
-        edit: WorkspaceEdit,
-    ) -> jsonrpc::Result<ApplyWorkspaceEditResponse> {
+    pub fn apply_edit(&self, edit: WorkspaceEdit) -> jsonrpc::Result<ApplyWorkspaceEditResponse> {
         self.send_request::<ApplyWorkspaceEdit>(ApplyWorkspaceEditParams { edit, label: None })
     }
 
@@ -401,31 +387,37 @@ impl Client {
     ///
     /// This notification will only be sent if the server is initialized.
     pub fn send_notification<N>(&self, params: N::Params)
-        where
-            N: lsp_types::notification::Notification,
+    where
+        N: lsp_types::notification::Notification,
     {
         let server_opt = self.inner.server.clone().unwrap().upgrade();
         if server_opt.is_none() {
             eprintln!("Cannot send request, server is not initialized");
             return;
         }
-        server_opt.unwrap().send(Message::Notification(
-            lsp_server::Notification::new(N::METHOD.to_string(), params),
-        ));
+        server_opt
+            .unwrap()
+            .send(Message::Notification(lsp_server::Notification::new(
+                N::METHOD.to_string(),
+                params,
+            )));
     }
 
     fn send_notification_unchecked<N>(&self, params: N::Params)
-        where
-            N: lsp_types::notification::Notification,
+    where
+        N: lsp_types::notification::Notification,
     {
         let server_opt = self.inner.server.clone().unwrap().upgrade();
         if server_opt.is_none() {
             eprintln!("Cannot send request, server is not initialized");
             return;
         }
-        server_opt.unwrap().send(Message::Notification(
-            lsp_server::Notification::new(N::METHOD.to_string(), params),
-        ));
+        server_opt
+            .unwrap()
+            .send(Message::Notification(lsp_server::Notification::new(
+                N::METHOD.to_string(),
+                params,
+            )));
     }
 
     /// Sends a custom request to the client.
@@ -437,32 +429,41 @@ impl Client {
     ///
     /// [read more]: https://microsoft.github.io/language-server-protocol/specification#initialize
     pub fn send_request<R>(&self, params: R::Params) -> jsonrpc::Result<R::Result>
-        where
-            R: lsp_types::request::Request,
+    where
+        R: lsp_types::request::Request,
     {
         let server_opt = self.inner.server.clone().unwrap().upgrade();
         if server_opt.is_none() {
             eprintln!("Cannot send request, server is not initialized");
             return Err(jsonrpc::not_initialized_error());
         }
-        server_opt.as_ref().unwrap().send(Message::Request(
-            lsp_server::Request::new(RequestId::from(self.next_request_id().to_string()), R::METHOD.to_string(), params),
-        ));
+        server_opt
+            .as_ref()
+            .unwrap()
+            .send(Message::Request(lsp_server::Request::new(
+                RequestId::from(self.next_request_id().to_string()),
+                R::METHOD.to_string(),
+                params,
+            )));
         Err(jsonrpc::not_initialized_error())
     }
 
     fn send_request_unchecked<R>(&self, params: R::Params) -> jsonrpc::Result<R::Result>
-        where
-            R: lsp_types::request::Request,
+    where
+        R: lsp_types::request::Request,
     {
         let server_opt = self.inner.server.clone().unwrap().upgrade();
         if server_opt.is_none() {
             eprintln!("Cannot send request, server is not initialized");
             return Err(jsonrpc::not_initialized_error());
         }
-        server_opt.unwrap().send(Message::Request(
-            lsp_server::Request::new(RequestId::from(self.next_request_id().to_string()), R::METHOD.to_string(), params),
-        ));
+        server_opt
+            .unwrap()
+            .send(Message::Request(lsp_server::Request::new(
+                RequestId::from(self.next_request_id().to_string()),
+                R::METHOD.to_string(),
+                params,
+            )));
         Err(jsonrpc::not_initialized_error())
     }
 }
@@ -477,5 +478,4 @@ impl Client {
         }
         id
     }
-
 }

@@ -1,5 +1,5 @@
 use solidhunter_lib::linter::SolidLinter;
-use solidhunter_lib::types::Position;
+use solidhunter_lib::types::{LintDiag, Position};
 use std::{fs, path::PathBuf};
 
 struct Finding {
@@ -23,7 +23,7 @@ fn test_directory(base_name: &str) {
         let path = path.unwrap().path();
 
         if let Some(filename) = path.file_name().and_then(|name| name.to_str()) {
-            if filename == "file.sol" {
+            if filename == "file.sol" || filename == "file.t.sol" {
                 source = path.to_str().unwrap().to_string();
             } else if filename == ".solidhunter.json" {
                 config = path.to_str().unwrap().to_string();
@@ -53,28 +53,75 @@ fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>) {
     let mut linter: SolidLinter = SolidLinter::new(&String::from(config));
 
     let result = linter.parse_file(String::from(source));
+    let mut found_findings: Vec<&Finding> = Vec::new();
+    let mut not_found_findings: Vec<&Finding> = Vec::new();
+    let mut not_needed_findings: Vec<&LintDiag> = Vec::new();
+    let mut not_needed_found = false;
+    let mut not_found = false;
+
     match result {
         Ok(diags) => {
-            assert_eq!(
-                diags.len(),
-                expected_findings.len(),
-                "Wrong number of findings for {}",
-                source
-            );
-            let mut found = false;
-
+            let mut found;
             for (_, diag) in diags.iter().enumerate() {
+                found = false;
                 for (_, expected_finding) in expected_findings.iter().enumerate() {
                     if (diag.range.start == expected_finding.start)
                         && (diag.range.end == expected_finding.end)
                         && (diag.id == expected_finding.id)
                     {
+                        found_findings.push(expected_finding.clone());
                         found = true;
                         break;
                     }
                 }
+                if !found {
+                    not_needed_findings.push(diag);
+                }
             }
-            assert_eq!(found, true, "Can't find the diagnostic for {}", source);
+            for (_, expected_finding) in expected_findings.iter().enumerate() {
+                found = false;
+                for (_, found_finding) in found_findings.iter().enumerate() {
+                    if (expected_finding.start == found_finding.start)
+                        && (expected_finding.end == found_finding.end)
+                        && (expected_finding.id == found_finding.id)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                if found == false {
+                    not_found_findings.push(expected_finding.clone());
+                }
+            }
+            if not_needed_findings.len() > 0 {
+                println!("Diagnostics not expected:");
+                for (_, finding) in not_needed_findings.iter().enumerate() {
+                    println!(
+                        "{}:{}:{}:{}:{}",
+                        finding.id,
+                        finding.range.start.line,
+                        finding.range.start.character,
+                        finding.range.end.line,
+                        finding.range.end.character
+                    );
+                }
+                not_needed_found = true;
+            }
+            if not_found_findings.len() > 0 {
+                println!("\nMissing diagnostics:");
+                for (_, finding) in not_found_findings.iter().enumerate() {
+                    println!(
+                        "{}:{}:{}:{}:{}",
+                        finding.id,
+                        finding.start.line,
+                        finding.start.character,
+                        finding.end.line,
+                        finding.end.character
+                    );
+                }
+                not_found = true;
+            }
+            assert_eq!(not_needed_found == true || not_found == true, false, "There are some missing or not needed diagnostics:\n Not needed found: {}\n Not found: {}", not_needed_findings.len(), not_found_findings.len());
         }
         Err(e) => {
             panic!("{}", e);
@@ -102,4 +149,24 @@ test_directories! {
     FunctionParamNameCamelCase,
     UseForbiddenName,
     ReasonString,
+    NoInlineAssembly,
+    FunctionVisibility,
+    OneContractPerFile,
+    CustomErrors,
+    EventNameCamelCase,
+    ConstNameSnakeCase,
+    StateVisibility,
+    EmptyBlock,
+    NoConsole,
+    ExplicitTypes,
+    ImplicitTypes,
+    PayableFallback,
+    VisibilityModifierOrder,
+    VarNameMixedCase,
+    ModifierNameMixedcase,
+    GlobalImport,
+    NotRelyOnTime,
+    NamedParametersMapping,
+    Ordering,
+    PrivateVarsLeadingUnderscore
 }

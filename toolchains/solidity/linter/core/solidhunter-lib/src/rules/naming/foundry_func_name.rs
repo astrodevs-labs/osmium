@@ -9,6 +9,7 @@ const MESSAGE: &str = "Founfry test function name need to respect the convention
 
 pub struct FoundryFuncName {
     data: RuleEntry,
+    excluded: Vec<String>,
 }
 
 impl FoundryFuncName {
@@ -51,7 +52,7 @@ impl RuleType for FoundryFuncName {
         for contract in contracts {
             for function in ast_extractor::retriever::retrieve_functions_nodes(&contract) {
                 if let Some(name) = function.name {
-                    if !re.is_match(name.as_string().as_str()) {
+                    if !re.is_match(&name.as_string()) && !self.excluded.contains(&name.as_string()) {
                         let span = name.span();
                         res.push(self.create_diag((span.start(), span.end()), file));
                     }
@@ -64,7 +65,7 @@ impl RuleType for FoundryFuncName {
 
 impl FoundryFuncName {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let rule = FoundryFuncName { data };
+        let rule = FoundryFuncName { excluded: data.data.clone(), data };
         Box::new(rule)
     }
 

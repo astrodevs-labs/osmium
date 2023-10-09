@@ -23,7 +23,7 @@ fn test_directory(base_name: &str) {
         let path = path.unwrap().path();
 
         if let Some(filename) = path.file_name().and_then(|name| name.to_str()) {
-            if filename == "file.sol" {
+            if filename == "file.sol" || filename == "file.t.sol" {
                 source = path.to_str().unwrap().to_string();
             } else if filename == ".solidhunter.json" {
                 config = path.to_str().unwrap().to_string();

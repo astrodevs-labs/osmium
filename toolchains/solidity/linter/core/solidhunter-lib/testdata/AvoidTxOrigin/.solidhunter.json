@@ -1,0 +1,12 @@
+{
+  "name": "solidhunter",
+  "includes": [],
+  "plugins": [],
+  "rules": [
+    {
+      "id": "avoid-tx-origin",
+      "severity": "WARNING",
+      "data": []
+    }
+  ]
+}

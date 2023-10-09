@@ -10,6 +10,7 @@ pub mod global_import;
 pub mod max_states_count;
 pub mod no_console;
 pub mod one_contract_per_file;
+pub mod payable_fallback;
 pub mod reason_string;
 mod explicit_types;
 
@@ -24,6 +25,7 @@ use crate::rules::best_practises::line_maxlen::LineMaxLen;
 use crate::rules::best_practises::max_states_count::MaxStatesCount;
 use crate::rules::best_practises::no_console::NoConsole;
 use crate::rules::best_practises::one_contract_per_file::OneContractPerFile;
+use crate::rules::best_practises::payable_fallback::PayableFallback;
 use crate::rules::best_practises::reason_string::ReasonString;
 use crate::rules::RuleBuilder;
 
@@ -39,6 +41,7 @@ pub fn create_default_rules() -> Vec<RuleEntry> {
         GlobalImport::create_default(),
         EmptyBlock::create_default(),
         ExplicitTypes::create_default(),
+        PayableFallback::create_default(),
     ]
 }
 
@@ -65,6 +68,10 @@ pub fn create_rules() -> RulesMap {
     rules.insert(empty_block::RULE_ID.to_string(), EmptyBlock::create);
     rules.insert(explicit_types::RULE_ID.to_string(), ExplicitTypes::create);
     rules.insert(no_console::RULE_ID.to_string(), NoConsole::create);
+    rules.insert(
+        payable_fallback::RULE_ID.to_string(),
+        PayableFallback::create,
+    );
 
     rules
 }

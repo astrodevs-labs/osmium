@@ -64,9 +64,6 @@ impl RuleType for NotRelyOnTime {
             }
             i += 1;
         }
-        for t in res.iter() { // FOR MATEO
-            println!("{:?}", t.range);
-        }
         res
     }
 }

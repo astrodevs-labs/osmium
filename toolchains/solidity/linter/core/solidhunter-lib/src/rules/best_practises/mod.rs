@@ -13,6 +13,7 @@ pub mod one_contract_per_file;
 pub mod payable_fallback;
 pub mod reason_string;
 mod explicit_types;
+pub mod visibility_modifier_order;
 
 // List all rules
 
@@ -27,6 +28,7 @@ use crate::rules::best_practises::no_console::NoConsole;
 use crate::rules::best_practises::one_contract_per_file::OneContractPerFile;
 use crate::rules::best_practises::payable_fallback::PayableFallback;
 use crate::rules::best_practises::reason_string::ReasonString;
+use crate::rules::best_practises::visibility_modifier_order::VisibilityModiferOrder;
 use crate::rules::RuleBuilder;
 
 pub fn create_default_rules() -> Vec<RuleEntry> {
@@ -42,6 +44,7 @@ pub fn create_default_rules() -> Vec<RuleEntry> {
         EmptyBlock::create_default(),
         ExplicitTypes::create_default(),
         PayableFallback::create_default(),
+        VisibilityModiferOrder::create_default(),
     ]
 }
 
@@ -71,6 +74,10 @@ pub fn create_rules() -> RulesMap {
     rules.insert(
         payable_fallback::RULE_ID.to_string(),
         PayableFallback::create,
+    );
+    rules.insert(
+        visibility_modifier_order::RULE_ID.to_string(),
+        VisibilityModiferOrder::create,
     );
 
     rules

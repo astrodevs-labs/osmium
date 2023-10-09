@@ -161,5 +161,6 @@ test_directories! {
     ExplicitTypes,
     ImplicitTypes,
     PayableFallback,
+    VisibilityModifierOrder,
     GlobalImport
 }

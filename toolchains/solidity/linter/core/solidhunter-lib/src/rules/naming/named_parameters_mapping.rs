@@ -68,7 +68,6 @@ impl RuleType for NamedParametersMapping {
         }
 
         for mapping in visitor.mappings.iter() {
-            println!("{:?}", mapping);
             if mapping.key_name.is_none() {
                 let span = mapping.key.span();
                 res.push(self.create_diag(

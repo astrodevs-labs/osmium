@@ -5,6 +5,7 @@ use crate::rules::naming::func_name_camelcase::FuncNameCamelCase;
 use crate::rules::naming::func_param_name_camelcase::FuncParamNameCamelcase;
 use crate::rules::naming::func_visibility::FuncVisibility;
 use crate::rules::naming::use_forbidden_name::UseForbiddenName;
+use crate::rules::naming::var_name_mixedcase::VarNameMixedCase;
 use crate::rules::types::{RuleEntry, RulesMap};
 use crate::rules::RuleBuilder;
 use std::collections::HashMap;
@@ -17,6 +18,7 @@ pub(crate) mod event_name_camelcase;
 pub(crate) mod func_name_camelcase;
 pub(crate) mod func_visibility;
 pub(crate) mod use_forbidden_name;
+pub(crate) mod var_name_mixedcase;
 
 // List all rules
 
@@ -29,6 +31,7 @@ pub fn create_default_rules() -> Vec<RuleEntry> {
         FuncVisibility::create_default(),
         EventNameCamelCase::create_default(),
         ConstNameSnakeCase::create_default(),
+        VarNameMixedCase::create_default(),
     ]
 }
 
@@ -59,6 +62,10 @@ pub fn create_rules() -> RulesMap {
     rules.insert(
         const_name_snakecase::RULE_ID.to_string(),
         ConstNameSnakeCase::create,
+    );
+    rules.insert(
+        var_name_mixedcase::RULE_ID.to_string(),
+        VarNameMixedCase::create,
     );
 
     rules

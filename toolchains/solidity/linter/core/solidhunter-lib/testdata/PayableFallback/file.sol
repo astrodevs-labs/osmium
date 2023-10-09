@@ -8,4 +8,10 @@ contract Test {
     function() public {} // Not Valid
 
     fallback() external {} // Not Valid
+
+    receive() external payable {} // Valid
+
+    function wow() public {} // Valid
+
+    function wow() public payable {} // Valid
 }

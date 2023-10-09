@@ -1,11 +1,10 @@
 use ast_extractor::retriever::{retrieve_contract_nodes, retrieve_functions_nodes};
-use ast_extractor::{FunctionKind, ItemFunction, Mutability, Spanned};
+use ast_extractor::{ItemFunction, Mutability, Spanned};
 
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
 
-// const DEFAULT_SEVERITY: &str = "warn";
 const DEFAULT_MESSAGE: &str = "Fallback should contains payable attributes";
 pub const RULE_ID: &str = "payable-fallback";
 
@@ -14,9 +13,9 @@ pub struct PayableFallback {
 }
 
 impl RuleType for PayableFallback {
-    fn diagnose(&self, _file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
+    fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
-        let reports = check_fallback_payable(_file);
+        let reports = check_fallback_payable(file);
 
         for report in reports.into_iter().flatten() {
             res.push(LintDiag {
@@ -26,8 +25,8 @@ impl RuleType for PayableFallback {
                 code: None,
                 source: None,
                 message: DEFAULT_MESSAGE.to_string(),
-                uri: _file.path.clone(),
-                source_file_content: _file.content.clone(),
+                uri: file.path.clone(),
+                source_file_content: file.content.clone(),
             });
         }
         res
@@ -42,13 +41,14 @@ fn check_fallback_payable(file: &SolidFile) -> Vec<Option<Range>> {
         let functions = retrieve_functions_nodes(&contract);
 
         for function in functions {
-            if FunctionKind::is_fallback(function.kind) || function.name.is_none() {
+            if function.kind.is_fallback() || (function.kind.is_function() && function.name.is_none()) {
                 res = check_attribute(res, function);
             }
         }
     }
     res
 }
+
 fn check_attribute(mut res: Vec<Option<Range>>, function: ItemFunction) -> Vec<Option<Range>> {
     let mut is_payable = false;
     for attributes in function.attributes.iter() {

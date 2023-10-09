@@ -5,6 +5,7 @@ use std::collections::HashMap;
 pub mod line_maxlen;
 pub mod custom_errors;
 pub mod empty_block;
+pub mod explicit_types;
 pub mod function_max_lines;
 pub mod global_import;
 pub mod max_states_count;
@@ -12,7 +13,6 @@ pub mod no_console;
 pub mod one_contract_per_file;
 pub mod payable_fallback;
 pub mod reason_string;
-mod explicit_types;
 pub mod visibility_modifier_order;
 
 // List all rules

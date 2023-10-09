@@ -17,8 +17,7 @@ pub struct ExplicitTypesVisitor {
     type_inits: Vec<SolIdent>,
 }
 
-impl <'ast> Visit<'ast> for ExplicitTypesVisitor {
-
+impl<'ast> Visit<'ast> for ExplicitTypesVisitor {
     fn visit_type(&mut self, ty: &'ast Type) {
         match ty {
             Type::Int(_, _) => {
@@ -27,17 +26,16 @@ impl <'ast> Visit<'ast> for ExplicitTypesVisitor {
             Type::Uint(_, _) => {
                 self.type_names.push(ty.clone());
             }
-            _ => {visit::visit_type(self, ty)}
+            _ => visit::visit_type(self, ty),
         }
     }
 
     fn visit_variable_definition(&mut self, var: &'ast VariableDefinition) {
-        if let Some((_, expr))  = &var.initializer {
+        if let Some((_, expr)) = &var.initializer {
             visit::visit_expr(self, expr);
         }
         visit::visit_variable_definition(self, var);
     }
-
 }
 
 impl ExplicitTypes {
@@ -70,7 +68,8 @@ impl ExplicitTypes {
 
     fn _check_type(&self, ty: &str, file: &SolidFile, span: Box<dyn Spanned>) -> Option<LintDiag> {
         if (self.rule == "explicit" && (ty == "int" || ty == "uint"))
-        || (self.rule == "implicit" && (ty != "int" && ty != "uint")) {
+            || (self.rule == "implicit" && (ty != "int" && ty != "uint"))
+        {
             return Some(self.create_diag(file, span, ty));
         }
         None

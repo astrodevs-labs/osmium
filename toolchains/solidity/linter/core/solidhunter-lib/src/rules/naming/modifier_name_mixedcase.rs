@@ -69,7 +69,6 @@ impl RuleType for ModifierNameMixedcase {
         let mut res = Vec::new();
         let contracts = retriever::retrieve_contract_nodes(&file.data);
 
-
         for contract in contracts.iter() {
             let functions = retriever::retrieve_functions_nodes(contract);
 

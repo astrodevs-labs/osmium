@@ -45,22 +45,34 @@ impl RuleType for NotRelyOnTime {
 
         for line in file.content.lines() {
             if let Some(index) = line.find("now") {
-                res.push(self.create_diag((LineColumn {
-                    line: i,
-                    column: index,
-                }, LineColumn {
-                    line: i,
-                    column: index + 3,
-                }), file));
+                res.push(self.create_diag(
+                    (
+                        LineColumn {
+                            line: i,
+                            column: index,
+                        },
+                        LineColumn {
+                            line: i,
+                            column: index + 3,
+                        },
+                    ),
+                    file,
+                ));
             }
             if let Some(index) = line.find("block.timestamp") {
-                res.push(self.create_diag((LineColumn {
-                    line: i,
-                    column: index,
-                }, LineColumn {
-                    line: i,
-                    column: index + 15,
-                }), file));
+                res.push(self.create_diag(
+                    (
+                        LineColumn {
+                            line: i,
+                            column: index,
+                        },
+                        LineColumn {
+                            line: i,
+                            column: index + 15,
+                        },
+                    ),
+                    file,
+                ));
             }
             i += 1;
         }

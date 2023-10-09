@@ -26,6 +26,7 @@ pub(crate) mod named_parameters_mapping;
 pub(crate) mod use_forbidden_name;
 pub(crate) mod var_name_mixedcase;
 pub(crate) mod foundry_func_name;
+pub(crate) mod private_vars_leading_underscore;
 
 // List all rules
 

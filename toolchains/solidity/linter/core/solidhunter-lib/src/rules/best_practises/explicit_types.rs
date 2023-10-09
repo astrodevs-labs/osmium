@@ -2,6 +2,7 @@ use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
 use ast_extractor::*;
+use serde_json::Value;
 
 pub const RULE_ID: &str = "explicit-types";
 
@@ -100,8 +101,18 @@ impl RuleType for ExplicitTypes {
 
 impl ExplicitTypes {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
+        let mut value;
+        if !data.data.is_empty(){
+            value = match &data.data[0] {
+                Value::String(val) => val.as_str(),
+                _ => DEFAULT_RULE,
+            }
+        }
+        else {
+            value = DEFAULT_RULE;
+        }
         let rule = ExplicitTypes {
-            rule: data.data[0].clone(),
+            rule: value.to_string(),
             data,
         };
         Box::new(rule)
@@ -111,7 +122,7 @@ impl ExplicitTypes {
         RuleEntry {
             id: RULE_ID.to_string(),
             severity: Severity::WARNING,
-            data: vec![DEFAULT_RULE.to_string()],
+            data: vec![serde_json::Value::String(DEFAULT_RULE.to_string())],
         }
     }
 }

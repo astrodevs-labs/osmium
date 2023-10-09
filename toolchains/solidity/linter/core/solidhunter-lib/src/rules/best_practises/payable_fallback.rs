@@ -18,19 +18,17 @@ impl RuleType for PayableFallback {
         let mut res = Vec::new();
         let reports = check_fallback_payable(_file);
 
-        for report in reports {
-            if let Some(rep) = report {
-                res.push(LintDiag {
-                    id: RULE_ID.to_string(),
-                    severity: Some(Severity::WARNING),
-                    range: rep,
-                    code: None,
-                    source: None,
-                    message: DEFAULT_MESSAGE.to_string(),
-                    uri: _file.path.clone(),
-                    source_file_content: _file.content.clone(),
-                })
-            }
+        for report in reports.into_iter().flatten() {
+            res.push(LintDiag {
+                id: RULE_ID.to_string(),
+                severity: Some(Severity::WARNING),
+                range: report,
+                code: None,
+                source: None,
+                message: DEFAULT_MESSAGE.to_string(),
+                uri: _file.path.clone(),
+                source_file_content: _file.content.clone(),
+            });
         }
         res
     }
@@ -44,9 +42,7 @@ fn check_fallback_payable(file: &SolidFile) -> Vec<Option<Range>> {
         let functions = retrieve_functions_nodes(&contract);
 
         for function in functions {
-            if FunctionKind::is_fallback(function.kind) {
-                res = check_attribute(res, function);
-            } else if function.name.is_none() {
+            if FunctionKind::is_fallback(function.kind) || function.name.is_none() {
                 res = check_attribute(res, function);
             }
         }
@@ -69,7 +65,7 @@ fn check_attribute(mut res: Vec<Option<Range>>, function: ItemFunction) -> Vec<O
 }
 
 fn create_report(function: ItemFunction) -> Option<Range> {
-    let res = Some(Range {
+    Some(Range {
         start: Position {
             line: function.attributes.span().start().line,
             character: function.attributes.span().start().column + 1,
@@ -78,8 +74,7 @@ fn create_report(function: ItemFunction) -> Option<Range> {
             line: function.attributes.span().end().line,
             character: function.attributes.span().end().column,
         },
-    });
-    res
+    })
 }
 
 impl PayableFallback {

@@ -25,4 +25,32 @@ contract Test {
         uint u = 21;
         uint v = 22;
     }
+
+    // Should not be flagged as the body is shorter than the max lines
+    constructor(
+        address initialOwner,
+        address initialStaker,
+        address initialMinter,
+        address initialSwapper,
+        uint256 initialHarvestFee,
+        address initialFeeRecipient,
+        address initialFeeToken,
+        address initialOperator,
+        address definitiveAsset
+    )
+        Owned2Step(initialOwner)
+        ERC4626(ERC20(definitiveAsset), "Tholgar Warlord Token", "tWAR")
+        AFees(initialHarvestFee, initialFeeRecipient, initialFeeToken)
+        AOperator(initialOperator)
+    {
+        if (initialStaker == address(0) || initialMinter == address(0) || initialSwapper == address(0)) {
+            revert Errors.ZeroAddress();
+        }
+
+        staker = initialStaker;
+        minter = initialMinter;
+        swapper = initialSwapper;
+
+        ERC20(definitiveAsset).safeApprove(initialStaker, type(uint256).max);
+    }
 }

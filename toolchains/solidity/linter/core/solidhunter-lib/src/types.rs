@@ -84,7 +84,7 @@ impl LintDiag {
                 higlight_length = trimmed_line.len() - (self.range.start.character - offset);
             } else if line_nb == self.range.end.line {
                 higlight_length = trimmed_line.len()
-                    - (self.range.end.character - min(offset, trimmed_line.len()));
+                    - (self.range.end.character - offset) + 1;
             }
 
             formatted = format!(

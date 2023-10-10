@@ -4,13 +4,6 @@
   "plugins": [],
   "rules": [
     {
-      "id": "line-max-len",
-      "severity": "WARNING",
-      "data": [
-        "80"
-      ]
-    },
-    {
       "id": "max-states-count",
       "severity": "WARNING",
       "data": [

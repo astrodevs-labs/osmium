@@ -7,7 +7,7 @@ use crate::rules::types::*;
 use crate::types::*;
 
 pub const RULE_ID: &str = "ordering";
-const MESSAGE: &str = "Import must be on top in the file";
+const MESSAGE: &str = "Invalid ordering of items in the file";
 
 struct OrderingVisitor {
     file: SolidFile,

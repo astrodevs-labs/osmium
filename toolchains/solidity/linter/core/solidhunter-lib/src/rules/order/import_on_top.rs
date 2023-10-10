@@ -45,8 +45,11 @@ impl RuleType for ImportOnTop {
         let mut res = Vec::new();
         let mut last_import_location = 0;
 
-        for i in 1..file.data.items.len() {
+        for i in 0..file.data.items.len() {
             match &file.data.items[i] {
+                ast_extractor::Item::Pragma(_) => {
+                    continue;
+                }
                 ast_extractor::Item::Import(_) => {
                     last_import_location = i;
                 }
@@ -56,7 +59,8 @@ impl RuleType for ImportOnTop {
             }
         }
 
-        for i in 1..file.data.items.len() {
+
+        for i in 0..file.data.items.len() {
             if let ast_extractor::Item::Import(import) = &file.data.items[i] {
                 if i > last_import_location {
                     let location = (import.span().start(), import.span().end());

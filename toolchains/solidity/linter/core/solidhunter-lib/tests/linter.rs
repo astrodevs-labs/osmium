@@ -140,13 +140,13 @@ macro_rules! test_directories {
 }
 
 test_directories! {
-    ContractNamePascalCase,
+    ContractNameCamelCase,
     FunctionMaxLines,
     ImportOnTop,
     LineMaxLen,
     MaxStatesCount,
-    FunctionNameCamelCase,
-    FunctionParamNameCamelCase,
+    FunctionNameMixedCase,
+    FunctionParamNameMixedCase,
     UseForbiddenName,
     ReasonString,
     NoInlineAssembly,

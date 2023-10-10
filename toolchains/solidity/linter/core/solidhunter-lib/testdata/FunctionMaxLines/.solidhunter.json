@@ -25,17 +25,17 @@
       ]
     },
     {
-      "id": "contract-name-pascalcase",
+      "id": "contract-name-camelcase",
       "severity": "WARNING",
       "data": []
     },
     {
-      "id": "func-name-camelcase",
+      "id": "func-name-mixedcase",
       "severity": "WARNING",
       "data": []
     },
     {
-      "id": "func-param-name-camelcase",
+      "id": "func-param-name-mixedcase",
       "severity": "WARNING",
       "data": []
     },

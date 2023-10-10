@@ -4,14 +4,14 @@ use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
 
-pub const RULE_ID: &str = "func-name-camelcase";
-const MESSAGE: &str = "Function name need to be in camel case";
+pub const RULE_ID: &str = "func-name-mixedcase";
+const MESSAGE: &str = "Function name must be in mixedCase";
 
-pub struct FuncNameCamelCase {
+pub struct FuncNameMixedCase {
     data: RuleEntry,
 }
 
-impl FuncNameCamelCase {
+impl FuncNameMixedCase {
     fn create_diag(
         &self,
         location: (ast_extractor::LineColumn, ast_extractor::LineColumn),
@@ -39,21 +39,23 @@ impl FuncNameCamelCase {
     }
 }
 
-impl RuleType for FuncNameCamelCase {
+impl RuleType for FuncNameMixedCase {
     fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let contracts = ast_extractor::retriever::retrieve_contract_nodes(&file.data);
 
         for contract in contracts {
             for function in ast_extractor::retriever::retrieve_functions_nodes(&contract) {
-                if let Some(name) = function.name {
-                    if !(name.as_string().chars().next().unwrap_or(' ') >= 'a'
-                        && name.as_string().chars().next().unwrap_or(' ') <= 'z')
-                        || name.as_string().contains('_')
-                        || name.as_string().contains('-')
-                    {
-                        let span = name.span();
-                        res.push(self.create_diag((span.start(), span.end()), file));
+                if function.kind.is_function() {
+                    if let Some(name) = function.name {
+                        if !(name.as_string().chars().next().unwrap_or(' ') >= 'a'
+                            && name.as_string().chars().next().unwrap_or(' ') <= 'z')
+                            || name.as_string().contains('_')
+                            || name.as_string().contains('-')
+                        {
+                            let span = name.span();
+                            res.push(self.create_diag((span.start(), span.end()), file));
+                        }
                     }
                 }
             }
@@ -62,9 +64,9 @@ impl RuleType for FuncNameCamelCase {
     }
 }
 
-impl FuncNameCamelCase {
+impl FuncNameMixedCase {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let rule = FuncNameCamelCase { data };
+        let rule = FuncNameMixedCase { data };
         Box::new(rule)
     }
 

@@ -1,17 +1,16 @@
-use ast_extractor::Spanned;
-
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
+use ast_extractor::Spanned;
 
-pub const RULE_ID: &str = "contract-name-pascalcase";
-const MESSAGE: &str = "Contract name need to be in pascal case";
+pub const RULE_ID: &str = "func-param-name-mixedcase";
+const MESSAGE: &str = "Function param name must be in mixedCase";
 
-pub struct ContractNamePascalCase {
+pub struct FuncParamNameMixedCase {
     data: RuleEntry,
 }
 
-impl ContractNamePascalCase {
+impl FuncParamNameMixedCase {
     fn create_diag(
         &self,
         location: (ast_extractor::LineColumn, ast_extractor::LineColumn),
@@ -39,28 +38,34 @@ impl ContractNamePascalCase {
     }
 }
 
-impl RuleType for ContractNamePascalCase {
+impl RuleType for FuncParamNameMixedCase {
     fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let contracts = ast_extractor::retriever::retrieve_contract_nodes(&file.data);
 
         for contract in contracts {
-            if (contract.name.as_string().chars().next().unwrap() >= 'a'
-                && contract.name.as_string().chars().next().unwrap() <= 'z')
-                || contract.name.as_string().contains('_')
-                || contract.name.as_string().contains('-')
-            {
-                let span = contract.name.span();
-                res.push(self.create_diag((span.start(), span.end()), file));
+            for function in ast_extractor::retriever::retrieve_functions_nodes(&contract) {
+                for arg in function.arguments.iter() {
+                    if let Some(name) = &arg.name {
+                        if !(name.as_string().chars().next().unwrap() >= 'a'
+                            && name.as_string().chars().next().unwrap() <= 'z')
+                            || name.as_string().contains('_')
+                            || name.as_string().contains('-')
+                        {
+                            let span = name.span();
+                            res.push(self.create_diag((span.start(), span.end()), file));
+                        }
+                    }
+                }
             }
         }
         res
     }
 }
 
-impl ContractNamePascalCase {
+impl FuncParamNameMixedCase {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let rule = ContractNamePascalCase { data };
+        let rule = FuncParamNameMixedCase { data };
         Box::new(rule)
     }
 

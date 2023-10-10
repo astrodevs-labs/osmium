@@ -32,7 +32,7 @@
       ]
     },
     {
-      "id": "contract-name-pascalcase",
+      "id": "contract-name-camelcase",
       "severity": "WARNING",
       "data": []
     },

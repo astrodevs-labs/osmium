@@ -4,7 +4,7 @@
   "plugins": [],
   "rules": [
     {
-      "id": "modifier-name-mixedcase",
+      "id": "contract-name-camelcase",
       "severity": "WARNING",
       "data": []
     }

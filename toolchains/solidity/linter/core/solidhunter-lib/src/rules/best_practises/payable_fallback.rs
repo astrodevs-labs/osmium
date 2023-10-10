@@ -41,7 +41,9 @@ fn check_fallback_payable(file: &SolidFile) -> Vec<Option<Range>> {
         let functions = retrieve_functions_nodes(&contract);
 
         for function in functions {
-            if function.kind.is_fallback() || (function.kind.is_function() && function.name.is_none()) {
+            if function.kind.is_fallback()
+                || (function.kind.is_function() && function.name.is_none())
+            {
                 res = check_attribute(res, function);
             }
         }

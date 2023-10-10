@@ -1,16 +1,17 @@
+use ast_extractor::Spanned;
+
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
-use ast_extractor::Spanned;
 
-pub const RULE_ID: &str = "func-param-name-camelcase";
-const MESSAGE: &str = "Parameter name need to be in camel case";
+pub const RULE_ID: &str = "contract-name-camelcase";
+const MESSAGE: &str = "Contract name must be in CamelCase";
 
-pub struct FuncParamNameCamelcase {
+pub struct ContractNameCamelCase {
     data: RuleEntry,
 }
 
-impl FuncParamNameCamelcase {
+impl ContractNameCamelCase {
     fn create_diag(
         &self,
         location: (ast_extractor::LineColumn, ast_extractor::LineColumn),
@@ -38,34 +39,28 @@ impl FuncParamNameCamelcase {
     }
 }
 
-impl RuleType for FuncParamNameCamelcase {
+impl RuleType for ContractNameCamelCase {
     fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let contracts = ast_extractor::retriever::retrieve_contract_nodes(&file.data);
 
         for contract in contracts {
-            for function in ast_extractor::retriever::retrieve_functions_nodes(&contract) {
-                for arg in function.arguments.iter() {
-                    if let Some(name) = &arg.name {
-                        if !(name.as_string().chars().next().unwrap() >= 'a'
-                            && name.as_string().chars().next().unwrap() <= 'z')
-                            || name.as_string().contains('_')
-                            || name.as_string().contains('-')
-                        {
-                            let span = name.span();
-                            res.push(self.create_diag((span.start(), span.end()), file));
-                        }
-                    }
-                }
+            if (contract.name.as_string().chars().next().unwrap() >= 'a'
+                && contract.name.as_string().chars().next().unwrap() <= 'z')
+                || contract.name.as_string().contains('_')
+                || contract.name.as_string().contains('-')
+            {
+                let span = contract.name.span();
+                res.push(self.create_diag((span.start(), span.end()), file));
             }
         }
         res
     }
 }
 
-impl FuncParamNameCamelcase {
+impl ContractNameCamelCase {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let rule = FuncParamNameCamelcase { data };
+        let rule = ContractNameCamelCase { data };
         Box::new(rule)
     }
 

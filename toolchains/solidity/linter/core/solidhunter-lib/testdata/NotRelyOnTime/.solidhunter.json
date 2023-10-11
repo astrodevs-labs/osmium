@@ -1,12 +1,9 @@
 {
   "name": "solidhunter",
-  "includes": [],
-  "plugins": [],
   "rules": [
     {
       "id": "not-rely-on-time",
-      "severity": "WARNING",
-      "data": []
+      "severity": "WARNING"
     }
   ]
 }

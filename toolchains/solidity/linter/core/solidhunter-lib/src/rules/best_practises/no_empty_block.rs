@@ -6,22 +6,25 @@ use ast_extractor::{
     Spanned,
 };
 
-// const DEFAULT_SEVERITY: &str = "warn";
-const DEFAULT_MESSAGE: &str = "should not be an empty block";
-pub const RULE_ID: &str = "empty-block";
+// global
+pub const RULE_ID: &str = "no-empty-block";
 
-pub struct EmptyBlock {
-    _data: RuleEntry,
+// specific
+const DEFAULT_SEVERITY: Severity = Severity::WARNING;
+const DEFAULT_MESSAGE: &str = "Code contains empty blocks";
+
+pub struct NoEmptyBlock {
+    data: RuleEntry,
 }
 
-impl RuleType for EmptyBlock {
+impl RuleType for NoEmptyBlock {
     fn diagnose(&self, _file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let _reports = check_empty_block(_file);
         for report in _reports.iter().flatten() {
             res.push(LintDiag {
                 id: RULE_ID.to_string(),
-                severity: Some(Severity::WARNING),
+                severity: self.data.severity,
                 range: report.clone(),
                 code: None,
                 source: None,
@@ -71,17 +74,17 @@ fn check_empty_block(file: &SolidFile) -> Vec<Option<Range>> {
     res
 }
 
-impl EmptyBlock {
+impl NoEmptyBlock {
     pub fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let rule = EmptyBlock { _data: data };
+        let rule = NoEmptyBlock { data };
         Box::new(rule)
     }
 
     pub fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),
-            severity: Severity::WARNING,
-            data: vec![],
+            severity: DEFAULT_SEVERITY,
+            data: None,
         }
     }
 }

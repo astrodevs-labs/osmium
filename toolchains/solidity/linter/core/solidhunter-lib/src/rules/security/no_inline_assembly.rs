@@ -3,8 +3,12 @@ use crate::rules::types::*;
 use crate::types::*;
 use ast_extractor::*;
 
+// global
 pub const RULE_ID: &str = "no-inline-assembly";
-const MESSAGE: &str = "Avoid to use inline assembly. It is acceptable only in rare cases";
+
+// specific
+const DEFAULT_SEVERITY: Severity = Severity::WARNING;
+const DEFAULT_MESSAGE: &str = "Avoid to use inline assembly. It is acceptable only in rare cases";
 
 pub struct NoInlineAssembly {
     data: RuleEntry,
@@ -24,8 +28,8 @@ impl NoInlineAssembly {
                     character: location.1.column,
                 },
             },
-            message: MESSAGE.to_string(),
-            severity: Some(self.data.severity),
+            message: DEFAULT_MESSAGE.to_string(),
+            severity: self.data.severity,
             code: None,
             source: None,
             uri: file.path.clone(),
@@ -59,8 +63,8 @@ impl NoInlineAssembly {
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),
-            severity: Severity::WARNING,
-            data: vec![],
+            severity: DEFAULT_SEVERITY,
+            data: None,
         }
     }
 }

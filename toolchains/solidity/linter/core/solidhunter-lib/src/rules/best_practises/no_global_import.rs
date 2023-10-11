@@ -4,15 +4,18 @@ use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
 
-// const DEFAULT_SEVERITY: &str = "warn";
-const DEFAULT_MESSAGE: &str = "Import should not be global";
-pub const RULE_ID: &str = "global-import";
+// global
+pub const RULE_ID: &str = "no-global-import";
 
-pub struct GlobalImport {
-    _data: RuleEntry,
+// specific
+const DEFAULT_MESSAGE: &str = "Import should not be global. Specify names to import individually or bind all exports of the module into a name (import \"path\" as Name)";
+const DEFAULT_SEVERITY: Severity = Severity::WARNING;
+
+pub struct NoGlobalImport {
+    data: RuleEntry,
 }
 
-impl RuleType for GlobalImport {
+impl RuleType for NoGlobalImport {
     fn diagnose(&self, _file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
 
@@ -21,7 +24,7 @@ impl RuleType for GlobalImport {
             res.push(LintDiag {
                 id: RULE_ID.to_string(),
                 range: report,
-                severity: Some(Severity::WARNING),
+                severity: self.data.severity,
                 code: None,
                 source: None,
                 message: DEFAULT_MESSAGE.to_string(),
@@ -71,17 +74,17 @@ fn check_global_import(file: &SolidFile) -> Vec<Option<Range>> {
     reports
 }
 
-impl GlobalImport {
+impl NoGlobalImport {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let rule = GlobalImport { _data: data };
+        let rule = NoGlobalImport { data };
         Box::new(rule)
     }
 
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),
-            severity: Severity::WARNING,
-            data: vec![],
+            severity: DEFAULT_SEVERITY,
+            data: None,
         }
     }
 }

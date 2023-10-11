@@ -1,12 +1,8 @@
 {
-  "name": "solidhunter",
-  "includes": [],
-  "plugins": [],
-  "rules": [
+  "name": "solidhunter",  "rules": [
     {
       "id": "contract-name-camelcase",
-      "severity": "WARNING",
-      "data": []
+      "severity": "WARNING"
     }
   ]
 }

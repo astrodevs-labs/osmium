@@ -3,19 +3,19 @@ use crate::rules::types::*;
 use crate::types::*;
 use ast_extractor::*;
 
+// global
 pub const RULE_ID: &str = "use-forbidden-name";
+
+// specific
+const DEFAULT_SEVERITY: Severity = Severity::WARNING;
+const DEFAULT_MESSAGE: &str = "Avoid to use letters 'I', 'l', 'O' as identifiers";
 
 pub struct UseForbiddenName {
     data: RuleEntry,
 }
 
 impl UseForbiddenName {
-    fn create_diag(
-        &self,
-        file: &SolidFile,
-        location: (LineColumn, LineColumn),
-        name: &String,
-    ) -> LintDiag {
+    fn create_diag(&self, file: &SolidFile, location: (LineColumn, LineColumn)) -> LintDiag {
         LintDiag {
             id: RULE_ID.to_string(),
             range: Range {
@@ -28,8 +28,8 @@ impl UseForbiddenName {
                     character: location.1.column,
                 },
             },
-            message: format!("Forbidden variable name: {}", name),
-            severity: Some(self.data.severity),
+            message: DEFAULT_MESSAGE.to_string(),
+            severity: self.data.severity,
             code: None,
             source: None,
             uri: file.path.clone(),
@@ -56,7 +56,7 @@ impl RuleType for UseForbiddenName {
                     && blacklist.contains(&var.name.as_string().chars().next().unwrap())
                 {
                     let location = (var.name.span().start(), var.name.span().end());
-                    res.push(self.create_diag(file, location, &var.name.as_string()));
+                    res.push(self.create_diag(file, location));
                 }
             }
         }
@@ -73,8 +73,8 @@ impl UseForbiddenName {
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),
-            severity: Severity::WARNING,
-            data: vec![],
+            severity: DEFAULT_SEVERITY,
+            data: None,
         }
     }
 }

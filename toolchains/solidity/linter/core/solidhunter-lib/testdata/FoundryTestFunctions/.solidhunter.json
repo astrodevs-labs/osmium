@@ -2,11 +2,9 @@
   "name": "solidhunter",
   "rules": [
     {
-      "id": "max-states-count",
+      "id": "foundry-test-functions",
       "severity": "WARNING",
-      "data": [
-        15
-      ]
+      "data": ["setUp"]
     }
   ]
 }

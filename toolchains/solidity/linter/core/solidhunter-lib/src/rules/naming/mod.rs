@@ -1,10 +1,9 @@
 use crate::rules::naming::const_name_snakecase::ConstNameSnakeCase;
 use crate::rules::naming::contract_name_camelcase::ContractNameCamelCase;
 use crate::rules::naming::event_name_camelcase::EventNameCamelCase;
-use crate::rules::naming::foundry_func_name::FoundryFuncName;
+use crate::rules::naming::foundry_test_functions::FoundryTestFunctions;
 use crate::rules::naming::func_name_mixedcase::FuncNameMixedCase;
 use crate::rules::naming::func_param_name_mixedcase::FuncParamNameMixedCase;
-use crate::rules::naming::func_visibility::FuncVisibility;
 use crate::rules::naming::modifier_name_mixedcase::ModifierNameMixedcase;
 use crate::rules::naming::named_parameters_mapping::NamedParametersMapping;
 use crate::rules::naming::private_vars_leading_underscore::PrivateVarsLeadingUnderscore;
@@ -19,9 +18,8 @@ pub(crate) mod func_param_name_mixedcase;
 pub(crate) mod const_name_snakecase;
 pub(crate) mod contract_name_camelcase;
 pub(crate) mod event_name_camelcase;
-pub(crate) mod foundry_func_name;
+pub(crate) mod foundry_test_functions;
 pub(crate) mod func_name_mixedcase;
-pub(crate) mod func_visibility;
 pub(crate) mod modifier_name_mixedcase;
 pub(crate) mod named_parameters_mapping;
 pub(crate) mod private_vars_leading_underscore;
@@ -36,14 +34,13 @@ pub fn create_default_rules() -> Vec<RuleEntry> {
         FuncNameMixedCase::create_default(),
         FuncParamNameMixedCase::create_default(),
         UseForbiddenName::create_default(),
-        FuncVisibility::create_default(),
         EventNameCamelCase::create_default(),
         ConstNameSnakeCase::create_default(),
         PrivateVarsLeadingUnderscore::create_default(),
         VarNameMixedCase::create_default(),
         ModifierNameMixedcase::create_default(),
         NamedParametersMapping::create_default(),
-        FoundryFuncName::create_default(),
+        FoundryTestFunctions::create_default(),
     ]
 }
 
@@ -70,7 +67,6 @@ pub fn create_rules() -> RulesMap {
         use_forbidden_name::RULE_ID.to_string(),
         UseForbiddenName::create,
     );
-    rules.insert(func_visibility::RULE_ID.to_string(), FuncVisibility::create);
     rules.insert(
         event_name_camelcase::RULE_ID.to_string(),
         EventNameCamelCase::create,
@@ -92,8 +88,8 @@ pub fn create_rules() -> RulesMap {
         ModifierNameMixedcase::create,
     );
     rules.insert(
-        foundry_func_name::RULE_ID.to_string(),
-        FoundryFuncName::create,
+        foundry_test_functions::RULE_ID.to_string(),
+        FoundryTestFunctions::create,
     );
 
     rules

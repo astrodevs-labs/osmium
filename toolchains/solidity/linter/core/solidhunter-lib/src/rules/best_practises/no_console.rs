@@ -4,7 +4,10 @@ use crate::linter::SolidFile;
 use crate::rules::types::{RuleEntry, RuleType};
 use crate::types::{LintDiag, Position, Range, Severity};
 
+// global
 pub const RULE_ID: &str = "no-console";
+
+// specific
 const DEFAULT_SEVERITY: Severity = Severity::WARNING;
 
 pub struct NoConsole {
@@ -31,7 +34,7 @@ impl NoConsole {
                 },
             },
             message,
-            severity: Some(self.data.severity),
+            severity: self.data.severity,
             code: None,
             source: None,
             uri: file.path.clone(),
@@ -54,7 +57,7 @@ impl RuleType for NoConsole {
                                 let diag = self.create_diag(
                                     file,
                                     (expr_ident.span().start(), expr_ident.span().end()),
-                                    format!("{}: console.log(...) is forbidden", RULE_ID),
+                                    "Unexpected console statement".to_string(),
                                 );
                                 res.push(diag);
                             }
@@ -78,7 +81,7 @@ impl RuleType for NoConsole {
                             let diag = self.create_diag(
                                 file,
                                 (header.span().start(), header.span().end()),
-                                format!("{}: forbidden usage of console headers", RULE_ID),
+                                "Unexpected import of console file".to_string(),
                             );
                             res.push(diag);
                         }
@@ -101,7 +104,7 @@ impl NoConsole {
         RuleEntry {
             id: RULE_ID.to_string(),
             severity: DEFAULT_SEVERITY,
-            data: vec![],
+            data: None,
         }
     }
 }

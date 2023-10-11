@@ -1,12 +1,9 @@
 {
   "name": "solidhunter",
-  "includes": [],
-  "plugins": [],
   "rules": [
     {
       "id": "ordering",
-      "severity": "WARNING",
-      "data": []
+      "severity": "WARNING"
     }
   ]
 }

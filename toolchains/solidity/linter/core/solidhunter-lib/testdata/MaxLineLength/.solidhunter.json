@@ -2,11 +2,9 @@
   "name": "solidhunter",
   "rules": [
     {
-      "id": "max-states-count",
+      "id": "max-line-length",
       "severity": "WARNING",
-      "data": [
-        15
-      ]
+      "data": 80
     }
   ]
 }

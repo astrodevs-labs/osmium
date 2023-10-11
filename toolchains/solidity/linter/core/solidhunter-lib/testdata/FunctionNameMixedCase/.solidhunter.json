@@ -1,12 +1,9 @@
 {
   "name": "solidhunter",
-  "includes": [],
-  "plugins": [],
   "rules": [
     {
       "id": "func-name-mixedcase",
-      "severity": "WARNING",
-      "data": []
+      "severity": "WARNING"
     }
   ]
 }

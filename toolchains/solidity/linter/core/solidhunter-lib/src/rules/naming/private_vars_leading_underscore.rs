@@ -1,25 +1,29 @@
 use ast_extractor::Visibility::{Internal, Private};
-use ast_extractor::{Item, Spanned};
+use ast_extractor::{Item, LineColumn, Spanned};
 
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
 
+// global
 pub const RULE_ID: &str = "private-vars-leading-underscore";
-const MESSAGE_PRIVATE: &str = "Private and internal names must start with a single underscore";
-const MESSAGE_PUBLIC: &str = "Only private and internal names must start with a single underscore";
 
+// specific
+const MESSAGE_PRIVATE: &str = "Private and internal variables must start with a single underscore";
+const MESSAGE_PUBLIC: &str =
+    "Only private and internal variables must start with a single underscore";
 const DEFAULT_STRICT: bool = false;
+const DEFAULT_SEVERITY: Severity = Severity::WARNING;
 
 pub struct PrivateVarsLeadingUnderscore {
     data: RuleEntry,
-    config: serde_json::Value,
+    strict: bool,
 }
 
 impl PrivateVarsLeadingUnderscore {
     fn create_diag(
         &self,
-        location: (ast_extractor::LineColumn, ast_extractor::LineColumn),
+        location: (LineColumn, LineColumn),
         file: &SolidFile,
         message: String,
     ) -> LintDiag {
@@ -36,7 +40,7 @@ impl PrivateVarsLeadingUnderscore {
                 },
             },
             message,
-            severity: Some(self.data.severity),
+            severity: self.data.severity,
             code: None,
             source: None,
             uri: file.path.clone(),
@@ -54,7 +58,7 @@ impl RuleType for PrivateVarsLeadingUnderscore {
             let functions = ast_extractor::retriever::retrieve_functions_nodes(&contract);
 
             for function in functions {
-                if self.config["strict"].as_bool().unwrap_or(DEFAULT_STRICT) {
+                if self.strict {
                     for argument in function.arguments {
                         if let Some(name) = argument.name {
                             let leading_underscore = name.as_string().starts_with('_');
@@ -151,30 +155,26 @@ impl PrivateVarsLeadingUnderscore {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
         let mut strict = DEFAULT_STRICT;
 
-        if !data.data.is_empty() {
-            if let Some(val) = data.data[0].as_object() {
-                if let Some(val) = val["strict"].as_bool() {
-                    strict = val;
-                }
+        if let Some(data) = &data.data {
+            if !data["strict"].is_null() && data["strict"].as_bool().is_some() {
+                strict = data["strict"].as_bool().unwrap();
+            } else {
+                eprintln!("{} rule : bad config data", RULE_ID);
             }
+        } else {
+            eprintln!("{} rule : bad config data", RULE_ID);
         }
-
-        let rule = PrivateVarsLeadingUnderscore {
-            data,
-            config: serde_json::json!({
-                "strict": strict,
-            }),
-        };
+        let rule = PrivateVarsLeadingUnderscore { strict, data };
         Box::new(rule)
     }
 
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),
-            severity: Severity::WARNING,
-            data: vec![serde_json::json!({
+            severity: DEFAULT_SEVERITY,
+            data: Some(serde_json::json!({
                 "strict": DEFAULT_STRICT,
-            })],
+            })),
         }
     }
 }

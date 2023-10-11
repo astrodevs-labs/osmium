@@ -1,12 +1,8 @@
 {
-  "name": "solidhunter",
-  "includes": [],
-  "plugins": [],
-  "rules": [
+  "name": "solidhunter",  "rules": [
     {
       "id": "var-name-mixedcase",
-      "severity": "WARNING",
-      "data": []
+      "severity": "WARNING"
     }
   ]
 }

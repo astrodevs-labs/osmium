@@ -3,8 +3,12 @@ use crate::rules::types::*;
 use crate::types::*;
 use ast_extractor::*;
 
+// global
 pub const RULE_ID: &str = "avoid-tx-origin";
-const MESSAGE: &str = "Avoid to use tx.origin";
+
+// specific
+const DEFAULT_MESSAGE: &str = "Avoid to use tx.origin";
+const DEFAULT_SEVERITY: Severity = Severity::WARNING;
 
 struct ExprVisitor {
     exprs: Vec<ExprMember>,
@@ -12,14 +16,12 @@ struct ExprVisitor {
 
 impl ExprVisitor {
     pub fn new() -> Self {
-        Self {
-            exprs: Vec::new(),
-        }
+        Self { exprs: Vec::new() }
     }
 }
 
 impl<'ast> Visit<'ast> for ExprVisitor {
-    fn visit_expr_member(&mut self,i: &'ast ExprMember) {
+    fn visit_expr_member(&mut self, i: &'ast ExprMember) {
         self.exprs.push(i.clone());
         visit::visit_expr_member(self, i);
     }
@@ -30,11 +32,7 @@ pub struct AvoidTxOrigin {
 }
 
 impl AvoidTxOrigin {
-    fn create_diag(
-        &self,
-        location: (LineColumn, LineColumn),
-        file: &SolidFile,
-    ) -> LintDiag {
+    fn create_diag(&self, location: (LineColumn, LineColumn), file: &SolidFile) -> LintDiag {
         LintDiag {
             id: RULE_ID.to_string(),
             range: Range {
@@ -47,8 +45,8 @@ impl AvoidTxOrigin {
                     character: location.1.column,
                 },
             },
-            message: MESSAGE.to_string(),
-            severity: Some(self.data.severity),
+            message: DEFAULT_MESSAGE.to_string(),
+            severity: self.data.severity,
             code: None,
             source: None,
             uri: file.path.clone(),
@@ -88,8 +86,8 @@ impl AvoidTxOrigin {
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),
-            severity: Severity::WARNING,
-            data: vec![],
+            severity: DEFAULT_SEVERITY,
+            data: None,
         }
     }
 }

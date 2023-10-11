@@ -1,19 +1,19 @@
-use ast_extractor::{Spanned, FunctionBody};
+use ast_extractor::{FunctionBody, Spanned};
 
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
 
-// const DEFAULT_SEVERITY: &str = "warn";
-const DEFAULT_MESSAGE: &str = "Function contains too much lines";
+// global
 pub const RULE_ID: &str = "function-max-lines";
 
 // specific
-pub const DEFAULT_MAX_LINES: usize = 20;
+const DEFAULT_SEVERITY: Severity = Severity::WARNING;
+const DEFAULT_MAX_LINES: usize = 50;
 
 pub struct FunctionMaxLines {
     number_max_lines: usize,
-    _data: RuleEntry,
+    data: RuleEntry,
 }
 
 impl RuleType for FunctionMaxLines {
@@ -24,13 +24,20 @@ impl RuleType for FunctionMaxLines {
             for function in ast_extractor::retriever::retrieve_functions_nodes(&contract) {
                 let report = check_function_lines(&function, self.number_max_lines);
                 if let Some(report) = report {
+                    let start = report.start.line;
+                    let end = report.end.line;
+
                     res.push(LintDiag {
                         id: RULE_ID.to_string(),
                         range: report,
-                        severity: Some(Severity::WARNING),
+                        severity: self.data.severity,
                         code: None,
                         source: None,
-                        message: DEFAULT_MESSAGE.to_string(),
+                        message: format!(
+                            "Function body contains {} lines but allowed no more than {} lines",
+                            end - start,
+                            self.number_max_lines
+                        ),
                         uri: _file.path.clone(),
                         source_file_content: _file.content.clone(),
                     });
@@ -60,7 +67,7 @@ fn check_function_lines(
                     line: end_span.line,
                     character: end_span.column,
                 },
-            })
+            });
         }
     }
     None
@@ -70,15 +77,20 @@ impl FunctionMaxLines {
     pub fn create(data: RuleEntry) -> Box<dyn RuleType> {
         let mut max_number_lines = DEFAULT_MAX_LINES;
 
-        if !data.data.is_empty() {
-            max_number_lines = match data.data[0].as_u64() {
-                Some(v) => v as usize,
-                None => DEFAULT_MAX_LINES,
-            };
+        if let Some(data) = &data.data {
+            let parsed: Result<usize, serde_json::Error> = serde_json::from_value(data.clone());
+            match parsed {
+                Ok(val) => max_number_lines = val,
+                Err(_) => {
+                    eprintln!("{} rule : bad config data", RULE_ID);
+                }
+            }
+        } else {
+            eprintln!("{} rule : bad config data", RULE_ID);
         }
         let rule = FunctionMaxLines {
             number_max_lines: max_number_lines,
-            _data: data,
+            data,
         };
         Box::new(rule)
     }
@@ -86,8 +98,8 @@ impl FunctionMaxLines {
     pub fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),
-            severity: Severity::WARNING,
-            data: vec![serde_json::Value::String(DEFAULT_MAX_LINES.to_string())],
+            severity: DEFAULT_SEVERITY,
+            data: Some(DEFAULT_MAX_LINES.into()),
         }
     }
 }

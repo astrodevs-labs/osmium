@@ -3,7 +3,11 @@ use crate::rules::types::*;
 use crate::types::*;
 use ast_extractor::*;
 
+// global
 pub const RULE_ID: &str = "named-parameters-mapping";
+
+// specific
+const DEFAULT_SEVERITY: Severity = Severity::WARNING;
 
 pub struct NamedParametersMapping {
     data: RuleEntry,
@@ -50,7 +54,7 @@ impl NamedParametersMapping {
                 },
             },
             message: message.to_string(),
-            severity: Some(self.data.severity),
+            severity: self.data.severity,
             code: None,
             source: None,
             uri: file.path.clone(),
@@ -98,8 +102,8 @@ impl NamedParametersMapping {
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),
-            severity: Severity::WARNING,
-            data: vec![],
+            severity: DEFAULT_SEVERITY,
+            data: None,
         }
     }
 }

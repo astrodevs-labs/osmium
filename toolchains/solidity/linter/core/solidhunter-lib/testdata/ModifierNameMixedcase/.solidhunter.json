@@ -1,7 +1,5 @@
 {
   "name": "solidhunter",
-  "includes": [],
-  "plugins": [],
   "rules": [
     {
       "id": "modifier-name-mixedcase",

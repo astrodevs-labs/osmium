@@ -2,11 +2,17 @@ use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
 use ast_extractor::*;
-use serde_json::Value;
 
+// TODO test output
+
+// global
 pub const RULE_ID: &str = "explicit-types";
 
+// specific
 const DEFAULT_RULE: &str = "explicit";
+const DEFAULT_SEVERITY: Severity = Severity::WARNING;
+const EXPLICIT_TYPES: &[&str] = &["uint256", "int256", "uint8", "int8", "uint16", "int16", "uint32", "int32", "uint64", "int64", "uint128", "int128"];
+const IMPLICIT_TYPES: &[&str] = &["uint", "int"];
 
 pub struct ExplicitTypes {
     rule: String,
@@ -14,38 +20,52 @@ pub struct ExplicitTypes {
 }
 
 pub struct ExplicitTypesVisitor {
-    type_names: Vec<Type>,
-    type_inits: Vec<SolIdent>,
+    explicit: bool,
+    defs: Vec<VariableDefinition>,
+    decls: Vec<VariableDeclaration>,
+    types: Vec<Type>
 }
 
 impl<'ast> Visit<'ast> for ExplicitTypesVisitor {
-    fn visit_type(&mut self, ty: &'ast Type) {
-        match ty {
-            Type::Int(_, _) => {
-                self.type_names.push(ty.clone());
-            }
-            Type::Uint(_, _) => {
-                self.type_names.push(ty.clone());
-            }
-            _ => visit::visit_type(self, ty),
-        }
-    }
 
     fn visit_variable_definition(&mut self, var: &'ast VariableDefinition) {
         if let Some((_, expr)) = &var.initializer {
             visit::visit_expr(self, expr);
         }
-        visit::visit_variable_definition(self, var);
+        if self.is_type_match(&var.ty) {
+            self.defs.push(var.clone())
+        }
+    }
+
+    fn visit_variable_declaration(&mut self,var: &'ast VariableDeclaration) {
+        if self.is_type_match(&var.ty) {
+            self.decls.push(var.clone())
+        }
+    }
+
+    fn visit_type(&mut self,ty: &'ast Type) {
+        if self.is_type_match(ty) {
+            self.types.push(ty.clone());
+        }
+    }
+}
+
+impl ExplicitTypesVisitor {
+    fn is_type_match(&self, ty: &Type) -> bool {
+        if self.explicit {
+            IMPLICIT_TYPES.iter().any(|typ| {
+                ty.to_string() == *typ
+            })
+        } else {
+            EXPLICIT_TYPES.iter().any(|typ| {
+                ty.to_string() == *typ
+            })
+        }
     }
 }
 
 impl ExplicitTypes {
-    fn create_diag(&self, file: &SolidFile, ty: Box<dyn Spanned>, line: &str) -> LintDiag {
-        let rule_formated = match self.rule.as_str() {
-            "explicit" => "Explicit",
-            "implicit" => "Implicit",
-            _ => "Explicit",
-        };
+    fn create_diag(&self, file: &SolidFile, ty: Box<dyn Spanned>, var: Option<String>) -> LintDiag {
         LintDiag {
             range: Range {
                 start: Position {
@@ -58,22 +78,13 @@ impl ExplicitTypes {
                 },
             },
             id: RULE_ID.to_string(),
-            message: format!("{} types are not allowed: {}", rule_formated, line.len()),
-            severity: Some(self.data.severity),
+            message: format!("Rule is set with {} type [var/s: {}]", self.rule, var.unwrap_or("\"\"".to_string())),
+            severity: self.data.severity,
             code: None,
             source: None,
             uri: file.path.clone(),
             source_file_content: file.content.clone(),
         }
-    }
-
-    fn _check_type(&self, ty: &str, file: &SolidFile, span: Box<dyn Spanned>) -> Option<LintDiag> {
-        if (self.rule == "explicit" && (ty == "int" || ty == "uint"))
-            || (self.rule == "implicit" && (ty != "int" && ty != "uint"))
-        {
-            return Some(self.create_diag(file, span, ty));
-        }
-        None
     }
 }
 
@@ -81,19 +92,24 @@ impl RuleType for ExplicitTypes {
     fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let mut visitor = ExplicitTypesVisitor {
-            type_names: vec![],
-            type_inits: vec![],
+            explicit: self.rule == "explicit",
+            defs: vec![],
+            decls: vec![],
+            types: vec![]
         };
         visitor.visit_file(&file.data);
-        for ty in visitor.type_names {
-            if let Some(diag) = self._check_type(&ty.to_string(), file, Box::new(ty.clone())) {
-                res.push(diag);
-            }
+        for def in visitor.defs {
+            res.push(self.create_diag(file, Box::new(def.ty), Some(def.name.0.to_string())));
         }
-        for ty in visitor.type_inits {
-            if let Some(diag) = self._check_type(&ty.to_string(), file, Box::new(ty.clone())) {
-                res.push(diag);
-            }
+        for decl in visitor.decls {
+            let name = match decl.name {
+                Some(ident) => Some(ident.0.to_string()),
+                _ => None
+            };
+            res.push(self.create_diag(file, Box::new(decl.ty), name));
+        }
+        for ty in visitor.types {
+            res.push(self.create_diag(file, Box::new(ty), None));
         }
         res
     }
@@ -101,16 +117,23 @@ impl RuleType for ExplicitTypes {
 
 impl ExplicitTypes {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let value = if !data.data.is_empty() {
-            match &data.data[0] {
-                Value::String(val) => val.as_str(),
-                _ => DEFAULT_RULE,
+        let mut value = DEFAULT_RULE.to_string();
+
+        if let Some(data) = &data.data {
+        let parsed: Result<String, serde_json::Error> = serde_json::from_value(data.clone());
+        match parsed {
+            Ok(val) => {
+                value = val
+            },
+            Err(_) => {
+                eprintln!("{} rule : bad config data", RULE_ID);
             }
+        }
         } else {
-            DEFAULT_RULE
-        };
+            eprintln!("{} rule : bad config data", RULE_ID);
+        }
         let rule = ExplicitTypes {
-            rule: value.to_string(),
+            rule: value,
             data,
         };
         Box::new(rule)
@@ -119,8 +142,8 @@ impl ExplicitTypes {
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),
-            severity: Severity::WARNING,
-            data: vec![serde_json::Value::String(DEFAULT_RULE.to_string())],
+            severity: DEFAULT_SEVERITY,
+            data: Some(DEFAULT_RULE.into()),
         }
     }
 }

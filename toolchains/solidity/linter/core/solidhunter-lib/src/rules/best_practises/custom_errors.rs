@@ -3,7 +3,11 @@ use crate::rules::types::*;
 use crate::types::*;
 use ast_extractor::*;
 
+// global
 pub const RULE_ID: &str = "custom-errors";
+
+// specific
+const DEFAULT_SEVERITY: Severity = Severity::WARNING;
 
 pub struct CustomErrors {
     data: RuleEntry,
@@ -29,7 +33,7 @@ impl CustomErrors {
                 },
             },
             message: format!("Use Custom Errors instead of {} statements", diag_type),
-            severity: Some(self.data.severity),
+            severity: self.data.severity,
             code: None,
             source: None,
             uri: file.path.clone(),
@@ -75,8 +79,8 @@ impl CustomErrors {
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),
-            severity: Severity::WARNING,
-            data: vec![],
+            severity: DEFAULT_SEVERITY,
+            data: None,
         }
     }
 }

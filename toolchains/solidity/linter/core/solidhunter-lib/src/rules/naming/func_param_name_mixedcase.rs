@@ -1,21 +1,21 @@
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
-use ast_extractor::Spanned;
+use ast_extractor::{LineColumn, Spanned};
 
+// global
 pub const RULE_ID: &str = "func-param-name-mixedcase";
-const MESSAGE: &str = "Function param name must be in mixedCase";
+
+// specific
+const DEFAULT_SEVERITY: Severity = Severity::WARNING;
+const DEFAULT_MESSAGE: &str = "Function param name must be in mixedCase";
 
 pub struct FuncParamNameMixedCase {
     data: RuleEntry,
 }
 
 impl FuncParamNameMixedCase {
-    fn create_diag(
-        &self,
-        location: (ast_extractor::LineColumn, ast_extractor::LineColumn),
-        file: &SolidFile,
-    ) -> LintDiag {
+    fn create_diag(&self, location: (LineColumn, LineColumn), file: &SolidFile) -> LintDiag {
         LintDiag {
             id: RULE_ID.to_string(),
             range: Range {
@@ -28,8 +28,8 @@ impl FuncParamNameMixedCase {
                     character: location.1.column,
                 },
             },
-            message: MESSAGE.to_string(),
-            severity: Some(self.data.severity),
+            message: DEFAULT_MESSAGE.to_string(),
+            severity: self.data.severity,
             code: None,
             source: None,
             uri: file.path.clone(),
@@ -72,8 +72,8 @@ impl FuncParamNameMixedCase {
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),
-            severity: Severity::WARNING,
-            data: vec![],
+            severity: DEFAULT_SEVERITY,
+            data: None,
         }
     }
 }

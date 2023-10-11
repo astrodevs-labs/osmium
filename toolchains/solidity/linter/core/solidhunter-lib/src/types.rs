@@ -10,10 +10,8 @@ pub struct LintDiag {
     /// The range at which the message applies.
     pub range: Range,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// The diagnostic's severity. Can be omitted. If omitted it is up to the
-    /// client to interpret diagnostics as error, warning, info or hint.
-    pub severity: Option<Severity>,
+    /// The diagnostic's severity.
+    pub severity: Severity,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The diagnostic's code. Can be omitted.
@@ -82,8 +80,7 @@ impl LintDiag {
             } else if line_nb == self.range.start.line {
                 higlight_length = trimmed_line.len() - (self.range.start.character - offset);
             } else if line_nb == self.range.end.line {
-                higlight_length = trimmed_line.len()
-                    - (self.range.end.character - offset) + 1;
+                higlight_length = trimmed_line.len() - (self.range.end.character - offset) + 1;
             }
 
             formatted = format!(
@@ -109,7 +106,7 @@ impl fmt::Display for LintDiag {
         write!(
             f,
             "\n{}: {}\n  --> {}:{}:{}\n   |\n{}",
-            severity_to_string(self.severity),
+            self.severity,
             self.message,
             self.uri,
             self.range.start.line,
@@ -123,15 +120,16 @@ impl fmt::Display for LintDiag {
 /////////////////// RELATED TYPES: /////////////////////////
 ////////////////////////////////////////////////////////////
 
-fn severity_to_string(severity: Option<Severity>) -> String {
-    match severity {
-        Some(Severity::ERROR) => "error".to_string().red(),
-        Some(Severity::WARNING) => "warning".to_string().yellow(),
-        Some(Severity::INFO) => "info".to_string().blue(),
-        Some(Severity::HINT) => "hint".to_string().green(),
-        _ => "error".to_string().red(),
+impl fmt::Display for Severity {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let severity = match self {
+            Severity::ERROR => "error".to_string().red(),
+            Severity::WARNING => "warning".to_string().yellow(),
+            Severity::INFO => "info".to_string().blue(),
+            Severity::HINT => "hint".to_string().green(),
+        };
+        write!(f, "{}", severity)
     }
-    .to_string()
 }
 
 impl PartialEq for Position {

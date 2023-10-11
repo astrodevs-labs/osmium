@@ -5,11 +5,15 @@ use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
 
-const DEFAULT_MESSAGE: &str = "Fallback should contains payable attributes";
+// global
 pub const RULE_ID: &str = "payable-fallback";
 
+// specific
+const DEFAULT_SEVERITY: Severity = Severity::WARNING;
+const DEFAULT_MESSAGE: &str = "When fallback is not payable you will not be able to receive ether";
+
 pub struct PayableFallback {
-    _data: RuleEntry,
+    data: RuleEntry,
 }
 
 impl RuleType for PayableFallback {
@@ -20,7 +24,7 @@ impl RuleType for PayableFallback {
         for report in reports.into_iter().flatten() {
             res.push(LintDiag {
                 id: RULE_ID.to_string(),
-                severity: Some(Severity::WARNING),
+                severity: self.data.severity,
                 range: report,
                 code: None,
                 source: None,
@@ -81,15 +85,15 @@ fn create_report(function: ItemFunction) -> Option<Range> {
 
 impl PayableFallback {
     pub fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let rule = PayableFallback { _data: data };
+        let rule = PayableFallback { data };
         Box::new(rule)
     }
 
     pub fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),
-            severity: Severity::WARNING,
-            data: vec![],
+            severity: DEFAULT_SEVERITY,
+            data: None,
         }
     }
 }

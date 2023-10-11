@@ -1,12 +1,8 @@
 {
-  "name": "solidhunter",
-  "includes": [],
-  "plugins": [],
-  "rules": [
+  "name": "solidhunter",  "rules": [
     {
       "id": "avoid-tx-origin",
-      "severity": "WARNING",
-      "data": []
+      "severity": "WARNING"
     }
   ]
 }

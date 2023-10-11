@@ -1,7 +1,6 @@
 use crate::errors::SolidHunterError;
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
-use std::cmp::min;
 use std::fmt;
 
 pub type LintResult = Result<Vec<LintDiag>, SolidHunterError>;

@@ -1,7 +1,7 @@
 {
   "name": "solidhunter",  "rules": [
     {
-      "id": "var-name-mixedcase",
+      "id": "contract-name-camelcase",
       "severity": "WARNING"
     }
   ]

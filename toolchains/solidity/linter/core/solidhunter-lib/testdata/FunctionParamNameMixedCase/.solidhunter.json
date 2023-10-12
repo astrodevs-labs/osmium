@@ -2,7 +2,7 @@
   "name": "solidhunter",
   "rules": [
     {
-      "id": "no-inline-assembly",
+      "id": "func-param-name-mixedcase",
       "severity": "WARNING"
     }
   ]

@@ -6,8 +6,12 @@ use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
 
+// global
 pub const RULE_ID: &str = "ordering";
-const MESSAGE: &str = "Import must be on top in the file";
+
+// specific
+const DEFAULT_SEVERITY: Severity = Severity::WARNING;
+const DEFAULT_MESSAGE: &str = "Invalid ordering of items in the file";
 
 struct OrderingVisitor {
     file: SolidFile,
@@ -24,10 +28,18 @@ impl OrderingVisitor {
     fn new(file: SolidFile, data: RuleEntry) -> OrderingVisitor {
         let authorized_file_items: HashMap<FileItemType, Vec<Option<FileItemType>>> = [
             (FileItemType::Pragma, vec![None]),
-            (FileItemType::Import, vec![None, Some(FileItemType::Pragma)]),
+            (
+                FileItemType::Import,
+                vec![None, Some(FileItemType::Pragma), Some(FileItemType::Import)],
+            ),
             (
                 FileItemType::Enum,
-                vec![None, Some(FileItemType::Pragma), Some(FileItemType::Import)],
+                vec![
+                    None,
+                    Some(FileItemType::Pragma),
+                    Some(FileItemType::Import),
+                    Some(FileItemType::Enum),
+                ],
             ),
             (
                 FileItemType::Struct,
@@ -36,6 +48,7 @@ impl OrderingVisitor {
                     Some(FileItemType::Pragma),
                     Some(FileItemType::Import),
                     Some(FileItemType::Enum),
+                    Some(FileItemType::Struct),
                 ],
             ),
             (
@@ -46,6 +59,7 @@ impl OrderingVisitor {
                     Some(FileItemType::Import),
                     Some(FileItemType::Enum),
                     Some(FileItemType::Struct),
+                    Some(FileItemType::ContractInterface),
                 ],
             ),
             (
@@ -57,6 +71,7 @@ impl OrderingVisitor {
                     Some(FileItemType::Enum),
                     Some(FileItemType::Struct),
                     Some(FileItemType::ContractInterface),
+                    Some(FileItemType::ContractLibrary),
                 ],
             ),
             (
@@ -69,6 +84,7 @@ impl OrderingVisitor {
                     Some(FileItemType::Struct),
                     Some(FileItemType::ContractInterface),
                     Some(FileItemType::ContractLibrary),
+                    Some(FileItemType::Contract),
                 ],
             ),
         ]
@@ -77,10 +93,17 @@ impl OrderingVisitor {
         .collect();
 
         let authorized_contract_items: HashMap<ContractItemType, Vec<Option<ContractItemType>>> = [
-            (ContractItemType::Udt, vec![None]),
+            (
+                ContractItemType::Udt,
+                vec![None, Some(ContractItemType::Udt)],
+            ),
             (
                 ContractItemType::Struct,
-                vec![None, Some(ContractItemType::Udt)],
+                vec![
+                    None,
+                    Some(ContractItemType::Udt),
+                    Some(ContractItemType::Struct),
+                ],
             ),
             (
                 ContractItemType::Enum,
@@ -88,6 +111,7 @@ impl OrderingVisitor {
                     None,
                     Some(ContractItemType::Udt),
                     Some(ContractItemType::Struct),
+                    Some(ContractItemType::Enum),
                 ],
             ),
             (
@@ -97,6 +121,7 @@ impl OrderingVisitor {
                     Some(ContractItemType::Udt),
                     Some(ContractItemType::Struct),
                     Some(ContractItemType::Enum),
+                    Some(ContractItemType::Property),
                 ],
             ),
             (
@@ -107,6 +132,7 @@ impl OrderingVisitor {
                     Some(ContractItemType::Struct),
                     Some(ContractItemType::Enum),
                     Some(ContractItemType::Property),
+                    Some(ContractItemType::Event),
                 ],
             ),
             (
@@ -118,6 +144,7 @@ impl OrderingVisitor {
                     Some(ContractItemType::Enum),
                     Some(ContractItemType::Property),
                     Some(ContractItemType::Event),
+                    Some(ContractItemType::Modifier),
                 ],
             ),
             (
@@ -172,6 +199,7 @@ impl OrderingVisitor {
                     Some(ContractItemType::Constructor),
                     Some(ContractItemType::Receive),
                     Some(ContractItemType::FallBack),
+                    Some(ContractItemType::ExternalFunction),
                 ],
             ),
             (
@@ -188,6 +216,7 @@ impl OrderingVisitor {
                     Some(ContractItemType::Receive),
                     Some(ContractItemType::FallBack),
                     Some(ContractItemType::ExternalFunction),
+                    Some(ContractItemType::PublicFunction),
                 ],
             ),
             (
@@ -205,6 +234,7 @@ impl OrderingVisitor {
                     Some(ContractItemType::FallBack),
                     Some(ContractItemType::ExternalFunction),
                     Some(ContractItemType::PublicFunction),
+                    Some(ContractItemType::InternalFunction),
                 ],
             ),
             (
@@ -223,6 +253,7 @@ impl OrderingVisitor {
                     Some(ContractItemType::ExternalFunction),
                     Some(ContractItemType::PublicFunction),
                     Some(ContractItemType::InternalFunction),
+                    Some(ContractItemType::PrivateFunction),
                 ],
             ),
         ]
@@ -259,8 +290,8 @@ impl OrderingVisitor {
         LintDiag {
             id: RULE_ID.to_string(),
             range,
-            message: MESSAGE.to_string(),
-            severity: Some(self.data.severity),
+            message: DEFAULT_MESSAGE.to_string(),
+            severity: self.data.severity,
             code: None,
             source: None,
             uri: file.path.clone(),
@@ -471,8 +502,8 @@ impl Ordering {
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),
-            severity: Severity::WARNING,
-            data: vec![],
+            severity: DEFAULT_SEVERITY,
+            data: None,
         }
     }
 }

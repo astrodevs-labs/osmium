@@ -8,14 +8,13 @@ use std::collections::HashMap;
 pub struct RuleEntry {
     pub id: String,
     pub severity: Severity,
-    pub data: Vec<Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub data: Option<Value>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Rules {
     pub name: String,
-    pub includes: Vec<String>,
-    pub plugins: Vec<String>,
     pub rules: Vec<RuleEntry>,
 }
 

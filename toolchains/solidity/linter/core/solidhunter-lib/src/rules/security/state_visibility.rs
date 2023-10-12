@@ -3,19 +3,19 @@ use crate::rules::types::*;
 use crate::types::*;
 use ast_extractor::*;
 
+// global
 pub const RULE_ID: &str = "state-visibility";
-const MESSAGE: &str = "Explicitly mark visibility of state";
+
+// specific
+const DEFAULT_SEVERITY: Severity = Severity::WARNING;
+const DEFAULT_MESSAGE: &str = "Explicitly mark visibility of state";
 
 pub struct StateVisibility {
     data: RuleEntry,
 }
 
 impl StateVisibility {
-    fn create_diag(
-        &self,
-        location: (ast_extractor::LineColumn, ast_extractor::LineColumn),
-        file: &SolidFile,
-    ) -> LintDiag {
+    fn create_diag(&self, location: (LineColumn, LineColumn), file: &SolidFile) -> LintDiag {
         LintDiag {
             id: RULE_ID.to_string(),
             range: Range {
@@ -28,8 +28,8 @@ impl StateVisibility {
                     character: location.1.column,
                 },
             },
-            message: MESSAGE.to_string(),
-            severity: Some(self.data.severity),
+            message: DEFAULT_MESSAGE.to_string(),
+            severity: self.data.severity,
             code: None,
             source: None,
             uri: file.path.clone(),
@@ -66,8 +66,8 @@ impl StateVisibility {
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),
-            severity: Severity::WARNING,
-            data: vec![],
+            severity: DEFAULT_SEVERITY,
+            data: None,
         }
     }
 }

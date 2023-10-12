@@ -23,19 +23,17 @@ pub struct SolidLinter {
 
 impl Default for SolidLinter {
     fn default() -> Self {
-        SolidLinter::new(".solidhunter.json")
+        SolidLinter::new()
     }
 }
 
 impl SolidLinter {
-    pub fn new(rules_config: &str) -> Self {
-        let mut linter = SolidLinter {
+    pub fn new() -> Self {
+        SolidLinter {
             files: Vec::new(),
             rule_factory: RuleFactory::default(),
             rules: vec![],
-        };
-        linter._create_rules(rules_config).unwrap();
-        linter
+        }
     }
 
     pub fn new_fileless() -> Self {
@@ -53,7 +51,7 @@ impl SolidLinter {
         linter
     }
 
-    fn _create_rules(&mut self, rules_config: &str) -> Result<(), SolidHunterError> {
+    pub fn initialize_rules(&mut self, rules_config: &str) -> Result<(), SolidHunterError> {
         let res = parse_rules(rules_config)?;
         for rule in res.rules {
             self.rules.push(self.rule_factory.create_rule(rule));

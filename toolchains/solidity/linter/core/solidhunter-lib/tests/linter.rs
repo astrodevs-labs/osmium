@@ -50,7 +50,8 @@ fn test_directory(base_name: &str) {
 }
 
 fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>) {
-    let mut linter: SolidLinter = SolidLinter::new(&String::from(config));
+    let mut linter: SolidLinter = SolidLinter::new();
+    let _ = linter.initialize_rules(&String::from(config));
 
     let result = linter.parse_file(String::from(source));
     let mut found_findings: Vec<&Finding> = Vec::new();
@@ -140,13 +141,13 @@ macro_rules! test_directories {
 }
 
 test_directories! {
-    ContractNamePascalCase,
+    ContractNameCamelCase,
     FunctionMaxLines,
     ImportOnTop,
-    LineMaxLen,
+    MaxLineLength,
     MaxStatesCount,
-    FunctionNameCamelCase,
-    FunctionParamNameCamelCase,
+    FunctionNameMixedCase,
+    FunctionParamNameMixedCase,
     UseForbiddenName,
     ReasonString,
     NoInlineAssembly,
@@ -156,7 +157,7 @@ test_directories! {
     EventNameCamelCase,
     ConstNameSnakeCase,
     StateVisibility,
-    EmptyBlock,
+    NoEmptyBlock,
     NoConsole,
     ExplicitTypes,
     ImplicitTypes,
@@ -164,9 +165,11 @@ test_directories! {
     VisibilityModifierOrder,
     VarNameMixedCase,
     ModifierNameMixedcase,
-    GlobalImport,
+    NoGlobalImport,
     NotRelyOnTime,
     NamedParametersMapping,
     Ordering,
-    PrivateVarsLeadingUnderscore
+    PrivateVarsLeadingUnderscore,
+    FoundryTestFunctions,
+    AvoidTxOrigin,
 }

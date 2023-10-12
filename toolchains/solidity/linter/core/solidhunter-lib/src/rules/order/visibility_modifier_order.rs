@@ -5,12 +5,15 @@ use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
 
-// const DEFAULT_SEVERITY: &str = "warn";
-const DEFAULT_MESSAGE: &str = "Visibility modifier not placed first";
+// global
 pub const RULE_ID: &str = "visibility-modifier-order";
 
+// specific
+const DEFAULT_SEVERITY: Severity = Severity::WARNING;
+const DEFAULT_MESSAGE: &str = "Visibility modifier must be first in list of modifiers";
+
 pub struct VisibilityModiferOrder {
-    _data: RuleEntry,
+    data: RuleEntry,
 }
 
 impl RuleType for VisibilityModiferOrder {
@@ -22,7 +25,7 @@ impl RuleType for VisibilityModiferOrder {
             res.push(LintDiag {
                 id: RULE_ID.to_string(),
                 range: report,
-                severity: Some(Severity::WARNING),
+                severity: self.data.severity,
                 code: None,
                 source: None,
                 message: DEFAULT_MESSAGE.to_string(),
@@ -30,7 +33,6 @@ impl RuleType for VisibilityModiferOrder {
                 source_file_content: _file.content.clone(),
             });
         }
-        println!("res {:?}", res);
         res
     }
 }
@@ -67,15 +69,15 @@ fn check_visibility_modifier_order(file: &SolidFile) -> Vec<Range> {
 
 impl VisibilityModiferOrder {
     pub fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let rule = VisibilityModiferOrder { _data: data };
+        let rule = VisibilityModiferOrder { data };
         Box::new(rule)
     }
 
     pub fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),
-            severity: Severity::WARNING,
-            data: vec![],
+            severity: DEFAULT_SEVERITY,
+            data: None,
         }
     }
 }

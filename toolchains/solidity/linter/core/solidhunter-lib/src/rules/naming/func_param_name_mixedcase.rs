@@ -1,21 +1,21 @@
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
-use ast_extractor::Spanned;
+use ast_extractor::{LineColumn, Spanned};
 
-pub const RULE_ID: &str = "func-param-name-camelcase";
-const MESSAGE: &str = "Parameter name need to be in camel case";
+// global
+pub const RULE_ID: &str = "func-param-name-mixedcase";
 
-pub struct FuncParamNameCamelcase {
+// specific
+const DEFAULT_SEVERITY: Severity = Severity::WARNING;
+const DEFAULT_MESSAGE: &str = "Function param name must be in mixedCase";
+
+pub struct FuncParamNameMixedCase {
     data: RuleEntry,
 }
 
-impl FuncParamNameCamelcase {
-    fn create_diag(
-        &self,
-        location: (ast_extractor::LineColumn, ast_extractor::LineColumn),
-        file: &SolidFile,
-    ) -> LintDiag {
+impl FuncParamNameMixedCase {
+    fn create_diag(&self, location: (LineColumn, LineColumn), file: &SolidFile) -> LintDiag {
         LintDiag {
             id: RULE_ID.to_string(),
             range: Range {
@@ -28,8 +28,8 @@ impl FuncParamNameCamelcase {
                     character: location.1.column,
                 },
             },
-            message: MESSAGE.to_string(),
-            severity: Some(self.data.severity),
+            message: DEFAULT_MESSAGE.to_string(),
+            severity: self.data.severity,
             code: None,
             source: None,
             uri: file.path.clone(),
@@ -38,7 +38,7 @@ impl FuncParamNameCamelcase {
     }
 }
 
-impl RuleType for FuncParamNameCamelcase {
+impl RuleType for FuncParamNameMixedCase {
     fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let contracts = ast_extractor::retriever::retrieve_contract_nodes(&file.data);
@@ -63,17 +63,17 @@ impl RuleType for FuncParamNameCamelcase {
     }
 }
 
-impl FuncParamNameCamelcase {
+impl FuncParamNameMixedCase {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let rule = FuncParamNameCamelcase { data };
+        let rule = FuncParamNameMixedCase { data };
         Box::new(rule)
     }
 
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),
-            severity: Severity::WARNING,
-            data: vec![],
+            severity: DEFAULT_SEVERITY,
+            data: None,
         }
     }
 }

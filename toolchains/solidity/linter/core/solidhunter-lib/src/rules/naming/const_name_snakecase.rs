@@ -1,22 +1,22 @@
-use ast_extractor::{retriever, Item, Spanned};
+use ast_extractor::{retriever, Item, LineColumn, Spanned};
 
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
 
+// global
 pub const RULE_ID: &str = "const-name-snakecase";
-const MESSAGE: &str = "Constant name must be in capitalized SNAKE_CASE";
+
+// specific
+const DEFAULT_SEVERITY: Severity = Severity::WARNING;
+const DEFAULT_MESSAGE: &str = "Constant name must be in capitalized SNAKE_CASE";
 
 pub struct ConstNameSnakeCase {
     data: RuleEntry,
 }
 
 impl ConstNameSnakeCase {
-    fn create_diag(
-        &self,
-        location: (ast_extractor::LineColumn, ast_extractor::LineColumn),
-        file: &SolidFile,
-    ) -> LintDiag {
+    fn create_diag(&self, location: (LineColumn, LineColumn), file: &SolidFile) -> LintDiag {
         LintDiag {
             id: RULE_ID.to_string(),
             range: Range {
@@ -29,8 +29,8 @@ impl ConstNameSnakeCase {
                     character: location.1.column,
                 },
             },
-            message: MESSAGE.to_string(),
-            severity: Some(self.data.severity),
+            message: DEFAULT_MESSAGE.to_string(),
+            severity: self.data.severity,
             code: None,
             source: None,
             uri: file.path.clone(),
@@ -79,8 +79,8 @@ impl ConstNameSnakeCase {
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),
-            severity: Severity::WARNING,
-            data: vec![],
+            severity: DEFAULT_SEVERITY,
+            data: None,
         }
     }
 }

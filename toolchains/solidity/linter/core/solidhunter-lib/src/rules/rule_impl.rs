@@ -5,8 +5,6 @@ use crate::rules::types::*;
 pub fn create_rules_file(path: &str) {
     let rules = Rules {
         name: "solidhunter".to_string(),
-        includes: vec![],
-        plugins: vec![],
         rules: create_default_rules(),
     };
     let serialized = serde_json::to_string_pretty(&rules).unwrap();

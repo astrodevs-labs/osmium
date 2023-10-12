@@ -1,4 +1,5 @@
 use clap::Parser;
+use solidhunter_lib::errors::SolidHunterError;
 use solidhunter_lib::linter::SolidLinter;
 use solidhunter_lib::rules::rule_impl::create_rules_file;
 use solidhunter_lib::types::LintResult;
@@ -73,8 +74,9 @@ struct Args {
     lsp: bool,
 }
 
-fn lint_folder(args: Args) {
-    let mut linter: SolidLinter = SolidLinter::new(&args.rules_file);
+fn lint_folder(args: Args) -> Result<(), SolidHunterError> {
+    let mut linter: SolidLinter = SolidLinter::new();
+    linter.initialize_rules(&args.rules_file)?;
     let mut result = Vec::new();
     for path in args.project_path {
         result.append(&mut linter.parse_folder(path));
@@ -82,6 +84,7 @@ fn lint_folder(args: Args) {
     for res in result {
         print_result(res);
     }
+    Ok(())
 }
 
 fn print_result(result: LintResult) {
@@ -97,14 +100,14 @@ fn print_result(result: LintResult) {
     }
 }
 
-fn main() {
+fn main() -> Result<(), SolidHunterError> {
     let args = Args::parse();
 
     if args.lsp {
         eprintln!("Starting language server...");
         run_server(args.rules_file.clone());
         eprintln!("Done!");
-        return;
+        return Ok(());
     }
 
     if !args.to_json {
@@ -130,13 +133,14 @@ fn main() {
         println!("Initializing rules file...");
         create_rules_file(".solidhunter.json");
         println!("Done!");
-        return;
+        return Ok(());
     }
 
     if !args.to_json && args.file_to_lint.is_empty() {
-        lint_folder(args);
+        lint_folder(args)?;
     } else if !args.file_to_lint.is_empty() {
-        let mut linter: SolidLinter = SolidLinter::new(&args.rules_file);
+        let mut linter: SolidLinter = SolidLinter::new();
+        linter.initialize_rules(&args.rules_file)?;
 
         let result = linter.parse_file(args.file_to_lint);
         if !args.to_json {
@@ -160,4 +164,5 @@ fn main() {
             }
         }
     }
+    Ok(())
 }

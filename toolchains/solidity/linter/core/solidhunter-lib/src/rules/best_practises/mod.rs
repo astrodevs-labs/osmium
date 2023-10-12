@@ -2,56 +2,52 @@ use crate::rules::types::{RuleEntry, RulesMap};
 use std::collections::HashMap;
 
 #[macro_use]
-pub mod line_maxlen;
+pub mod max_line_length;
 pub mod custom_errors;
-pub mod empty_block;
 pub mod explicit_types;
 pub mod function_max_lines;
-pub mod global_import;
 pub mod max_states_count;
 pub mod no_console;
+pub mod no_empty_block;
+pub mod no_global_import;
 pub mod one_contract_per_file;
 pub mod payable_fallback;
 pub mod reason_string;
-pub mod visibility_modifier_order;
 
 // List all rules
-
 use crate::rules::best_practises::custom_errors::CustomErrors;
-use crate::rules::best_practises::empty_block::EmptyBlock;
 use crate::rules::best_practises::explicit_types::ExplicitTypes;
 use crate::rules::best_practises::function_max_lines::FunctionMaxLines;
-use crate::rules::best_practises::global_import::GlobalImport;
-use crate::rules::best_practises::line_maxlen::LineMaxLen;
+use crate::rules::best_practises::max_line_length::MaxLineLength;
 use crate::rules::best_practises::max_states_count::MaxStatesCount;
 use crate::rules::best_practises::no_console::NoConsole;
+use crate::rules::best_practises::no_empty_block::NoEmptyBlock;
+use crate::rules::best_practises::no_global_import::NoGlobalImport;
 use crate::rules::best_practises::one_contract_per_file::OneContractPerFile;
 use crate::rules::best_practises::payable_fallback::PayableFallback;
 use crate::rules::best_practises::reason_string::ReasonString;
-use crate::rules::best_practises::visibility_modifier_order::VisibilityModiferOrder;
 use crate::rules::RuleBuilder;
 
 pub fn create_default_rules() -> Vec<RuleEntry> {
     vec![
-        LineMaxLen::create_default(),
+        MaxLineLength::create_default(),
         MaxStatesCount::create_default(),
         FunctionMaxLines::create_default(),
         ReasonString::create_default(),
         NoConsole::create_default(),
         OneContractPerFile::create_default(),
         CustomErrors::create_default(),
-        GlobalImport::create_default(),
-        EmptyBlock::create_default(),
+        NoGlobalImport::create_default(),
+        NoEmptyBlock::create_default(),
         ExplicitTypes::create_default(),
         PayableFallback::create_default(),
-        VisibilityModiferOrder::create_default(),
     ]
 }
 
 pub fn create_rules() -> RulesMap {
     let mut rules: HashMap<String, RuleBuilder> = HashMap::new();
 
-    rules.insert(line_maxlen::RULE_ID.to_string(), LineMaxLen::create);
+    rules.insert(max_line_length::RULE_ID.to_string(), MaxLineLength::create);
 
     rules.insert(
         max_states_count::RULE_ID.to_string(),
@@ -67,17 +63,16 @@ pub fn create_rules() -> RulesMap {
         one_contract_per_file::RULE_ID.to_string(),
         OneContractPerFile::create,
     );
-    rules.insert(global_import::RULE_ID.to_string(), GlobalImport::create);
-    rules.insert(empty_block::RULE_ID.to_string(), EmptyBlock::create);
+    rules.insert(
+        no_global_import::RULE_ID.to_string(),
+        NoGlobalImport::create,
+    );
+    rules.insert(no_empty_block::RULE_ID.to_string(), NoEmptyBlock::create);
     rules.insert(explicit_types::RULE_ID.to_string(), ExplicitTypes::create);
     rules.insert(no_console::RULE_ID.to_string(), NoConsole::create);
     rules.insert(
         payable_fallback::RULE_ID.to_string(),
         PayableFallback::create,
-    );
-    rules.insert(
-        visibility_modifier_order::RULE_ID.to_string(),
-        VisibilityModiferOrder::create,
     );
 
     rules

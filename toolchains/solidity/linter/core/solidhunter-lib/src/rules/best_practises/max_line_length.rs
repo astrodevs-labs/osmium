@@ -2,16 +2,19 @@ use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
 
-pub const RULE_ID: &str = "line-max-len";
+// global
+pub const RULE_ID: &str = "max-line-length";
 
-const DEFAULT_LENGTH: usize = 80;
+// specific
+const DEFAULT_LENGTH: usize = 120;
+const DEFAULT_SEVERITY: Severity = Severity::ERROR;
 
-pub struct LineMaxLen {
+pub struct MaxLineLength {
     max_len: usize,
     data: RuleEntry,
 }
 
-impl LineMaxLen {
+impl MaxLineLength {
     fn create_diag(&self, file: &SolidFile, line_idx: usize, line: &str) -> LintDiag {
         LintDiag {
             range: Range {
@@ -25,8 +28,12 @@ impl LineMaxLen {
                 },
             },
             id: RULE_ID.to_string(),
-            message: format!("Line is too long: {}", line.len()),
-            severity: Some(self.data.severity),
+            message: format!(
+                "Line length must be no more than {} but current length is {}",
+                self.max_len,
+                line.len()
+            ),
+            severity: self.data.severity,
             code: None,
             source: None,
             uri: file.path.clone(),
@@ -35,7 +42,7 @@ impl LineMaxLen {
     }
 }
 
-impl RuleType for LineMaxLen {
+impl RuleType for MaxLineLength {
     fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let mut line_idx = 1;
@@ -50,19 +57,23 @@ impl RuleType for LineMaxLen {
     }
 }
 
-impl LineMaxLen {
+impl MaxLineLength {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
-        let mut max_number_lines = DEFAULT_LENGTH;
+        let mut max_line_length = DEFAULT_LENGTH;
 
-        if !data.data.is_empty() {
-            max_number_lines = match data.data[0].as_u64() {
-                Some(val) => val as usize,
-                None => DEFAULT_LENGTH,
-            };
+        if let Some(data) = &data.data {
+            let parsed: Result<usize, serde_json::Error> = serde_json::from_value(data.clone());
+            match parsed {
+                Ok(val) => max_line_length = val,
+                Err(_) => {
+                    eprintln!("{} rule : bad config data", RULE_ID);
+                }
+            }
+        } else {
+            eprintln!("{} rule : bad config data", RULE_ID);
         }
-
-        let rule = LineMaxLen {
-            max_len: max_number_lines,
+        let rule = MaxLineLength {
+            max_len: max_line_length,
             data,
         };
         Box::new(rule)
@@ -71,8 +82,8 @@ impl LineMaxLen {
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),
-            severity: Severity::WARNING,
-            data: vec![serde_json::Value::String(DEFAULT_LENGTH.to_string())],
+            severity: DEFAULT_SEVERITY,
+            data: Some(DEFAULT_LENGTH.into()),
         }
     }
 }

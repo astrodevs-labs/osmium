@@ -3,15 +3,17 @@ use crate::rules::types::*;
 use crate::types::*;
 use ast_extractor::Spanned;
 
+// global
 pub const RULE_ID: &str = "func-visibility";
-const MESSAGE: &str =
-    "Explicitly mark visibility in function (public, private, internal, external)";
 
-pub const DEFAULT_IGNORE_CONSTRUCTORS: bool = false;
+// specific
+const DEFAULT_MESSAGE: &str =
+    "Explicitly mark visibility in function (public, private, internal, external)";
+pub const DEFAULT_IGNORE_CONSTRUCTORS: bool = true;
 
 pub struct FuncVisibility {
     ignore_constructors: bool,
-    _data: RuleEntry,
+    data: RuleEntry,
 }
 
 impl FuncVisibility {
@@ -32,8 +34,8 @@ impl FuncVisibility {
                     character: location.1.column,
                 },
             },
-            message: MESSAGE.to_string(),
-            severity: Some(self._data.severity),
+            message: DEFAULT_MESSAGE.to_string(),
+            severity: self.data.severity,
             code: None,
             source: None,
             uri: file.path.clone(),
@@ -75,15 +77,20 @@ impl FuncVisibility {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
         let mut ignore_constructors = DEFAULT_IGNORE_CONSTRUCTORS;
 
-        if !data.data.is_empty() {
-            ignore_constructors = match data.data[0].as_bool() {
-                Some(val) => val,
-                None => DEFAULT_IGNORE_CONSTRUCTORS,
-            };
+        if let Some(data) = &data.data {
+            if !data["ignoreConstructors"].is_null()
+                && data["ignoreConstructors"].as_bool().is_some()
+            {
+                ignore_constructors = data["ignoreConstructors"].as_bool().unwrap();
+            } else {
+                eprintln!("{} rule : bad config data", RULE_ID);
+            }
+        } else {
+            eprintln!("{} rule : bad config data", RULE_ID);
         }
         let rule = FuncVisibility {
             ignore_constructors,
-            _data: data,
+            data,
         };
         Box::new(rule)
     }
@@ -92,9 +99,9 @@ impl FuncVisibility {
         RuleEntry {
             id: RULE_ID.to_string(),
             severity: Severity::WARNING,
-            data: vec![serde_json::json!({
-                "strict": DEFAULT_IGNORE_CONSTRUCTORS,
-            })],
+            data: Some(serde_json::json!({
+                "ignoreConstructors": DEFAULT_IGNORE_CONSTRUCTORS,
+            })),
         }
     }
 }

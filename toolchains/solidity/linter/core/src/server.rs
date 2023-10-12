@@ -40,10 +40,14 @@ impl LanguageServer for Backend {
             .borrow()
             .log_message(MessageType::INFO, "Server initialized!");
 
-        let file_res = std::fs::read_to_string(&self.config_file_path);
-
-        if let Ok(file) = file_res {
-            self.linter.borrow_mut().replace(SolidLinter::new(&file));
+        if std::path::Path::new(&self.config_file_path).is_file() {
+            let mut linter = SolidLinter::new();
+            let res = linter.initialize_rules(&self.config_file_path);
+            if let Err(e) = res {
+                eprintln!("Error initializing rules: {:?}", e);
+                return;
+            }
+            self.linter.borrow_mut().replace(linter);
         } else {
             self.linter
                 .borrow_mut()
@@ -73,7 +77,13 @@ impl LanguageServer for Backend {
 
         let filepath = filepath_from_uri(&params.text_document.uri);
         let mut linter = self.linter.borrow_mut();
-        let linter = linter.as_mut().unwrap();
+        let linter = match linter.as_mut() {
+            Some(l) => l,
+            None => {
+                eprintln!("Linter cannot be ran due to previous errors");
+                return;
+            }
+        };
         let diags_res = linter.parse_content(filepath, &params.text_document.text);
 
         if let Ok(diags) = diags_res {
@@ -81,11 +91,7 @@ impl LanguageServer for Backend {
                 .iter()
                 .map(|d| diagnostic_from_lintdiag(d.clone()))
                 .collect();
-            eprintln!("diags: {:?}", diags);
-            self.client
-                .as_ref()
-                .borrow()
-                .log_message(MessageType::INFO, "diags: ");
+            eprintln!("diags: {:#?}", diags);
             self.client.as_ref().borrow().publish_diagnostics(
                 params.text_document.uri.clone(),
                 diags,
@@ -108,7 +114,13 @@ impl LanguageServer for Backend {
 
         let filepath = filepath_from_uri(&params.text_document.uri);
         let mut linter = self.linter.borrow_mut();
-        let linter = linter.as_mut().unwrap();
+        let linter = match linter.as_mut() {
+            Some(l) => l,
+            None => {
+                eprintln!("Linter cannot be ran due to previous errors");
+                return;
+            }
+        };
         let diags_res = linter.parse_content(filepath, &params.content_changes[0].text);
 
         if let Ok(diags) = diags_res {
@@ -116,7 +128,7 @@ impl LanguageServer for Backend {
                 .iter()
                 .map(|d| diagnostic_from_lintdiag(d.clone()))
                 .collect();
-            eprintln!("diags: {:?}", diags);
+            eprintln!("diags: {:#?}", diags);
             self.client.as_ref().borrow().publish_diagnostics(
                 params.text_document.uri.clone(),
                 diags,
@@ -137,7 +149,6 @@ pub fn filepath_from_uri(uri: &Url) -> String {
 }
 
 fn diagnostic_from_lintdiag(diag: LintDiag) -> Diagnostic {
-    eprintln!("diag: {:?}", diag);
     Diagnostic {
         range: Range {
             start: Position {

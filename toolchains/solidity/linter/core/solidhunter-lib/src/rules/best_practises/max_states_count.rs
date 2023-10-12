@@ -3,8 +3,12 @@ use crate::rules::types::*;
 use crate::types::*;
 use ast_extractor::*;
 
+// global
 pub const RULE_ID: &str = "max-states-count";
+
+// specific
 const DEFAULT_MAX_STATES: usize = 15;
+const DEFAULT_SEVERITY: Severity = Severity::WARNING;
 
 pub struct MaxStatesCount {
     max_states: usize,
@@ -30,8 +34,11 @@ impl MaxStatesCount {
                     character: location.1.column,
                 },
             },
-            message: format!("Too many states: {}", count),
-            severity: Some(self.data.severity),
+            message: format!(
+                "Contract has {} states declarations but allowed no more than {}",
+                count, self.max_states
+            ),
+            severity: self.data.severity,
             code: None,
             source: None,
             uri: file.path.clone(),
@@ -68,11 +75,16 @@ impl MaxStatesCount {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
         let mut max_states = DEFAULT_MAX_STATES;
 
-        if !data.data.is_empty() {
-            max_states = match data.data[0].as_u64() {
-                Some(val) => val as usize,
-                None => DEFAULT_MAX_STATES,
-            };
+        if let Some(data) = &data.data {
+            let parsed: Result<usize, serde_json::Error> = serde_json::from_value(data.clone());
+            match parsed {
+                Ok(val) => max_states = val,
+                Err(_) => {
+                    eprintln!("{} rule : bad config data", RULE_ID);
+                }
+            }
+        } else {
+            eprintln!("{} rule : bad config data", RULE_ID);
         }
         let rule = MaxStatesCount { max_states, data };
         Box::new(rule)
@@ -81,8 +93,8 @@ impl MaxStatesCount {
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),
-            severity: Severity::WARNING,
-            data: vec![serde_json::Value::String(DEFAULT_MAX_STATES.to_string())],
+            severity: DEFAULT_SEVERITY,
+            data: Some(DEFAULT_MAX_STATES.into()),
         }
     }
 }

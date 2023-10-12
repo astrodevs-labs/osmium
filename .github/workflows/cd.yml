@@ -50,6 +50,21 @@ jobs:
           yarn -v
           yarn plugin import workspace-tools
 
+      - name: Get workspace path
+        id: workspace-path
+        run: |
+          echo "workspace-path=$(yarn workspaces info ${{ matrix.workspace.name }} --json | jq -r '.data[0].location')" >> $GITHUB_OUTPUT
+
+      - name: Check .unstable
+        id: check-unstable
+        run: |
+          cd ${{ steps.workspace-path.outputs.workspace-path }}
+          if [ -f ".unstable" ]; then
+            echo "is-unstable=true" >> $GITHUB_OUTPUT
+          else
+            echo "is-unstable=false" >> $GITHUB_OUTPUT
+          fi
+
       - uses: paulhatch/semantic-version@d43966692519e4a5d4423b3da1b4b903c58c8f6b
         id: find-new-version
         with:
@@ -62,20 +77,13 @@ jobs:
           minor_pattern: "/feat\\(?/"
           # A string to determine the format of the version output
           version_format: "${major}.${minor}.${patch}"
-          # Optional path to check for changes. If any changes are detected in the path the
-          # 'changed' output will true. Enter multiple paths separated by spaces.
-          #change_path: "src/my-service"
-          # Named version, will be used as suffix for name version tag
-          namespace: my-service
           # If this is set to true, *every* commit will be treated as a new version.
           bump_each_commit: false
           # If true, the body of commits will also be searched for major/minor patterns to determine the version type.
           search_commit_body: false
-          # The output method used to generate list of users, 'csv' or 'json'.
-          user_format_type: "csv"
           # Prevents pre-v1.0.0 version from automatically incrementing the major version.
           # If enabled, when the major version is 0, major releases will be treated as minor and minor as patch. Note that the version_type output is unchanged.
-          enable_prerelease_mode: true
+          enable_prerelease_mode: ${{ steps.check-unstable.outputs.is-unstable }}
 
       - name: Normalize version
         uses: actions/github-script@v6
@@ -91,6 +99,11 @@ jobs:
               return "${{steps.find-new-version.outputs.major}}.${{steps.find-new-version.outputs.minor}}." + (patch + 1).toString();
             } else
               return "${{steps.find-new-version.outputs.major}}.${{steps.find-new-version.outputs.minor}}.${{steps.find-new-version.outputs.patch}}"
+
+      - name: Set tag
+        run: |
+          git tag ${{ steps.tag.outputs.result }}
+          git push origin ${{ steps.tag.outputs.result }}
       
       - name: Install dependencies
         run: |

@@ -1,22 +1,22 @@
-use ast_extractor::{retriever, Spanned};
+use ast_extractor::{retriever, LineColumn, Spanned};
 
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
 
+// global
 pub const RULE_ID: &str = "modifier-name-mixedcase";
-const MESSAGE: &str = "Modifier name must be in mixedCase";
+
+// specific
+const DEFAULT_MESSAGE: &str = "Modifier name must be in mixedCase";
+const DEFAULT_SEVERITY: Severity = Severity::WARNING;
 
 pub struct ModifierNameMixedcase {
     data: RuleEntry,
 }
 
 impl ModifierNameMixedcase {
-    fn create_diag(
-        &self,
-        location: (ast_extractor::LineColumn, ast_extractor::LineColumn),
-        file: &SolidFile,
-    ) -> LintDiag {
+    fn create_diag(&self, location: (LineColumn, LineColumn), file: &SolidFile) -> LintDiag {
         LintDiag {
             id: RULE_ID.to_string(),
             range: Range {
@@ -29,8 +29,8 @@ impl ModifierNameMixedcase {
                     character: location.1.column,
                 },
             },
-            message: MESSAGE.to_string(),
-            severity: Some(self.data.severity),
+            message: DEFAULT_MESSAGE.to_string(),
+            severity: self.data.severity,
             code: None,
             source: None,
             uri: file.path.clone(),
@@ -92,8 +92,8 @@ impl ModifierNameMixedcase {
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),
-            severity: Severity::WARNING,
-            data: vec![],
+            severity: DEFAULT_SEVERITY,
+            data: None,
         }
     }
 }

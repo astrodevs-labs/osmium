@@ -1,23 +1,27 @@
-use ast_extractor::Spanned;
-use serde_json::Value;
+use ast_extractor::{LineColumn, Spanned};
 
 use crate::linter::SolidFile;
 use crate::rules::types::*;
 use crate::types::*;
 
-pub const RULE_ID: &str = "foundry-func-name";
-const MESSAGE: &str = "Founfry test function name need to respect the convention";
+// global
+pub const RULE_ID: &str = "foundry-test-functions";
 
-pub struct FoundryFuncName {
+// specific
+const DEFAULT_SEVERITY: Severity = Severity::WARNING;
+const DEFAULT_SKIP_FUNCTIONS: &[&str] = &["setUp"];
+
+pub struct FoundryTestFunctions {
     data: RuleEntry,
     excluded: Vec<String>,
 }
 
-impl FoundryFuncName {
+impl FoundryTestFunctions {
     fn create_diag(
         &self,
-        location: (ast_extractor::LineColumn, ast_extractor::LineColumn),
+        location: (LineColumn, LineColumn),
         file: &SolidFile,
+        name: &str,
     ) -> LintDiag {
         LintDiag {
             id: RULE_ID.to_string(),
@@ -31,8 +35,11 @@ impl FoundryFuncName {
                     character: location.1.column,
                 },
             },
-            message: MESSAGE.to_string(),
-            severity: Some(self.data.severity),
+            message: format!(
+                "Function {}() must match Foundry test naming convention",
+                name
+            ),
+            severity: self.data.severity,
             code: None,
             source: None,
             uri: file.path.clone(),
@@ -41,7 +48,7 @@ impl FoundryFuncName {
     }
 }
 
-impl RuleType for FoundryFuncName {
+impl RuleType for FoundryTestFunctions {
     fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         if !file.path.ends_with(".t.sol") {
             return vec![];
@@ -71,7 +78,11 @@ impl RuleType for FoundryFuncName {
                     if !re.is_match(&name.as_string()) && !self.excluded.contains(&name.as_string())
                     {
                         let span = name.span();
-                        res.push(self.create_diag((span.start(), span.end()), file));
+                        res.push(self.create_diag(
+                            (span.start(), span.end()),
+                            file,
+                            &name.as_string(),
+                        ));
                     }
                 }
             }
@@ -80,25 +91,31 @@ impl RuleType for FoundryFuncName {
     }
 }
 
-impl FoundryFuncName {
+impl FoundryTestFunctions {
     pub(crate) fn create(data: RuleEntry) -> Box<dyn RuleType> {
         let mut excluded: Vec<String> = Vec::new();
-        data.data.iter().for_each(|value| {
-            if let Value::String(val) = value {
-                excluded.push(val.to_string());
-            } else {
-                eprintln!("Invalid value for rule foundry-func-name: {:?}", value);
+
+        if let Some(data) = &data.data {
+            let parsed: Result<Vec<String>, serde_json::Error> =
+                serde_json::from_value(data.clone());
+            match parsed {
+                Ok(val) => excluded = val,
+                Err(_) => {
+                    eprintln!("{} rule : bad config data", RULE_ID);
+                }
             }
-        });
-        let rule = FoundryFuncName { excluded, data };
+        } else {
+            eprintln!("{} rule : bad config data", RULE_ID);
+        }
+        let rule = FoundryTestFunctions { excluded, data };
         Box::new(rule)
     }
 
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),
-            severity: Severity::WARNING,
-            data: vec![],
+            severity: DEFAULT_SEVERITY,
+            data: Some(DEFAULT_SKIP_FUNCTIONS.into()),
         }
     }
 }

@@ -31,7 +31,7 @@
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "yarn run compile-tests && yarn run compile && yarn run extension:lint",
     "extension:lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "extension:test": "node ./out/test/runTest.js"
   },
   "dependencies": {
     "vscode-languageclient": "^8.1.0",

@@ -122,6 +122,9 @@ jobs:
           corepack prepare yarn@stable --activate
           yarn plugin import workspace-tools
 
+      - name: install
+        run: cargo install wasm-pack
+
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT

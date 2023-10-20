@@ -3,9 +3,8 @@ use lsp_types::notification::*;
 use lsp_types::request::*;
 use lsp_types::*;
 use serde::Serialize;
-use serde_json::{Value};
+use serde_json::Value;
 use std::fmt::Display;
-
 
 use serde_wasm_bindgen::{from_value, to_value};
 use tracing::error;
@@ -30,11 +29,14 @@ pub struct Connection {
 }
 
 impl Connection {
-    pub fn new(send_request_callback: js_sys::Function, send_notification_callback: js_sys::Function) -> Self {
+    pub fn new(
+        send_request_callback: js_sys::Function,
+        send_notification_callback: js_sys::Function,
+    ) -> Self {
         Self {
             inner: ConnectionInner {
                 send_request_callback,
-                send_notification_callback
+                send_notification_callback,
             },
         }
     }
@@ -382,13 +384,15 @@ impl Connection {
     ///
     /// This notification will only be sent if the server is initialized.
     pub fn send_notification<N>(&self, params: N::Params)
-        where
-            N: lsp_types::notification::Notification,
+    where
+        N: lsp_types::notification::Notification,
     {
         let inner = self.inner.clone();
         let notification = to_value(&N::METHOD.to_string()).unwrap();
         let param = to_value(&params).unwrap();
-        let _ = inner.send_notification_callback.call2(&JsValue::NULL, &notification, &param);
+        let _ = inner
+            .send_notification_callback
+            .call2(&JsValue::NULL, &notification, &param);
     }
 
     /// Sends a custom request to the client.
@@ -400,13 +404,15 @@ impl Connection {
     ///
     /// [read more]: https://microsoft.github.io/language-server-protocol/specification#initialize
     pub fn send_request<R>(&self, params: R::Params) -> jsonrpc::Result<R::Result>
-        where
-            R: lsp_types::request::Request,
+    where
+        R: lsp_types::request::Request,
     {
         let inner = self.inner.clone();
         let request = to_value(&R::METHOD.to_string()).unwrap();
         let param = to_value(&params).unwrap();
-        let res = inner.send_request_callback.call2(&JsValue::NULL, &request, &param);
+        let res = inner
+            .send_request_callback
+            .call2(&JsValue::NULL, &request, &param);
 
         let res = match res {
             Ok(res) => from_value::<R::Result>(res).unwrap(),
@@ -416,7 +422,5 @@ impl Connection {
         };
 
         Ok(res)
-
-
     }
 }

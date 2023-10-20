@@ -3,10 +3,10 @@
   "version": "0.0.2",
   "license": "MIT",
   "scripts": {
-    "build": "cd crates/extension && make && cd ../..",
-    "lint": "cargo clippy -- -D warnings",
-    "format": "cargo fmt --check --all",
-    "test": "cargo test --workspace",
-    "publish": "cd crates/linter-lib && make publish && cd ../.."
+    "core:build": "cd crates/extension && make && cd ../..",
+    "core:lint": "cargo clippy -- -D warnings",
+    "core:format": "cargo fmt --check --all",
+    "core:test": "cargo test --workspace",
+    "core:publish": "cd crates/linter-lib && make publish && cd ../linter-cli && make publish && cd ../.."
   }
 }

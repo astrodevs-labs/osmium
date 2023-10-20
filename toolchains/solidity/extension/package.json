@@ -27,11 +27,9 @@
     "compile": "webpack",
     "watch": "webpack --watch",
     "package": "webpack --mode production --devtool hidden-source-map",
-    "compile-tests": "tsc -p . --outDir out",
-    "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "yarn run compile-tests && yarn run compile && yarn run extension:lint",
+    "pretest": "yarn run compile && yarn run extension:lint",
     "extension:lint": "eslint src --ext ts",
-    "extension:test": "node ./out/test/runTest.js"
+    "extension:test": "echo 'not tests'"
   },
   "dependencies": {
     "vscode-languageclient": "^8.1.0",

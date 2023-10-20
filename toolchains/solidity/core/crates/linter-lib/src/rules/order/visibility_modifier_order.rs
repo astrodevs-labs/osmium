@@ -1,4 +1,6 @@
-use osmium_libs_solidity_ast_extractor::retriever::{retrieve_contract_nodes, retrieve_functions_nodes};
+use osmium_libs_solidity_ast_extractor::retriever::{
+    retrieve_contract_nodes, retrieve_functions_nodes,
+};
 use osmium_libs_solidity_ast_extractor::Spanned;
 
 use crate::linter::SolidFile;

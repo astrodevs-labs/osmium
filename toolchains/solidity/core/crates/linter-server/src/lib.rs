@@ -6,9 +6,7 @@ use osmium_libs_lsp_handler::{
         InitializeParams, InitializeResult, InitializedParams, MessageType, Position, Range,
         ServerCapabilities, TextDocumentSyncCapability, TextDocumentSyncKind, Url,
     },
-    Result,
-    Handler,
-    Connection
+    Connection, Handler, Result,
 };
 use solidhunter_lib::{linter::SolidLinter, types::LintDiag};
 
@@ -37,7 +35,8 @@ impl Handler for Backend {
             "Initializing server with config file: {:?}",
             self.config_file_path
         );
-        self.connection.log_message(MessageType::INFO, "Server initialized!");
+        self.connection
+            .log_message(MessageType::INFO, "Server initialized!");
 
         if std::path::Path::new(&self.config_file_path).is_file() {
             let mut linter = SolidLinter::new();
@@ -53,16 +52,19 @@ impl Handler for Backend {
                 .replace(SolidLinter::new_fileless());
         }
 
-        self.connection.log_message(MessageType::INFO, "Linter initialized!");
+        self.connection
+            .log_message(MessageType::INFO, "Linter initialized!");
     }
 
     fn shutdown(&self) -> Result<()> {
-        self.connection.log_message(MessageType::INFO, "Server shutdown!");
+        self.connection
+            .log_message(MessageType::INFO, "Server shutdown!");
         Ok(())
     }
 
     fn did_open(&self, params: DidOpenTextDocumentParams) {
-        self.connection.log_message(MessageType::INFO, "file opened!");
+        self.connection
+            .log_message(MessageType::INFO, "file opened!");
 
         let filepath = filepath_from_uri(&params.text_document.uri);
         let mut linter = self.linter.borrow_mut();
@@ -81,18 +83,17 @@ impl Handler for Backend {
                 .map(|d| diagnostic_from_lintdiag(d.clone()))
                 .collect();
             eprintln!("diags: {:#?}", diags);
-            self.connection.publish_diagnostics(
-                params.text_document.uri.clone(),
-                diags,
-                None,
-            );
+            self.connection
+                .publish_diagnostics(params.text_document.uri.clone(), diags, None);
         } else if let Err(e) = diags_res {
-            self.connection.log_message(MessageType::ERROR, e.to_string());
+            self.connection
+                .log_message(MessageType::ERROR, e.to_string());
         }
     }
 
     fn did_change(&self, params: DidChangeTextDocumentParams) {
-        self.connection.log_message(MessageType::INFO, "file changed!");
+        self.connection
+            .log_message(MessageType::INFO, "file changed!");
 
         let filepath = filepath_from_uri(&params.text_document.uri);
         let mut linter = self.linter.borrow_mut();
@@ -111,13 +112,11 @@ impl Handler for Backend {
                 .map(|d| diagnostic_from_lintdiag(d.clone()))
                 .collect();
             eprintln!("diags: {:#?}", diags);
-            self.connection.publish_diagnostics(
-                params.text_document.uri.clone(),
-                diags,
-                None,
-            );
+            self.connection
+                .publish_diagnostics(params.text_document.uri.clone(), diags, None);
         } else if let Err(e) = diags_res {
-            self.connection.log_message(MessageType::ERROR, e.to_string());
+            self.connection
+                .log_message(MessageType::ERROR, e.to_string());
         }
     }
 }
@@ -126,7 +125,6 @@ pub fn filepath_from_uri(uri: &Url) -> String {
     let path = uri.path();
     path.to_string()
 }
-
 
 fn diagnostic_from_lintdiag(diag: LintDiag) -> Diagnostic {
     Diagnostic {

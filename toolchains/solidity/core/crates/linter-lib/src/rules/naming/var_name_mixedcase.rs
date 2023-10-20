@@ -44,7 +44,9 @@ impl RuleType for VarNameMixedCase {
         let mut res = Vec::new();
 
         let variables_definition =
-            osmium_libs_solidity_ast_extractor::retriever::retrieve_variable_definition_nodes(&file.data);
+            osmium_libs_solidity_ast_extractor::retriever::retrieve_variable_definition_nodes(
+                &file.data,
+            );
         for variable in variables_definition {
             if variable.name.to_string()[1..].find('_').is_some() {
                 let span = variable.name.span();
@@ -53,7 +55,9 @@ impl RuleType for VarNameMixedCase {
         }
 
         let variables_declaration =
-            osmium_libs_solidity_ast_extractor::retriever::retrieve_variable_declaration_nodes(&file.data);
+            osmium_libs_solidity_ast_extractor::retriever::retrieve_variable_declaration_nodes(
+                &file.data,
+            );
         for variable in variables_declaration {
             if variable.name.is_some() {
                 let name = variable.name.unwrap();

@@ -68,7 +68,12 @@ impl SolidLinter {
         false
     }
 
-    fn _add_file(&mut self, path: &str, ast: osmium_libs_solidity_ast_extractor::File, content: &str) {
+    fn _add_file(
+        &mut self,
+        path: &str,
+        ast: osmium_libs_solidity_ast_extractor::File,
+        content: &str,
+    ) {
         if self._file_exists(path) {
             for file in &mut self.files {
                 if file.path == path {

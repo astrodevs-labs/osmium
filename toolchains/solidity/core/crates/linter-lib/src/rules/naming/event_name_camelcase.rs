@@ -52,9 +52,12 @@ fn is_camel_case(name: &str) -> bool {
 impl RuleType for EventNameCamelCase {
     fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
-        let contracts = osmium_libs_solidity_ast_extractor::retriever::retrieve_contract_nodes(&file.data);
+        let contracts =
+            osmium_libs_solidity_ast_extractor::retriever::retrieve_contract_nodes(&file.data);
 
-        for event in osmium_libs_solidity_ast_extractor::retriever::retrieve_events_file_nodes(&file.data) {
+        for event in
+            osmium_libs_solidity_ast_extractor::retriever::retrieve_events_file_nodes(&file.data)
+        {
             if !is_camel_case(&event.name.to_string()) {
                 let span = event.name.span();
                 res.push(self.create_diag((span.start(), span.end()), file));
@@ -62,7 +65,11 @@ impl RuleType for EventNameCamelCase {
         }
 
         for contract in contracts {
-            for event in osmium_libs_solidity_ast_extractor::retriever::retrieve_events_contract_nodes(&contract) {
+            for event in
+                osmium_libs_solidity_ast_extractor::retriever::retrieve_events_contract_nodes(
+                    &contract,
+                )
+            {
                 if !is_camel_case(&event.name.to_string()) {
                     let span = event.name.span();
                     res.push(self.create_diag((span.start(), span.end()), file));

@@ -84,7 +84,10 @@ impl RuleType for ReasonString {
 
                                 if let Some(expr_string) = expr_args.iter().find(|&x| {
                                     if let Expr::Lit(lit) = x {
-                                        matches!(lit, osmium_libs_solidity_ast_extractor::Lit::Str(_))
+                                        matches!(
+                                            lit,
+                                            osmium_libs_solidity_ast_extractor::Lit::Str(_)
+                                        )
                                     } else {
                                         false
                                     }

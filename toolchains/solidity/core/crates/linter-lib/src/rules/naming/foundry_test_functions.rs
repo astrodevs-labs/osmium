@@ -56,22 +56,33 @@ impl RuleType for FoundryTestFunctions {
         let mut res = Vec::new();
         let re = regex::Regex::new(r"^test(Fork)?(Fuzz)?(Fail)?(_)?(Revert(If_|When_){1})?\w{1,}$")
             .unwrap();
-        let contracts = osmium_libs_solidity_ast_extractor::retriever::retrieve_contract_nodes(&file.data);
+        let contracts =
+            osmium_libs_solidity_ast_extractor::retriever::retrieve_contract_nodes(&file.data);
 
         for contract in contracts {
-            for function in osmium_libs_solidity_ast_extractor::retriever::retrieve_functions_nodes(&contract) {
-                let visibility = function
-                    .attributes
-                    .iter()
-                    .find(|attr| matches!(attr, osmium_libs_solidity_ast_extractor::FunctionAttribute::Visibility(_)));
+            for function in
+                osmium_libs_solidity_ast_extractor::retriever::retrieve_functions_nodes(&contract)
+            {
+                let visibility = function.attributes.iter().find(|attr| {
+                    matches!(
+                        attr,
+                        osmium_libs_solidity_ast_extractor::FunctionAttribute::Visibility(_)
+                    )
+                });
                 let visibility = match visibility {
-                    Some(osmium_libs_solidity_ast_extractor::FunctionAttribute::Visibility(visibility)) => visibility,
+                    Some(osmium_libs_solidity_ast_extractor::FunctionAttribute::Visibility(
+                        visibility,
+                    )) => visibility,
                     _ => continue,
                 };
 
-                if !matches!(visibility, osmium_libs_solidity_ast_extractor::Visibility::Public(_))
-                    && !matches!(visibility, osmium_libs_solidity_ast_extractor::Visibility::External(_))
-                {
+                if !matches!(
+                    visibility,
+                    osmium_libs_solidity_ast_extractor::Visibility::Public(_)
+                ) && !matches!(
+                    visibility,
+                    osmium_libs_solidity_ast_extractor::Visibility::External(_)
+                ) {
                     continue;
                 }
                 if let Some(name) = function.name {

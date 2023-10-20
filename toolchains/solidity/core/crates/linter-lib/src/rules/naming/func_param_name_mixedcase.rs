@@ -41,10 +41,13 @@ impl FuncParamNameMixedCase {
 impl RuleType for FuncParamNameMixedCase {
     fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
-        let contracts = osmium_libs_solidity_ast_extractor::retriever::retrieve_contract_nodes(&file.data);
+        let contracts =
+            osmium_libs_solidity_ast_extractor::retriever::retrieve_contract_nodes(&file.data);
 
         for contract in contracts {
-            for function in osmium_libs_solidity_ast_extractor::retriever::retrieve_functions_nodes(&contract) {
+            for function in
+                osmium_libs_solidity_ast_extractor::retriever::retrieve_functions_nodes(&contract)
+            {
                 for arg in function.arguments.iter() {
                     if let Some(name) = &arg.name {
                         if !(name.as_string().chars().next().unwrap() >= 'a'

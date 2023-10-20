@@ -42,7 +42,8 @@ impl ContractNameCamelCase {
 impl RuleType for ContractNameCamelCase {
     fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
-        let contracts = osmium_libs_solidity_ast_extractor::retriever::retrieve_contract_nodes(&file.data);
+        let contracts =
+            osmium_libs_solidity_ast_extractor::retriever::retrieve_contract_nodes(&file.data);
 
         for contract in contracts {
             if (contract.name.as_string().chars().next().unwrap() >= 'a'

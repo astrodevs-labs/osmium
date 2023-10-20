@@ -67,7 +67,9 @@ impl RuleType for NamedParametersMapping {
     fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
         let mut visitor = MappingsVisitor::new();
-        for contract in osmium_libs_solidity_ast_extractor::retriever::retrieve_contract_nodes(&file.data) {
+        for contract in
+            osmium_libs_solidity_ast_extractor::retriever::retrieve_contract_nodes(&file.data)
+        {
             visitor.visit_item_contract(&contract);
         }
 

@@ -42,7 +42,8 @@ impl OneContractPerFile {
 impl RuleType for OneContractPerFile {
     fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
-        let contracts = osmium_libs_solidity_ast_extractor::retriever::retrieve_contract_nodes(&file.data);
+        let contracts =
+            osmium_libs_solidity_ast_extractor::retriever::retrieve_contract_nodes(&file.data);
         let contract_count = contracts.len();
 
         if contract_count > 1 {

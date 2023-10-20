@@ -52,10 +52,12 @@ impl PrivateVarsLeadingUnderscore {
 impl RuleType for PrivateVarsLeadingUnderscore {
     fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
-        let contracts = osmium_libs_solidity_ast_extractor::retriever::retrieve_contract_nodes(&file.data);
+        let contracts =
+            osmium_libs_solidity_ast_extractor::retriever::retrieve_contract_nodes(&file.data);
 
         for contract in contracts {
-            let functions = osmium_libs_solidity_ast_extractor::retriever::retrieve_functions_nodes(&contract);
+            let functions =
+                osmium_libs_solidity_ast_extractor::retriever::retrieve_functions_nodes(&contract);
 
             for function in functions {
                 if self.strict {

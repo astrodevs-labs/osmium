@@ -19,7 +19,10 @@ pub struct FuncVisibility {
 impl FuncVisibility {
     fn create_diag(
         &self,
-        location: (osmium_libs_solidity_ast_extractor::LineColumn, osmium_libs_solidity_ast_extractor::LineColumn),
+        location: (
+            osmium_libs_solidity_ast_extractor::LineColumn,
+            osmium_libs_solidity_ast_extractor::LineColumn,
+        ),
         file: &SolidFile,
     ) -> LintDiag {
         LintDiag {
@@ -47,10 +50,13 @@ impl FuncVisibility {
 impl RuleType for FuncVisibility {
     fn diagnose(&self, file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
-        let contracts = osmium_libs_solidity_ast_extractor::retriever::retrieve_contract_nodes(&file.data);
+        let contracts =
+            osmium_libs_solidity_ast_extractor::retriever::retrieve_contract_nodes(&file.data);
 
         for contract in contracts {
-            for function in osmium_libs_solidity_ast_extractor::retriever::retrieve_functions_nodes(&contract) {
+            for function in
+                osmium_libs_solidity_ast_extractor::retriever::retrieve_functions_nodes(&contract)
+            {
                 if function.attributes.visibility().is_some()
                     || (function.kind.is_constructor() && self.ignore_constructors)
                 {

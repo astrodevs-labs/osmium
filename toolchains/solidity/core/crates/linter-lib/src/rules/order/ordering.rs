@@ -275,7 +275,10 @@ impl OrderingVisitor {
     fn create_diag(
         &self,
         file: &SolidFile,
-        location: (osmium_libs_solidity_ast_extractor::LineColumn, osmium_libs_solidity_ast_extractor::LineColumn),
+        location: (
+            osmium_libs_solidity_ast_extractor::LineColumn,
+            osmium_libs_solidity_ast_extractor::LineColumn,
+        ),
     ) -> LintDiag {
         let range = Range {
             start: Position {
@@ -316,7 +319,10 @@ impl OrderingVisitor {
 }
 
 impl<'ast> Visit<'ast> for OrderingVisitor {
-    fn visit_pragma_directive(&mut self, pragma: &'ast osmium_libs_solidity_ast_extractor::PragmaDirective) {
+    fn visit_pragma_directive(
+        &mut self,
+        pragma: &'ast osmium_libs_solidity_ast_extractor::PragmaDirective,
+    ) {
         if !self.is_authorized_file_item(FileItemType::Pragma) {
             let location = (pragma.span().start(), pragma.span().end());
             self.reports.push(self.create_diag(&self.file, location));
@@ -325,7 +331,10 @@ impl<'ast> Visit<'ast> for OrderingVisitor {
         }
     }
 
-    fn visit_import_directive(&mut self, import: &'ast osmium_libs_solidity_ast_extractor::ImportDirective) {
+    fn visit_import_directive(
+        &mut self,
+        import: &'ast osmium_libs_solidity_ast_extractor::ImportDirective,
+    ) {
         if !self.is_authorized_file_item(FileItemType::Import) {
             let location = (import.span().start(), import.span().end());
             self.reports.push(self.create_diag(&self.file, location));
@@ -343,7 +352,10 @@ impl<'ast> Visit<'ast> for OrderingVisitor {
         }
     }
 
-    fn visit_item_struct(&mut self, struct_def: &'ast osmium_libs_solidity_ast_extractor::ItemStruct) {
+    fn visit_item_struct(
+        &mut self,
+        struct_def: &'ast osmium_libs_solidity_ast_extractor::ItemStruct,
+    ) {
         if !self.is_authorized_file_item(FileItemType::Struct) {
             let location = (struct_def.span().start(), struct_def.span().end());
             self.reports.push(self.create_diag(&self.file, location));
@@ -352,7 +364,10 @@ impl<'ast> Visit<'ast> for OrderingVisitor {
         }
     }
 
-    fn visit_item_contract(&mut self, contract_def: &'ast osmium_libs_solidity_ast_extractor::ItemContract) {
+    fn visit_item_contract(
+        &mut self,
+        contract_def: &'ast osmium_libs_solidity_ast_extractor::ItemContract,
+    ) {
         if contract_def.is_interface()
             && !self.is_authorized_file_item(FileItemType::ContractInterface)
             || contract_def.is_library()
@@ -379,7 +394,10 @@ impl<'ast> Visit<'ast> for OrderingVisitor {
         }
     }
 
-    fn visit_variable_definition(&mut self, var: &'ast osmium_libs_solidity_ast_extractor::VariableDefinition) {
+    fn visit_variable_definition(
+        &mut self,
+        var: &'ast osmium_libs_solidity_ast_extractor::VariableDefinition,
+    ) {
         if !self.is_authorized_contract_item(ContractItemType::Property) {
             let location = (var.span().start(), var.span().end());
             self.reports.push(self.create_diag(&self.file, location));
@@ -397,7 +415,10 @@ impl<'ast> Visit<'ast> for OrderingVisitor {
         }
     }
 
-    fn visit_item_function(&mut self, function: &'ast osmium_libs_solidity_ast_extractor::ItemFunction) {
+    fn visit_item_function(
+        &mut self,
+        function: &'ast osmium_libs_solidity_ast_extractor::ItemFunction,
+    ) {
         match function.kind {
             FunctionKind::Modifier(_) => {
                 if !self.is_authorized_contract_item(ContractItemType::Modifier) {
@@ -432,12 +453,16 @@ impl<'ast> Visit<'ast> for OrderingVisitor {
                 }
             }
             FunctionKind::Function(_) => {
-                let visibility = function
-                    .attributes
-                    .iter()
-                    .find(|attr| matches!(attr, osmium_libs_solidity_ast_extractor::FunctionAttribute::Visibility(_)));
+                let visibility = function.attributes.iter().find(|attr| {
+                    matches!(
+                        attr,
+                        osmium_libs_solidity_ast_extractor::FunctionAttribute::Visibility(_)
+                    )
+                });
                 let visibility = match visibility {
-                    Some(osmium_libs_solidity_ast_extractor::FunctionAttribute::Visibility(visibility)) => visibility,
+                    Some(osmium_libs_solidity_ast_extractor::FunctionAttribute::Visibility(
+                        visibility,
+                    )) => visibility,
                     _ => return,
                 };
 

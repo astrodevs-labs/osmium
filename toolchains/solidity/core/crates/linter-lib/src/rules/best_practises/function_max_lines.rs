@@ -20,8 +20,12 @@ impl RuleType for FunctionMaxLines {
     fn diagnose(&self, _file: &SolidFile, _files: &[SolidFile]) -> Vec<LintDiag> {
         let mut res = Vec::new();
 
-        for contract in osmium_libs_solidity_ast_extractor::retriever::retrieve_contract_nodes(&_file.data) {
-            for function in osmium_libs_solidity_ast_extractor::retriever::retrieve_functions_nodes(&contract) {
+        for contract in
+            osmium_libs_solidity_ast_extractor::retriever::retrieve_contract_nodes(&_file.data)
+        {
+            for function in
+                osmium_libs_solidity_ast_extractor::retriever::retrieve_functions_nodes(&contract)
+            {
                 let report = check_function_lines(&function, self.number_max_lines);
                 if let Some(report) = report {
                     let start = report.start.line;

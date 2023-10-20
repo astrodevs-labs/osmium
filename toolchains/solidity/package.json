@@ -2,7 +2,8 @@
   "name": "osmium-solidity",
   "version": "0.0.1",
   "workspaces": [
-    "*"
+    "core",
+    "extension"
   ],
   "license": "MIT",
   "scripts": {

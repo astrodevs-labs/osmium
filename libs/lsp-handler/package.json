@@ -1,6 +1,5 @@
 {
-  "name": "@osmium-libs/ast-extractor",
-  "packageManager": "yarn@3.6.1",
+  "name": "@osmium-libs/lsp-handler",
   "scripts": {
     "build": "cargo build --release",
     "format": "cargo fmt",

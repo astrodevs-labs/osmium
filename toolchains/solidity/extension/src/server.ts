@@ -36,20 +36,16 @@ const sendNotification = (method: string, params: any) => {
 const extension = create_extension(sendRequest, sendNotification);
 
 connection.onInitialize((params: InitializeParams) => {
-	console.log(`onInitialize: ${params.rootUri}`);
 	return extension.onRequest('initialize', params);
 });
 
 connection.onRequest((method: string, params: any) => {
-	console.log(`onRequest: ${method}`);
 	connection.console.log(`onRequest: ${method}`);
 	
 	return extension.onRequest(method, params);
 });
 
 connection.onNotification((method: string, params: any) => {
-	console.log(`onNotification: ${method}`);
-	connection.console.log(`onNotification: ${method}`);
 	extension.onNotification(method, params);
 });
 

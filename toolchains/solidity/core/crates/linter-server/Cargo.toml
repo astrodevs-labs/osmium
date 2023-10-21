@@ -1,5 +1,6 @@
 [package]
 name = "linter-server"
+license = "GPL-3.0-or-later"
 version = "0.0.2"
 edition = "2021"
 

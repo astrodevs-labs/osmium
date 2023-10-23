@@ -47,11 +47,11 @@ jobs:
           corepack enable
           corepack prepare yarn@stable --activate
           yarn -v
-          yarn plugin import workspace-tools
 
       - name: Install dependencies
         run: |
           yarn install --immutable
+          cargo install wasm-pack
 
       - name: Build
         run: |
@@ -84,7 +84,6 @@ jobs:
           corepack enable
           corepack prepare yarn@stable --activate
           yarn -v
-          yarn plugin import workspace-tools
 
       - name: Get workspace path
         id: workspace-path

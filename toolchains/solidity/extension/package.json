@@ -9,9 +9,9 @@
   "categories": [
     "Other"
   ],
-	"activationEvents": [
-		"onLanguage:solidity"
-	],
+  "activationEvents": [
+    "onLanguage:solidity"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [

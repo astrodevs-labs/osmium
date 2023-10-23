@@ -53,7 +53,6 @@ jobs:
           corepack enable
           corepack prepare yarn@stable --activate
           yarn -v
-          yarn plugin import workspace-tools
       - name: Get yarn workspaces output
         id: raw-workspaces-list
         run: |
@@ -81,11 +80,6 @@ jobs:
               }
             })
             console.log(affectedWorkspaces)
-            const toolchainsWorkspaces = affectedWorkspaces.filter(workspace => {
-              return workspace.name.match(/^osmium-(?!manager)[^-\s]+$/)
-            }).map(workspace => ({
-                name: workspace.name
-            }))
             const librariesWorkspaces = affectedWorkspaces.filter(workspace => {
               return workspace.name.startsWith('@osmium-libs/')
             }).map(workspace => ({
@@ -97,18 +91,18 @@ jobs:
                 name: workspace.name
             }))
             const extensionsWorkspaces = affectedWorkspaces.filter(workspace => {
-              return workspace.name.match(/^osmium-(?:manager|(?!\w+-\w+-\w+)(?:\w+-\w+))$/)
+              return workspace.name.match(/^osmium-(?:manager|(?!\w+-\w+)(?:\w+))$/)
             }).map(workspace => ({
                 name: workspace.name
             }))
             const extensionsFoldersWorkspaces = affectedWorkspaces.filter(workspace => {
-              return workspace.name.match(/^osmium-\w+-\w+-\w+$/)
+              return workspace.name.match(/^osmium-\w+-\w+$/)
             }).map(workspace => ({
                 name: workspace.name
             }))
 
             const missingExtensionsWorkspaces = extensionsFoldersWorkspaces.map(workspaceFolder => {
-              const extensionName = workspaceFolder.name.split('-').slice(0, 3).join('-')
+              const extensionName = workspaceFolder.name.split('-').slice(0, 2).join('-')
               const extensionWorkspace = extensionsWorkspaces.find(workspace => {
                 return workspace.name === extensionName
               })
@@ -129,7 +123,6 @@ jobs:
 
             return {
               affectedWorkspaces,
-              toolchainsWorkspaces,
               extensionsWorkspaces: completeExtensionsWorkspaces,
               librariesWorkspaces,
               packagesWorkspaces
@@ -138,8 +131,6 @@ jobs:
       - name: debug
         run: |
           echo "Affected workspaces: ${{ toJson(fromJson(steps.build-array.outputs.result).affectedWorkspaces) }}"
-          echo "------------------------------------"
-          echo "Toolchains workspaces: ${{ toJson(fromJson(steps.build-array.outputs.result).toolchainsWorkspaces) }}"
           echo "------------------------------------"
           echo "Extensions workspaces: ${{ toJson(fromJson(steps.build-array.outputs.result).extensionsWorkspaces) }}"
           echo "------------------------------------"

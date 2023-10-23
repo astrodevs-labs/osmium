@@ -51,7 +51,6 @@ jobs:
         run: |
           corepack enable
           corepack prepare yarn@stable --activate
-          yarn plugin import workspace-tools
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -87,7 +86,6 @@ jobs:
         run: |
           corepack enable
           corepack prepare yarn@stable --activate
-          yarn plugin import workspace-tools
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -120,7 +118,9 @@ jobs:
         run: |
           corepack enable
           corepack prepare yarn@stable --activate
-          yarn plugin import workspace-tools
+
+      - name: install
+        run: cargo install wasm-pack
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -153,7 +153,6 @@ jobs:
         run: |
           corepack enable
           corepack prepare yarn@stable --activate
-          yarn plugin import workspace-tools
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path

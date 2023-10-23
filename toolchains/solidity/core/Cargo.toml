@@ -1,0 +1,21 @@
+[workspace]
+members = ["crates/*"]
+resolver = "2"
+
+[workspace.package]
+version = "0.3.0"
+edition = "2021"
+authors = ["Osmium Solidity Contributors"]
+license = "GPL-3.0-or-later"
+exclude = ["benches/", "tests/"]
+
+[workspace.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[workspace.dependencies]
+# workspace crates
+extension = { version = "0.1.0", path = "crates/extension", default-features = false }
+solidhunter = { version = "0.1.0", path = "crates/solidhunter", default-features = false }
+linter-cli = { version = "0.1.0", path = "crates/linter-cli", default-features = false }
+linter-server = { version = "0.1.0", path = "crates/linter-server", default-features = false }

@@ -1,5 +1,8 @@
 [package]
-name = "ast-extractor"
+name = "osmium-libs-solidity-ast-extractor"
+description = "Extracts the AST from a Solidity file"
+license = "GPL-3.0-or-later"
+repository = "https://github.com/astrodevs-labs/osmium"
 version = "0.1.0"
 edition = "2021"
 

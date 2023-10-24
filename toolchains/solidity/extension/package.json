@@ -4,6 +4,11 @@
   "description": "",
   "version": "0.0.1",
   "publisher": "OsmiumToolchains",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/astrodevs-labs/osmium"
+  },
+  "icon": "./assets/logo.png",
   "engines": {
     "vscode": "^1.75.0"
   },

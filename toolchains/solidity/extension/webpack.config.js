@@ -13,7 +13,7 @@ const extensionConfig = {
 	mode: 'none', // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
 
   entry: {
-    extension: './src/extension.ts', // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
+    client: './src/client.ts', // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
     server: './src/server.ts',
   },
   output: {

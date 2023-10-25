@@ -100,11 +100,21 @@ jobs:
             echo "is-unstable=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Get tag prefix
+        id: get-tag-prefix
+        uses: actions/github-script@v6
+        with:
+          result-encoding: string
+          script: |
+            const workspace = "${{ matrix.workspace.name }}";
+            const language = workspace.split('-')[1];
+            return language;
+
       - uses: paulhatch/semantic-version@d43966692519e4a5d4423b3da1b4b903c58c8f6b
         id: find-new-version
         with:
           # The prefix to use to identify tags
-          tag_prefix: ""
+          tag_prefix: "${{ steps.get-tag-prefix.outputs.result }}-"
           # A string which, if present in a git commit, indicates that a change represents a
           # major (breaking) change, supports regular expressions wrapped with '/'
           major_pattern: "!:"

@@ -7,6 +7,7 @@ use crate::types::*;
 use std::fs;
 
 use glob::glob;
+use osmium_libs_solidity_ast_extractor::YulExpr::Path;
 
 #[derive(Debug, Clone)]
 pub struct SolidFile {
@@ -91,21 +92,13 @@ impl SolidLinter {
         }
     }
 
+
     pub fn parse_file(&mut self, filepath: String) -> LintResult {
         let content = fs::read_to_string(filepath.clone())?;
-        let res = osmium_libs_solidity_ast_extractor::extract::extract_ast_from_content(&content)?;
-
-        self._add_file(filepath.as_str(), res, content.as_str());
-        let mut res: Vec<LintDiag> = Vec::new();
-
-        for rule in &self.rules {
-            let mut diags = rule.diagnose(&self.files[self.files.len() - 1], &self.files);
-            res.append(&mut diags);
-        }
-        Ok(res)
+        self.parse_content(filepath, content.as_str())
     }
 
-    pub fn parse_content(&mut self, filepath: String, content: &str) -> LintResult {
+    fn parse_content(&mut self, filepath: String, content: &str) -> LintResult {
         let res = osmium_libs_solidity_ast_extractor::extract::extract_ast_from_content(content)?;
 
         self._add_file(filepath.as_str(), res, content);
@@ -118,7 +111,7 @@ impl SolidLinter {
         Ok(res)
     }
 
-    pub fn parse_folder(&mut self, folder: String) -> Vec<LintResult> {
+    fn parse_folder(&mut self, folder: String) -> Vec<LintResult> {
         let mut result: Vec<LintResult> = Vec::new();
         if let Ok(entries) = glob(&(folder + "/**/*.sol")) {
             for entry in entries.flatten() {
@@ -126,6 +119,13 @@ impl SolidLinter {
             }
         }
         result
+    }
+    pub fn parse_path(&mut self, path: String) -> Vec<LintResult> {
+        return if Path::new(&path).is_file() {
+            vec!(self.parse_file(path))
+        } else {
+            self.parse_folder(path)
+        }
     }
 
     pub fn delete_file(&mut self, path: String) {

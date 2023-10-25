@@ -2,14 +2,14 @@
 name = "solidhunter"
 description = "Fast solidity linter cli"
 repository = "https://github.com/astrodevs-labs/osmium"
-version = "0.0.2"
+version = "0.0.3"
 edition = "2021"
 license = "GPL-3.0-or-later"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-solidhunter-lib = { path = "../linter-lib", version = "0.0.2" }
+solidhunter-lib = { path = "../linter-lib", version = "0.0.3" }
 clap = { version = "4.0.29", features = ["derive"] }
 colored = "2"
 serde = { version = "1.0.149", features = ["derive"] }

@@ -4,11 +4,11 @@
 Solidity is the language used in Ethereum to create smart contracts, this extension provides: 
 
 * Syntax highlighting
-* Linting using our linter ([Solidhunter](https://github.com/astrodevs-labs/osmium/toolchains/solidity/core/crates/linter-cli))
+* Linting using our linter ([Solidhunter](https://github.com/astrodevs-labs/osmium/tree/main/toolchains/solidity/core/crates/linter-cli))
   
 
 # Osmium embeded tools
-## Solidhunter
-The blazing fast solidity linter cli
+## [Solidhunter](https://github.com/astrodevs-labs/osmium/tree/main/toolchains/solidity/core/crates/linter-cli)
+The blazing fast solidity linter cli. Includes nearly all solhint rules
 
 

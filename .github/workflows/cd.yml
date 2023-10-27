@@ -69,7 +69,7 @@ jobs:
       - publish-libraries
     strategy:
       matrix:
-        workspace: ${{ fromJson(needs.setup.outputs.libraries)}}
+        workspace: ${{ fromJson(needs.setup.outputs.extensions)}}
     steps:
       - uses: actions/checkout@v3
         with:

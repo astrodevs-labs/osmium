@@ -32,7 +32,7 @@ jobs:
     needs: setup
     strategy:
       matrix:
-        workspace: ${{ fromJson(needs.setup.outputs.extensions)}}
+        workspace: ${{ fromJson(needs.setup.outputs.libraries)}}
     steps:
       - uses: actions/checkout@v3
         with:

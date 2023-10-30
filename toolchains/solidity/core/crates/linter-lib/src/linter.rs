@@ -7,7 +7,7 @@ use crate::types::*;
 use std::fs;
 
 use glob::glob;
-use osmium_libs_solidity_ast_extractor::YulExpr::Path;
+use std::path::Path;
 
 #[derive(Debug, Clone)]
 pub struct SolidFile {

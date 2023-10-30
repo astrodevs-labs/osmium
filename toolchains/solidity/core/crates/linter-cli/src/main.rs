@@ -13,15 +13,7 @@ struct Args {
         default_value = ".",
         help = "Specify project path"
     )]
-    project_path: Vec<String>,
-
-    #[arg(
-        short = 'f',
-        long = "file",
-        default_value = "",
-        help = "Specify a single file to lint"
-    )]
-    file_to_lint: String,
+    project_path: String,
 
     #[arg(
         short = 'e',
@@ -63,28 +55,17 @@ struct Args {
     init: bool,
 }
 
-fn lint_folder(args: Args) -> Result<(), SolidHunterError> {
-    let mut linter: SolidLinter = SolidLinter::new();
-    linter.initialize_rules(&args.rules_file)?;
-    let mut result = Vec::new();
-    for path in args.project_path {
-        result.append(&mut linter.parse_folder(path));
-    }
-    for res in result {
-        print_result(res);
-    }
-    Ok(())
-}
-
-fn print_result(result: LintResult) {
-    match result {
-        Ok(diags) => {
-            for diag in diags {
-                println!("{}", &diag);
+fn print_result(results: Vec<LintResult>) {
+    for result in results {
+        match result {
+            Ok(diags) => {
+                for diag in diags {
+                    println!("{}", &diag);
+                }
             }
-        }
-        Err(e) => {
-            println!("{}", e);
+            Err(e) => {
+                println!("{}", e);
+            }
         }
     }
 }
@@ -118,30 +99,30 @@ fn main() -> Result<(), SolidHunterError> {
         return Ok(());
     }
 
-    if !args.to_json && args.file_to_lint.is_empty() {
-        lint_folder(args)?;
-    } else if !args.file_to_lint.is_empty() {
+    if !args.project_path.is_empty() {
         let mut linter: SolidLinter = SolidLinter::new();
         linter.initialize_rules(&args.rules_file)?;
 
-        let result = linter.parse_file(args.file_to_lint);
+        let result = linter.parse_path(args.project_path);
         if !args.to_json {
             print_result(result);
         } else {
-            match result {
-                Ok(diags) => {
-                    let json = serde_json::to_string_pretty(&diags);
-                    match json {
-                        Ok(j) => {
-                            println!("{}", j);
-                        }
-                        Err(e) => {
-                            println!("{}", e);
+            for res in result {
+                match res {
+                    Ok(diags) => {
+                        let json = serde_json::to_string_pretty(&diags);
+                        match json {
+                            Ok(j) => {
+                                println!("{}", j);
+                            }
+                            Err(e) => {
+                                println!("{}", e);
+                            }
                         }
                     }
-                }
-                Err(e) => {
-                    println!("{}", e);
+                    Err(e) => {
+                        println!("{}", e);
+                    }
                 }
             }
         }

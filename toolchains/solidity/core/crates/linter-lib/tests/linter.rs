@@ -11,6 +11,7 @@ struct Finding {
 fn test_directory(base_name: &str) {
     let mut source = String::new();
     let mut config = String::new();
+    let mut ignore = String::new();
     let mut expected_findings: Vec<Finding> = Vec::new();
 
     for path in fs::read_dir(
@@ -27,6 +28,8 @@ fn test_directory(base_name: &str) {
                 source = path.to_str().unwrap().to_string();
             } else if filename == ".solidhunter.json" {
                 config = path.to_str().unwrap().to_string();
+            } else if filename == ".solidhunterignore" {
+                ignore = path.to_str().unwrap().to_string();
             } else if filename == "findings.csv" {
                 for line in fs::read_to_string(path).unwrap().lines() {
                     let splitted_line: Vec<&str> = line.split(':').collect();
@@ -46,12 +49,13 @@ fn test_directory(base_name: &str) {
         }
     }
 
-    test_linter(&config, &source, &expected_findings);
+    test_linter(&config, &source, &expected_findings, &ignore   );
 }
 
-fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>) {
+fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>, ignore: &str) {
     let mut linter: SolidLinter = SolidLinter::new();
     let _ = linter.initialize_rules(&String::from(config));
+    let _ = linter.initialize_ignore_file(&String::from(ignore));
 
     let result = linter.parse_file(source);
     let mut found_findings: Vec<&Finding> = Vec::new();
@@ -172,4 +176,5 @@ test_directories! {
     PrivateVarsLeadingUnderscore,
     FoundryTestFunctions,
     AvoidTxOrigin,
+    SolidhunterIgnore
 }

@@ -64,7 +64,7 @@ impl SolidLinter {
         Ok(())
     }
 
-    pub fn initialize_ignore_file(&mut self, filepath: &str) ->Result<(), SolidHunterError> {
+    pub fn initialize_ignore_file(&mut self, filepath: &str) -> Result<(), SolidHunterError> {
         let ignored_files = get_ignored_files(filepath)?;
         for file in ignored_files {
             self.ignored_files.push(file.to_string())
@@ -105,7 +105,9 @@ impl SolidLinter {
     }
 
     pub fn parse_file(&mut self, filepath: String) -> LintResult {
-        println!("Parsing content: {}", filepath);
+        if self.ignored_files.contains(&filepath) {
+            return Ok(Vec::new());
+        }
         let content = fs::read_to_string(filepath.clone())?;
         self.parse_content(filepath, content.as_str())
     }
@@ -127,7 +129,9 @@ impl SolidLinter {
         let mut result: Vec<LintResult> = Vec::new();
         if let Ok(entries) = glob(&(folder.to_owned() + "/**/*.sol")) {
             for entry in entries.flatten() {
-                result.push(self.parse_file(&entry.into_os_string().into_string().unwrap()));
+                if !self.ignored_files.contains(&entry.clone().into_os_string().into_string().unwrap()) {
+                    result.push(self.parse_file(entry.into_os_string().into_string().unwrap()));
+                }
             }
         }
         result

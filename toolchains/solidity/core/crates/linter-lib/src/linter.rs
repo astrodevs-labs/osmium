@@ -8,6 +8,7 @@ use std::fs;
 
 use glob::glob;
 use std::path::Path;
+use crate::ignore::get_ignored_files;
 
 #[derive(Debug, Clone)]
 pub struct SolidFile {
@@ -20,6 +21,7 @@ pub struct SolidLinter {
     files: Vec<SolidFile>,
     rule_factory: RuleFactory,
     rules: Vec<Box<dyn RuleType>>,
+    ignored_files: Vec<String>,
 }
 
 impl Default for SolidLinter {
@@ -34,6 +36,7 @@ impl SolidLinter {
             files: Vec::new(),
             rule_factory: RuleFactory::default(),
             rules: vec![],
+            ignored_files: Vec::new(),
         }
     }
 
@@ -43,6 +46,7 @@ impl SolidLinter {
             files: Vec::new(),
             rule_factory: RuleFactory::default(),
             rules: Vec::new(),
+            ignored_files: Vec::new(),
         };
 
         for rule in default_rules {
@@ -56,6 +60,14 @@ impl SolidLinter {
         let res = parse_rules(rules_config)?;
         for rule in res.rules {
             self.rules.push(self.rule_factory.create_rule(rule));
+        }
+        Ok(())
+    }
+
+    pub fn initialize_ignore_file(&mut self, filepath: &str) ->Result<(), SolidHunterError> {
+        let ignored_files = get_ignored_files(filepath)?;
+        for file in ignored_files {
+            self.ignored_files.push(file.to_string())
         }
         Ok(())
     }
@@ -92,8 +104,9 @@ impl SolidLinter {
         }
     }
 
-    pub fn parse_file(&mut self, filepath: &str) -> LintResult {
-        let content = fs::read_to_string(filepath)?;
+    pub fn parse_file(&mut self, filepath: String) -> LintResult {
+        println!("Parsing content: {}", filepath);
+        let content = fs::read_to_string(filepath.clone())?;
         self.parse_content(filepath, content.as_str())
     }
 

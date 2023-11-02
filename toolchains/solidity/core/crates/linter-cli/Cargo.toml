@@ -5,7 +5,7 @@ repository = "https://github.com/astrodevs-labs/osmium"
 version = "0.1.0"
 edition = "2021"
 license = "GPL-3.0-or-later"
-
+authors = ["AstroDevs-Labs"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]

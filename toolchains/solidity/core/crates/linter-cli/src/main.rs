@@ -51,6 +51,14 @@ struct Args {
         help = "Initialize rules file"
     )]
     init: bool,
+
+    #[arg(
+        short = 'g',
+        long = "ignore",
+        default_value = ".solidhunterignore",
+        help = "Specify ignore file"
+    )]
+    ignore_file: String,
 }
 
 fn print_result(results: Vec<LintResult>) {
@@ -86,6 +94,7 @@ fn main() -> Result<(), SolidHunterError> {
         println!("Exclude path: {:?}", args.ignore_path);
         println!("Using rules file: {}", args.rules_file);
         println!("Verbose output: {}", args.verbose);
+        println!("Ignore file output: {}", args.ignore_file);
     }
 
     if args.init {

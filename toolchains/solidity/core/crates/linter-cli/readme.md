@@ -31,6 +31,7 @@ Options:
   -i, --init                   Initialize rules file
   -h, --help                   Print help information
   -V, --version                Print version information
+  -g, --ignore                 Specify ignore file
 ```
 
 ## Configuration

@@ -135,7 +135,7 @@ impl Handler for Backend {
         if std::path::Path::new(&self.config_file_path).is_file() {
             let mut linter = SolidLinter::new();
             let res = linter.initialize_rules(&self.config_file_path);
-            if let Ok(_) = res {
+            if res.is_ok() {
                 self.linter.replace(Some(linter));
             }
         }

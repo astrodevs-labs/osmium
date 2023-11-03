@@ -11,5 +11,5 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 osmium-libs-lsp-handler = { path = "../../../../../libs/lsp-handler", version = "0.0.2" }
-solidhunter-lib = { path = "../linter-lib", version = "0.0.3" }
+solidhunter-lib = { path = "../linter-lib", version = "0.0.4" }
 js-sys = "0.3.64"

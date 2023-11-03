@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{arg, Parser};
 use solidhunter_lib::errors::SolidHunterError;
 use solidhunter_lib::linter::SolidLinter;
 use solidhunter_lib::rules::rule_impl::create_rules_file;
@@ -8,21 +8,11 @@ use solidhunter_lib::types::LintResult;
 #[command(author, version, about, long_about = None)]
 struct Args {
     #[arg(
-        short = 'p',
-        long = "path",
+        required = false,
         default_value = ".",
-        help = "Specify project path"
+        help = "Path to the project to lint"
     )]
-    project_path: Vec<String>,
-
-    #[arg(
-        short = 'f',
-        long = "file",
-        default_value = "",
-        help = "Specify a single file to lint"
-    )]
-    file_to_lint: String,
-
+    path: String,
     #[arg(
         short = 'e',
         long = "exclude",
@@ -40,7 +30,7 @@ struct Args {
 
     #[arg(
         short = 'j',
-        long = "json_output",
+        long = "json",
         default_value = "false",
         help = "Outputs a json format instead"
     )]
@@ -63,28 +53,17 @@ struct Args {
     init: bool,
 }
 
-fn lint_folder(args: Args) -> Result<(), SolidHunterError> {
-    let mut linter: SolidLinter = SolidLinter::new();
-    linter.initialize_rules(&args.rules_file)?;
-    let mut result = Vec::new();
-    for path in args.project_path {
-        result.append(&mut linter.parse_folder(path));
-    }
-    for res in result {
-        print_result(res);
-    }
-    Ok(())
-}
-
-fn print_result(result: LintResult) {
-    match result {
-        Ok(diags) => {
-            for diag in diags {
-                println!("{}", &diag);
+fn print_result(results: Vec<LintResult>) {
+    for result in results {
+        match result {
+            Ok(diags) => {
+                for diag in diags {
+                    println!("{}", &diag);
+                }
             }
-        }
-        Err(e) => {
-            println!("{}", e);
+            Err(e) => {
+                println!("{}", e);
+            }
         }
     }
 }
@@ -105,7 +84,7 @@ fn main() -> Result<(), SolidHunterError> {
 
     if args.verbose {
         println!("Verbose output enabled");
-        println!("Project path: {:?}", args.project_path);
+        println!("Project path: {:?}", args.path);
         println!("Exclude path: {:?}", args.ignore_path);
         println!("Using rules file: {}", args.rules_file);
         println!("Verbose output: {}", args.verbose);
@@ -118,30 +97,30 @@ fn main() -> Result<(), SolidHunterError> {
         return Ok(());
     }
 
-    if !args.to_json && args.file_to_lint.is_empty() {
-        lint_folder(args)?;
-    } else if !args.file_to_lint.is_empty() {
+    if args.path.is_empty() {
         let mut linter: SolidLinter = SolidLinter::new();
         linter.initialize_rules(&args.rules_file)?;
 
-        let result = linter.parse_file(args.file_to_lint);
+        let result = linter.parse_path(args.path);
         if !args.to_json {
             print_result(result);
         } else {
-            match result {
-                Ok(diags) => {
-                    let json = serde_json::to_string_pretty(&diags);
-                    match json {
-                        Ok(j) => {
-                            println!("{}", j);
-                        }
-                        Err(e) => {
-                            println!("{}", e);
+            for res in result {
+                match res {
+                    Ok(diags) => {
+                        let json = serde_json::to_string_pretty(&diags);
+                        match json {
+                            Ok(j) => {
+                                println!("{}", j);
+                            }
+                            Err(e) => {
+                                println!("{}", e);
+                            }
                         }
                     }
-                }
-                Err(e) => {
-                    println!("{}", e);
+                    Err(e) => {
+                        println!("{}", e);
+                    }
                 }
             }
         }

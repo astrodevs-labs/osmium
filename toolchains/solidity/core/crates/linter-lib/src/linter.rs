@@ -129,9 +129,7 @@ impl SolidLinter {
         let mut result: Vec<LintResult> = Vec::new();
         if let Ok(entries) = glob(&(folder.to_owned() + "/**/*.sol")) {
             for entry in entries.flatten() {
-                if !self.ignored_files.contains(&entry.clone().into_os_string().into_string().unwrap()) {
-                    result.push(self.parse_file(entry.into_os_string().into_string().unwrap()));
-                }
+                result.push(self.parse_file(entry.into_os_string().into_string().unwrap()));
             }
         }
         result

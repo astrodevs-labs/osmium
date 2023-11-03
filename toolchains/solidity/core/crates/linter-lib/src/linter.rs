@@ -93,7 +93,7 @@ impl SolidLinter {
     }
 
     pub fn parse_file(&mut self, filepath: &str) -> LintResult {
-        let content = fs::read_to_string(&filepath)?;
+        let content = fs::read_to_string(filepath)?;
         self.parse_content(filepath, content.as_str())
     }
 

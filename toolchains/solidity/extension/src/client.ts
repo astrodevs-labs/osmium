@@ -3,6 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
+import { glob } from 'glob';
 import * as path from 'path';
 import { workspace, ExtensionContext } from 'vscode';
 
@@ -15,7 +16,7 @@ import {
 
 let client: LanguageClient;
 
-export function activate(context: ExtensionContext) {
+export async function activate(context: ExtensionContext) {
 	// The server is implemented in node
 	const serverModule = context.asAbsolutePath(
 		path.join('dist', 'server.js')
@@ -37,7 +38,7 @@ export function activate(context: ExtensionContext) {
 		documentSelector: [{ scheme: 'file', language: 'solidity' }],
 		synchronize: {
 			// Notify the server about file changes to '.clientrc files contained in the workspace
-			fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
+			fileEvents: workspace.createFileSystemWatcher('**/.solidhunter.json')
 		}
 	};
 
@@ -51,6 +52,16 @@ export function activate(context: ExtensionContext) {
 
 	// Start the client. This will also launch the server
 	client.start();
+
+	const folders = workspace.workspaceFolders;
+	if (folders) {
+		const folder = folders[0];
+		const files = await workspace.findFiles('**/*.sol', `${folder.uri.fsPath}/**`);
+		files.forEach(file => {
+			workspace.openTextDocument(file);
+		});
+	}
+
 }
 
 export function deactivate(): Thenable<void> | undefined {

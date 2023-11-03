@@ -101,7 +101,7 @@ fn main() -> Result<(), SolidHunterError> {
         let mut linter: SolidLinter = SolidLinter::new();
         linter.initialize_rules(&args.rules_file)?;
 
-        let result = linter.parse_path(args.path);
+        let result = linter.parse_path(&args.path);
         if !args.to_json {
             print_result(result);
         } else {

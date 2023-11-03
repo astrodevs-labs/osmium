@@ -92,15 +92,15 @@ impl SolidLinter {
         }
     }
 
-    pub fn parse_file(&mut self, filepath: String) -> LintResult {
-        let content = fs::read_to_string(filepath.clone())?;
+    pub fn parse_file(&mut self, filepath: &str) -> LintResult {
+        let content = fs::read_to_string(&filepath)?;
         self.parse_content(filepath, content.as_str())
     }
 
-    pub fn parse_content(&mut self, filepath: String, content: &str) -> LintResult {
+    pub fn parse_content(&mut self, filepath: &str, content: &str) -> LintResult {
         let res = osmium_libs_solidity_ast_extractor::extract::extract_ast_from_content(content)?;
 
-        self._add_file(filepath.as_str(), res, content);
+        self._add_file(filepath, res, content);
         let mut res: Vec<LintDiag> = Vec::new();
 
         for rule in &self.rules {
@@ -110,16 +110,16 @@ impl SolidLinter {
         Ok(res)
     }
 
-    pub fn parse_folder(&mut self, folder: String) -> Vec<LintResult> {
+    pub fn parse_folder(&mut self, folder: &str) -> Vec<LintResult> {
         let mut result: Vec<LintResult> = Vec::new();
-        if let Ok(entries) = glob(&(folder + "/**/*.sol")) {
+        if let Ok(entries) = glob(&(folder.to_owned() + "/**/*.sol")) {
             for entry in entries.flatten() {
-                result.push(self.parse_file(entry.into_os_string().into_string().unwrap()));
+                result.push(self.parse_file(&entry.into_os_string().into_string().unwrap()));
             }
         }
         result
     }
-    pub fn parse_path(&mut self, path: String) -> Vec<LintResult> {
+    pub fn parse_path(&mut self, path: &str) -> Vec<LintResult> {
         if Path::new(&path).is_file() {
             vec![self.parse_file(path)]
         } else {
@@ -127,7 +127,7 @@ impl SolidLinter {
         }
     }
 
-    pub fn delete_file(&mut self, path: String) {
+    pub fn delete_file(&mut self, path: &str) {
         loop {
             let idx = self.files.iter().position(|x| x.path == path);
             match idx {

@@ -1,6 +1,6 @@
-use std::path::Path;
-use glob::glob;
 use crate::errors::SolidHunterError;
+use glob::glob;
+use std::path::Path;
 
 fn parse_line(line: &str, path: &Path) -> Vec<String> {
     let mut files = Vec::new();

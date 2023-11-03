@@ -6,9 +6,9 @@ use crate::rules::types::*;
 use crate::types::*;
 use std::fs;
 
+use crate::ignore::get_ignored_files;
 use glob::glob;
 use std::path::Path;
-use crate::ignore::get_ignored_files;
 
 #[derive(Debug, Clone)]
 pub struct SolidFile {

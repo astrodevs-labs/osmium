@@ -49,7 +49,7 @@ fn test_directory(base_name: &str) {
         }
     }
 
-    test_linter(&config, &source, &expected_findings, &ignore   );
+    test_linter(&config, &source, &expected_findings, &ignore);
 }
 
 fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>, ignore: &str) {

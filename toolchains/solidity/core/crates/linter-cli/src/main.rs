@@ -97,7 +97,7 @@ fn main() -> Result<(), SolidHunterError> {
         return Ok(());
     }
 
-    if args.path.is_empty() {
+    if !args.path.is_empty() {
         let mut linter: SolidLinter = SolidLinter::new();
         linter.initialize_rules(&args.rules_file)?;
 

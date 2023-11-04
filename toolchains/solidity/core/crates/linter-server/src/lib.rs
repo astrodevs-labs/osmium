@@ -2,9 +2,10 @@ use std::cell::RefCell;
 
 use osmium_libs_lsp_handler::{
     lsp_types::{
-        Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams, DidOpenTextDocumentParams,
-        InitializeParams, InitializeResult, InitializedParams, MessageType, Position, Range,
-        ServerCapabilities, TextDocumentSyncCapability, TextDocumentSyncKind, Url,
+        Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams, DidChangeWatchedFilesParams,
+        DidOpenTextDocumentParams, InitializeParams, InitializeResult, InitializedParams,
+        MessageType, Position, Range, ServerCapabilities, TextDocumentSyncCapability,
+        TextDocumentSyncKind, Url,
     },
     Connection, Handler, Result,
 };
@@ -43,9 +44,12 @@ impl Handler for Backend {
             let res = linter.initialize_rules(&self.config_file_path);
             if let Err(e) = res {
                 eprintln!("Error initializing rules: {:?}", e);
+                self.linter
+                    .borrow_mut()
+                    .replace(SolidLinter::new_fileless());
                 return;
             }
-            self.linter.borrow_mut().replace(linter);
+            self.linter.replace(Some(linter));
         } else {
             self.linter
                 .borrow_mut()
@@ -63,8 +67,10 @@ impl Handler for Backend {
     }
 
     fn did_open(&self, params: DidOpenTextDocumentParams) {
-        self.connection
-            .log_message(MessageType::INFO, "file opened!");
+        self.connection.log_message(
+            MessageType::INFO,
+            format!("file opened!: {:}", params.text_document.uri),
+        );
 
         let filepath = filepath_from_uri(&params.text_document.uri);
         let mut linter = self.linter.borrow_mut();
@@ -75,7 +81,7 @@ impl Handler for Backend {
                 return;
             }
         };
-        let diags_res = linter.parse_content(filepath, &params.text_document.text);
+        let diags_res = linter.parse_content(&filepath, &params.text_document.text);
 
         if let Ok(diags) = diags_res {
             let diags = diags
@@ -92,8 +98,10 @@ impl Handler for Backend {
     }
 
     fn did_change(&self, params: DidChangeTextDocumentParams) {
-        self.connection
-            .log_message(MessageType::INFO, "file changed!");
+        self.connection.log_message(
+            MessageType::INFO,
+            format!("file changed!: {:}", params.text_document.uri),
+        );
 
         let filepath = filepath_from_uri(&params.text_document.uri);
         let mut linter = self.linter.borrow_mut();
@@ -104,7 +112,7 @@ impl Handler for Backend {
                 return;
             }
         };
-        let diags_res = linter.parse_content(filepath, &params.content_changes[0].text);
+        let diags_res = linter.parse_content(&filepath, &params.content_changes[0].text);
 
         if let Ok(diags) = diags_res {
             let diags = diags
@@ -117,6 +125,19 @@ impl Handler for Backend {
         } else if let Err(e) = diags_res {
             self.connection
                 .log_message(MessageType::ERROR, e.to_string());
+        }
+    }
+
+    fn did_change_watched_files(&self, _: DidChangeWatchedFilesParams) {
+        self.connection
+            .log_message(MessageType::INFO, "configuration file changed!");
+
+        if std::path::Path::new(&self.config_file_path).is_file() {
+            let mut linter = SolidLinter::new();
+            let res = linter.initialize_rules(&self.config_file_path);
+            if res.is_ok() {
+                self.linter.replace(Some(linter));
+            }
         }
     }
 }

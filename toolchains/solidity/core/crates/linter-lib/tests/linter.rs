@@ -53,7 +53,7 @@ fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>) {
     let mut linter: SolidLinter = SolidLinter::new();
     let _ = linter.initialize_rules(&String::from(config));
 
-    let result = linter.parse_file(String::from(source));
+    let result = linter.parse_file(source);
     let mut found_findings: Vec<&Finding> = Vec::new();
     let mut not_found_findings: Vec<&Finding> = Vec::new();
     let mut not_needed_findings: Vec<&LintDiag> = Vec::new();

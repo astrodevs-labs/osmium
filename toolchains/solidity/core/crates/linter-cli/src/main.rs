@@ -57,9 +57,7 @@ fn print_result(results: Vec<LintResult>) {
     for result in results {
         match result {
             Ok(diags) => {
-                for diag in diags {
-                    println!("{}", &diag);
-                }
+                println!("{}", &diags);
             }
             Err(e) => {
                 println!("{}", e);

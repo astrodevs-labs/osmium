@@ -43,7 +43,7 @@ impl RuleType for FunctionMaxLines {
                             self.number_max_lines
                         ),
                         uri: _file.path.clone(),
-                        source_file_content: _file.content.clone(),
+                        
                     });
                 }
             }

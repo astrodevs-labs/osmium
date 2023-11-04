@@ -32,7 +32,7 @@ impl RuleType for VisibilityModiferOrder {
                 source: None,
                 message: DEFAULT_MESSAGE.to_string(),
                 uri: _file.path.clone(),
-                source_file_content: _file.content.clone(),
+                
             });
         }
         res

@@ -63,14 +63,14 @@ fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>) {
     match result {
         Ok(diags) => {
             let mut found;
-            for (_, diag) in diags.iter().enumerate() {
+            for (_, diag) in diags.diags.iter().enumerate() {
                 found = false;
                 for (_, expected_finding) in expected_findings.iter().enumerate() {
                     if (diag.range.start == expected_finding.start)
                         && (diag.range.end == expected_finding.end)
                         && (diag.id == expected_finding.id)
                     {
-                        found_findings.push(expected_finding.clone());
+                        found_findings.push(expected_finding);
                         found = true;
                         break;
                     }
@@ -91,7 +91,7 @@ fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>) {
                     }
                 }
                 if found == false {
-                    not_found_findings.push(expected_finding.clone());
+                    not_found_findings.push(expected_finding);
                 }
             }
             if not_needed_findings.len() > 0 {

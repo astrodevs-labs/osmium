@@ -1,6 +1,6 @@
-use std::fmt;
-use serde::{Serialize, Deserialize};
 use super::LintDiag;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct FileDiags {
@@ -62,12 +62,7 @@ impl FileDiags {
 impl fmt::Display for FileDiags {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for (idx, diag) in self.diags.iter().enumerate() {
-            write!(
-                f, 
-                "{}\n{}", 
-                diag,
-                self.format_highlighted_lines(idx)
-            )?;
+            write!(f, "{}\n{}", diag, self.format_highlighted_lines(idx))?;
         }
         Ok(())
     }

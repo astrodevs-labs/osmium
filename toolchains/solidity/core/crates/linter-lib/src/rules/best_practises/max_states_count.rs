@@ -42,7 +42,6 @@ impl MaxStatesCount {
             code: None,
             source: None,
             uri: file.path.clone(),
-            
         }
     }
 }

@@ -40,7 +40,6 @@ impl ReasonString {
             code: None,
             source: None,
             uri: file.path.clone(),
-            
         }
     }
 }

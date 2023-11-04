@@ -298,7 +298,6 @@ impl OrderingVisitor {
             code: None,
             source: None,
             uri: file.path.clone(),
-            
         }
     }
 

@@ -84,7 +84,8 @@ impl Handler for Backend {
         let diags_res = linter.parse_content(&filepath, &params.text_document.text);
 
         if let Ok(diags) = diags_res {
-            let diags = diags.diags
+            let diags = diags
+                .diags
                 .iter()
                 .map(|d| diagnostic_from_lintdiag(d.clone()))
                 .collect();
@@ -115,7 +116,8 @@ impl Handler for Backend {
         let diags_res = linter.parse_content(&filepath, &params.content_changes[0].text);
 
         if let Ok(diags) = diags_res {
-            let diags = diags.diags
+            let diags = diags
+                .diags
                 .iter()
                 .map(|d| diagnostic_from_lintdiag(d.clone()))
                 .collect();

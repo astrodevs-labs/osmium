@@ -33,7 +33,6 @@ impl FuncParamNameMixedCase {
             code: None,
             source: None,
             uri: file.path.clone(),
-            
         }
     }
 }

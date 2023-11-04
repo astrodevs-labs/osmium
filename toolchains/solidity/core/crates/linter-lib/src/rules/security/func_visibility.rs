@@ -42,7 +42,6 @@ impl FuncVisibility {
             code: None,
             source: None,
             uri: file.path.clone(),
-            
         }
     }
 }

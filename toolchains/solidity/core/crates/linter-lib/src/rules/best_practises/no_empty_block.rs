@@ -30,7 +30,6 @@ impl RuleType for NoEmptyBlock {
                 source: None,
                 message: DEFAULT_MESSAGE.to_string(),
                 uri: _file.path.clone(),
-                
             });
         }
         res

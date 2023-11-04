@@ -33,7 +33,6 @@ impl StateVisibility {
             code: None,
             source: None,
             uri: file.path.clone(),
-            
         }
     }
 }

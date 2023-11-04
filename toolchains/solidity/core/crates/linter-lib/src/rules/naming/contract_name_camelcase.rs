@@ -34,7 +34,6 @@ impl ContractNameCamelCase {
             code: None,
             source: None,
             uri: file.path.clone(),
-            
         }
     }
 }

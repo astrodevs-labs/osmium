@@ -1,6 +1,6 @@
-use std::fmt;
 use colored::Colorize;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
 #[derive(PartialEq, Eq, Clone, Copy, Serialize, Deserialize, Debug)]
 pub enum Severity {

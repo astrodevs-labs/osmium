@@ -33,7 +33,6 @@ impl UseForbiddenName {
             code: None,
             source: None,
             uri: file.path.clone(),
-            
         }
     }
 }

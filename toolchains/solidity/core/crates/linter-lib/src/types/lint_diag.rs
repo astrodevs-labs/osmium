@@ -1,6 +1,6 @@
-use std::fmt;
-use serde::{Serialize, Deserialize};
 use super::{Range, Severity};
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct LintDiag {
@@ -27,7 +27,7 @@ pub struct LintDiag {
     pub uri: Uri,
 }
 
-impl<'a> fmt::Display for LintDiag {
+impl fmt::Display for LintDiag {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,

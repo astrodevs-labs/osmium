@@ -35,7 +35,6 @@ impl ImportOnTop {
             code: None,
             source: None,
             uri: file.path.clone(),
-            
         }
     }
 }

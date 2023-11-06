@@ -32,7 +32,6 @@ impl RuleType for PayableFallback {
                 source: None,
                 message: DEFAULT_MESSAGE.to_string(),
                 uri: file.path.clone(),
-                source_file_content: file.content.clone(),
             });
         }
         res

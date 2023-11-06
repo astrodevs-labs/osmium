@@ -3,7 +3,7 @@ name = "osmium-libs-solidity-ast-extractor"
 description = "Extracts the AST from a Solidity file"
 license = "GPL-3.0-or-later"
 repository = "https://github.com/astrodevs-labs/osmium"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

@@ -107,7 +107,7 @@ impl SolidLinter {
             let mut diags = rule.diagnose(&self.files[self.files.len() - 1], &self.files);
             res.append(&mut diags);
         }
-        Ok(res)
+        Ok(FileDiags::new(content.to_string(), res))
     }
 
     pub fn parse_folder(&mut self, folder: &str) -> Vec<LintResult> {

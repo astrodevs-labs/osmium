@@ -43,7 +43,6 @@ impl FoundryTestFunctions {
             code: None,
             source: None,
             uri: file.path.clone(),
-            source_file_content: file.content.clone(),
         }
     }
 }

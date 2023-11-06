@@ -85,6 +85,7 @@ impl Handler for Backend {
 
         if let Ok(diags) = diags_res {
             let diags = diags
+                .diags
                 .iter()
                 .map(|d| diagnostic_from_lintdiag(d.clone()))
                 .collect();
@@ -116,6 +117,7 @@ impl Handler for Backend {
 
         if let Ok(diags) = diags_res {
             let diags = diags
+                .diags
                 .iter()
                 .map(|d| diagnostic_from_lintdiag(d.clone()))
                 .collect();

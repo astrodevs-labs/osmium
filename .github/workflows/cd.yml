@@ -151,8 +151,8 @@ jobs:
 
       - name: Set tag
         run: |
-          git tag ${{ steps.tag.outputs.result }}
-          git push origin ${{ steps.tag.outputs.result }}
+          git tag "${{ matrix.workspace.name }}-${{ steps.tag.outputs.result }}"
+          git push origin "${{ matrix.workspace.name }}-${{ steps.tag.outputs.result }}"
       
       - name: Install dependencies
         run: |

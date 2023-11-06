@@ -61,9 +61,9 @@ fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>) {
     let mut not_found = false;
 
     match result {
-        Ok(diags) => {
+        Ok(file_diags) => {
             let mut found;
-            for (_, diag) in diags.diags.iter().enumerate() {
+            for (_, diag) in file_diags.diags.iter().enumerate() {
                 found = false;
                 for (_, expected_finding) in expected_findings.iter().enumerate() {
                     if (diag.range.start == expected_finding.start)

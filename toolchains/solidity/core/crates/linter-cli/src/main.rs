@@ -13,12 +13,6 @@ struct Args {
         help = "Path to the project to lint"
     )]
     path: String,
-    #[arg(
-        short = 'e',
-        long = "exclude",
-        help = "Exclude part of the project path"
-    )]
-    ignore_path: Vec<String>,
 
     #[arg(
         short = 'r',
@@ -53,12 +47,11 @@ struct Args {
     init: bool,
 
     #[arg(
-        short = 'g',
-        long = "ignore",
-        default_value = ".solidhunterignore",
-        help = "Specify ignore file"
+        short = 'e',
+        long = "exclude",
+        help = "Specify excluded files",
     )]
-    ignore_file: String,
+    exclude: Option<Vec<String>>,
 }
 
 fn print_result(results: Vec<LintResult>) {
@@ -91,10 +84,9 @@ fn main() -> Result<(), SolidHunterError> {
     if args.verbose {
         println!("Verbose output enabled");
         println!("Project path: {:?}", args.path);
-        println!("Exclude path: {:?}", args.ignore_path);
         println!("Using rules file: {}", args.rules_file);
         println!("Verbose output: {}", args.verbose);
-        println!("Ignore file output: {}", args.ignore_file);
+        println!("Excluded files: {:?}", args.exclude);
     }
 
     if args.init {
@@ -107,7 +99,9 @@ fn main() -> Result<(), SolidHunterError> {
     if !args.path.is_empty() {
         let mut linter: SolidLinter = SolidLinter::new();
         linter.initialize_rules(&args.rules_file)?;
-        linter.initialize_ignore_file(&args.ignore_file)?;
+        if let Some(excluded) = &args.exclude {
+            linter.initialize_excluded_files(excluded, &args.path)?;
+        }
 
         let result = linter.parse_path(&args.path);
         if !args.to_json {

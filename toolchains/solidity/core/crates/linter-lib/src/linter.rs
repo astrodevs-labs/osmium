@@ -21,7 +21,7 @@ pub struct SolidLinter {
     files: Vec<SolidFile>,
     rule_factory: RuleFactory,
     rules: Vec<Box<dyn RuleType>>,
-    ignored_files: Vec<String>,
+    excluded_files: Vec<String>,
 }
 
 impl Default for SolidLinter {
@@ -36,7 +36,7 @@ impl SolidLinter {
             files: Vec::new(),
             rule_factory: RuleFactory::default(),
             rules: vec![],
-            ignored_files: Vec::new(),
+            excluded_files: Vec::new(),
         }
     }
 
@@ -46,7 +46,7 @@ impl SolidLinter {
             files: Vec::new(),
             rule_factory: RuleFactory::default(),
             rules: Vec::new(),
-            ignored_files: Vec::new(),
+            excluded_files: Vec::new(),
         };
 
         for rule in default_rules {
@@ -64,11 +64,11 @@ impl SolidLinter {
         Ok(())
     }
 
-    pub fn initialize_ignore_file(&mut self, filepath: &str) -> Result<(), SolidHunterError> {
-        let ignored_files = get_ignored_files(filepath)?;
-        for file in ignored_files {
-            self.ignored_files.push(file.to_string())
+    pub fn initialize_excluded_files(&mut self, excluded_filepaths: &Vec<String>, filepath: &String) -> Result<(), SolidHunterError> {
+        for path in excluded_filepaths {
+            self.excluded_files.push(path.clone())
         }
+        // TODO: find recursively all .solidhunterignore files from the filepath
         Ok(())
     }
 
@@ -105,11 +105,11 @@ impl SolidLinter {
     }
 
     pub fn parse_file(&mut self, filepath: String) -> LintResult {
-        if self.ignored_files.contains(&filepath) {
-            return Ok(Vec::new());
-        }
         let content = fs::read_to_string(filepath.clone())?;
-        self.parse_content(filepath, content.as_str())
+        if self.excluded_files.contains(&filepath) {
+            return Ok(FileDiags::new(content, Vec::new()));
+        }
+        self.parse_content(&filepath, content.as_str())
     }
 
     pub fn parse_content(&mut self, filepath: &str, content: &str) -> LintResult {
@@ -136,7 +136,7 @@ impl SolidLinter {
     }
     pub fn parse_path(&mut self, path: &str) -> Vec<LintResult> {
         if Path::new(&path).is_file() {
-            vec![self.parse_file(path)]
+            vec![self.parse_file(path.to_string())]
         } else {
             self.parse_folder(path)
         }

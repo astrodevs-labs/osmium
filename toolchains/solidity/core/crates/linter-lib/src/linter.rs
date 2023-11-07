@@ -64,7 +64,7 @@ impl SolidLinter {
         Ok(())
     }
 
-    pub fn initialize_excluded_files(&mut self, excluded_filepaths: &Vec<String>, filepath: &String) -> Result<(), SolidHunterError> {
+    pub fn initialize_excluded_files(&mut self, excluded_filepaths: &Vec<String>, filepaths: &Vec<String>) -> Result<(), SolidHunterError> {
         for path in excluded_filepaths {
             self.excluded_files.push(path.clone())
         }

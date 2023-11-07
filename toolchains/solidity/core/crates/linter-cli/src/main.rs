@@ -8,11 +8,9 @@ use solidhunter_lib::types::LintResult;
 #[command(author, version, about, long_about = None)]
 struct Args {
     #[arg(
-        required = false,
-        default_value = ".",
-        help = "Path to the project to lint"
+        help = "Paths to the projects to lint"
     )]
-    path: String,
+    paths: Vec<String>,
 
     #[arg(
         short = 'r',
@@ -68,7 +66,7 @@ fn print_result(results: Vec<LintResult>) {
 }
 
 fn main() -> Result<(), SolidHunterError> {
-    let args = Args::parse();
+    let mut args = Args::parse();
 
     if !args.to_json {
         println!();
@@ -83,7 +81,7 @@ fn main() -> Result<(), SolidHunterError> {
 
     if args.verbose {
         println!("Verbose output enabled");
-        println!("Project path: {:?}", args.path);
+        println!("Project path: {:?}", args.paths);
         println!("Using rules file: {}", args.rules_file);
         println!("Verbose output: {}", args.verbose);
         println!("Excluded files: {:?}", args.exclude);
@@ -96,18 +94,25 @@ fn main() -> Result<(), SolidHunterError> {
         return Ok(());
     }
 
-    if !args.path.is_empty() {
-        let mut linter: SolidLinter = SolidLinter::new();
-        linter.initialize_rules(&args.rules_file)?;
-        if let Some(excluded) = &args.exclude {
-            linter.initialize_excluded_files(excluded, &args.path)?;
-        }
+    if args.paths.is_empty() {
+        args.paths.push(String::from("."));
+    }
 
-        let result = linter.parse_path(&args.path);
+    let mut linter: SolidLinter = SolidLinter::new();
+    linter.initialize_rules(&args.rules_file)?;
+    if let Some(excluded) = &args.exclude {
+        linter.initialize_excluded_files(excluded, &args.paths)?;
+    }
+    let mut results = vec![];
+    for path in &args.paths {
+        let result = linter.parse_path(path);
+        results.push(result);
+    }
+    for path_result in results {
         if !args.to_json {
-            print_result(result);
+            print_result(path_result);
         } else {
-            for res in result {
+            for res in path_result {
                 match res {
                     Ok(diags) => {
                         let json = serde_json::to_string_pretty(&diags);

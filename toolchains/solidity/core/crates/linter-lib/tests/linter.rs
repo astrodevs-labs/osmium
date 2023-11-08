@@ -55,9 +55,9 @@ fn test_directory(base_name: &str) {
 fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>, ignore: &str) {
     let mut linter: SolidLinter = SolidLinter::new();
     let _ = linter.initialize_rules(&String::from(config));
-    let _ = linter.initialize_ignore_file(&String::from(ignore));
+    //let _ = linter.initialize_excluded_files(&String::from(ignore));
 
-    let result = linter.parse_file(source);
+    let result = linter.parse_file(source.to_string());
     let mut found_findings: Vec<&Finding> = Vec::new();
     let mut not_found_findings: Vec<&Finding> = Vec::new();
     let mut not_needed_findings: Vec<&LintDiag> = Vec::new();

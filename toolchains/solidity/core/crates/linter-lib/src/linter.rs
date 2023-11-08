@@ -6,7 +6,7 @@ use crate::rules::types::*;
 use crate::types::*;
 use std::fs;
 
-use crate::ignore::get_ignored_files;
+use crate::ignore::get_excluded_files;
 use glob::glob;
 use std::path::Path;
 
@@ -64,11 +64,14 @@ impl SolidLinter {
         Ok(())
     }
 
-    pub fn initialize_excluded_files(&mut self, excluded_filepaths: &Vec<String>, filepaths: &Vec<String>) -> Result<(), SolidHunterError> {
-        for path in excluded_filepaths {
-            self.excluded_files.push(path.clone())
+    pub fn initialize_excluded_files(&mut self, excluded_filepaths: Option<&Vec<String>>, filepaths: &Vec<String>) -> Result<(), SolidHunterError> {
+        if let Some(excluded) = excluded_filepaths {
+            for path in excluded {
+                self.excluded_files.push(path.clone())
+            }
         }
-        // TODO: find recursively all .solidhunterignore files from the filepath
+        self.excluded_files.append(&mut get_excluded_files(filepaths)?);
+
         Ok(())
     }
 

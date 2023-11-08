@@ -100,9 +100,8 @@ fn main() -> Result<(), SolidHunterError> {
 
     let mut linter: SolidLinter = SolidLinter::new();
     linter.initialize_rules(&args.rules_file)?;
-    if let Some(excluded) = &args.exclude {
-        linter.initialize_excluded_files(excluded, &args.paths)?;
-    }
+    linter.initialize_excluded_files(args.exclude.as_ref(), &args.paths)?;
+
     let mut results = vec![];
     for path in &args.paths {
         let result = linter.parse_path(path);

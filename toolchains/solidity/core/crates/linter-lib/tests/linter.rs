@@ -187,21 +187,21 @@ fn SolidhunterIgnore() {
     let _ = linter.initialize_rules(&String::from(
         path.join(".solidhunter.json").to_str().unwrap(),
     ));
-    println!(
-        "{:?} {:?}",
-        &String::from(
-            path.join(".solidhunter.json").to_str().unwrap(),
-        ),
-        path.to_str().unwrap()
+    let _ = linter.initialize_excluded_files(
+        Some(&vec![]),
+        &vec![path.to_str().unwrap().to_string()],
     );
-   //let _ = linter.initialize_excluded_files(
-   //    Some(&vec![]),
-   //    &vec![path.to_str().unwrap().to_string()],
-   //);
 
     let result = linter.parse_path(path.to_str().unwrap());
 
-    for test in result {
-       println!("{:?}", test.unwrap())
+    let mut diags_number = 0;
+
+    for lint_result in result {
+        match lint_result {
+            Ok(lint_result) => diags_number += lint_result.diags.len(),
+            Err(e) => println!("{}", e)
+        }
     }
+
+    assert_eq!(diags_number, 3, "Invalid number of diagnostics");
 }

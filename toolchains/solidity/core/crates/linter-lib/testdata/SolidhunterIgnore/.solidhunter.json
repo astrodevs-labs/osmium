@@ -1,8 +1,8 @@
 {
   "name": "solidhunter",  "rules": [
-    {
-      "id": "avoid-tx-origin",
-      "severity": "WARNING"
-    }
+  {
+    "id": "const-name-snakecase",
+    "severity": "WARNING"
+  }
   ]
 }

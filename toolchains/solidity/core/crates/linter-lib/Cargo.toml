@@ -2,7 +2,7 @@
 name = "solidhunter-lib"
 description = "Solidhunter/Osmium solidity linter library"
 repository = "https://github.com/astrodevs-labs/osmium"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Astrodevs Labs"]
 license = "GPL-3.0-or-later"

@@ -19,7 +19,7 @@ fn test_directory(base_name: &str) {
             .join("testdata")
             .join(base_name),
     )
-    .unwrap()
+        .unwrap()
     {
         let path = path.unwrap().path();
 
@@ -55,7 +55,6 @@ fn test_directory(base_name: &str) {
 fn test_linter(config: &str, source: &str, expected_findings: &Vec<Finding>, ignore: &str) {
     let mut linter: SolidLinter = SolidLinter::new();
     let _ = linter.initialize_rules(&String::from(config));
-    //let _ = linter.initialize_excluded_files(&String::from(ignore));
 
     let result = linter.parse_file(source.to_string());
     let mut found_findings: Vec<&Finding> = Vec::new();
@@ -175,6 +174,34 @@ test_directories! {
     Ordering,
     PrivateVarsLeadingUnderscore,
     FoundryTestFunctions,
-    AvoidTxOrigin,
-    SolidhunterIgnore
+    AvoidTxOrigin
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn SolidhunterIgnore() {
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("testdata")
+        .join("SolidhunterIgnore");
+    let mut linter: SolidLinter = SolidLinter::new();
+    let _ = linter.initialize_rules(&String::from(
+        path.join(".solidhunter.json").to_str().unwrap(),
+    ));
+    println!(
+        "{:?} {:?}",
+        &String::from(
+            path.join(".solidhunter.json").to_str().unwrap(),
+        ),
+        path.to_str().unwrap()
+    );
+   //let _ = linter.initialize_excluded_files(
+   //    Some(&vec![]),
+   //    &vec![path.to_str().unwrap().to_string()],
+   //);
+
+    let result = linter.parse_path(path.to_str().unwrap());
+
+    for test in result {
+       println!("{:?}", test.unwrap())
+    }
 }

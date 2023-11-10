@@ -64,13 +64,18 @@ impl SolidLinter {
         Ok(())
     }
 
-    pub fn initialize_excluded_files(&mut self, excluded_filepaths: Option<&Vec<String>>, filepaths: &Vec<String>) -> Result<(), SolidHunterError> {
+    pub fn initialize_excluded_files(
+        &mut self,
+        excluded_filepaths: Option<&Vec<String>>,
+        filepaths: &Vec<String>,
+    ) -> Result<(), SolidHunterError> {
         if let Some(excluded) = excluded_filepaths {
             for path in excluded {
                 self.excluded_files.push(path.clone())
             }
         }
-        self.excluded_files.append(&mut get_excluded_files(filepaths)?);
+        self.excluded_files
+            .append(&mut get_excluded_files(filepaths)?);
 
         Ok(())
     }

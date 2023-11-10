@@ -34,7 +34,7 @@ fn get_solidhunterignore_paths(filepath: &String) -> Result<Vec<String>, SolidHu
 
     if let Ok(entries) = glob(&format!("{}/**/.solidhunterignore", filepath)) {
         for entry in entries.flatten() {
-           ignored_files.push(entry.into_os_string().into_string().unwrap())
+            ignored_files.push(entry.into_os_string().into_string().unwrap())
         }
     }
 
@@ -51,7 +51,7 @@ pub fn get_excluded_files(filepaths: &Vec<String>) -> Result<Vec<String>, SolidH
             continue;
         }
 
-        let solidhunterignore_paths = get_solidhunterignore_paths(&filepath)?;
+        let solidhunterignore_paths = get_solidhunterignore_paths(filepath)?;
 
         for solidhunterignore_path in solidhunterignore_paths {
             if let Ok(mut excluded) = parse_solihunterignore(&solidhunterignore_path) {

@@ -7,9 +7,7 @@ use solidhunter_lib::types::LintResult;
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    #[arg(
-        help = "Paths to the projects to lint"
-    )]
+    #[arg(help = "Paths to the projects to lint")]
     paths: Vec<String>,
 
     #[arg(
@@ -44,11 +42,7 @@ struct Args {
     )]
     init: bool,
 
-    #[arg(
-        short = 'e',
-        long = "exclude",
-        help = "Specify excluded files",
-    )]
+    #[arg(short = 'e', long = "exclude", help = "Specify excluded files")]
     exclude: Option<Vec<String>>,
 }
 

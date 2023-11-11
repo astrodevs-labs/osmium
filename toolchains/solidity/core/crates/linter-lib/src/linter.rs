@@ -60,11 +60,12 @@ impl SolidLinter {
         Ok(())
     }
 
-    pub fn get_documentation(& self) -> Vec<RuleDocumentation> {
-        // for rule in self.rules {
-        // 
-        // }
-        return Vec::new();
+    pub fn get_documentation(&self) -> Vec<RuleDocumentation> {
+        let mut res = Vec::new();
+        for rule in &self.rules {
+            res.push(rule.get_documentation())
+        }
+        res
     }
 
     fn _file_exists(&self, path: &str) -> bool {

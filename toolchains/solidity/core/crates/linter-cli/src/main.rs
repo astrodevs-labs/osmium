@@ -112,12 +112,12 @@ fn main() -> Result<(), SolidHunterError> {
         return Ok(());
     }
 
-    if args.paths.is_empty() {
-        args.paths.push(String::from("."));
-    }
-
     let mut linter: SolidLinter = SolidLinter::new();
-    linter.initialize_rules(&args.rules_file)?;
+    let mut path: String = args.rules_file;
+    if args.path != "." && path == ".solidhunter.json" {
+        path = args.path.as_str().to_owned() + "/" +  path.as_str();
+    }
+    linter.initialize_rules(&path)?;
     linter.initialize_excluded_files(args.exclude.as_ref(), &args.paths)?;
 
     let mut results = vec![];

@@ -1,7 +1,7 @@
 [package]
 name = "linter-server"
 license = "GPL-3.0-or-later"
-version = "0.0.2"
+version = "0.1.2"
 edition = "2021"
 
 [lib]
@@ -11,5 +11,5 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 osmium-libs-lsp-handler = { path = "../../../../../libs/lsp-handler", version = "0.0.3" }
-solidhunter-lib = { path = "../linter-lib", version = "0.1.0" }
+solidhunter-lib = { path = "../linter-lib", version = "0.2.0" }
 js-sys = "0.3.64"

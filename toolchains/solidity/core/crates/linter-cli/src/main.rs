@@ -7,18 +7,8 @@ use solidhunter_lib::types::LintResult;
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    #[arg(
-        required = false,
-        default_value = ".",
-        help = "Path to the project to lint"
-    )]
-    path: String,
-    #[arg(
-        short = 'e',
-        long = "exclude",
-        help = "Exclude part of the project path"
-    )]
-    ignore_path: Vec<String>,
+    #[arg(help = "Paths to the projects to lint")]
+    paths: Vec<String>,
 
     #[arg(
         short = 'r',
@@ -51,6 +41,9 @@ struct Args {
         help = "Initialize rules file"
     )]
     init: bool,
+
+    #[arg(short = 'e', long = "exclude", help = "Specify excluded files")]
+    exclude: Option<Vec<String>>,
 }
 
 fn print_result(results: Vec<LintResult>) {
@@ -67,7 +60,7 @@ fn print_result(results: Vec<LintResult>) {
 }
 
 fn main() -> Result<(), SolidHunterError> {
-    let args = Args::parse();
+    let mut args = Args::parse();
 
     if !args.to_json {
         println!();
@@ -82,10 +75,10 @@ fn main() -> Result<(), SolidHunterError> {
 
     if args.verbose {
         println!("Verbose output enabled");
-        println!("Project path: {:?}", args.path);
-        println!("Exclude path: {:?}", args.ignore_path);
+        println!("Project path: {:?}", args.paths);
         println!("Using rules file: {}", args.rules_file);
         println!("Verbose output: {}", args.verbose);
+        println!("Excluded files: {:?}", args.exclude);
     }
 
     if args.init {
@@ -95,15 +88,24 @@ fn main() -> Result<(), SolidHunterError> {
         return Ok(());
     }
 
-    if !args.path.is_empty() {
-        let mut linter: SolidLinter = SolidLinter::new();
-        linter.initialize_rules(&args.rules_file)?;
+    if args.paths.is_empty() {
+        args.paths.push(String::from("."));
+    }
 
-        let result = linter.parse_path(&args.path);
+    let mut linter: SolidLinter = SolidLinter::new();
+    linter.initialize_rules(&args.rules_file)?;
+    linter.initialize_excluded_files(args.exclude.as_ref(), &args.paths)?;
+
+    let mut results = vec![];
+    for path in &args.paths {
+        let result = linter.parse_path(path);
+        results.push(result);
+    }
+    for path_result in results {
         if !args.to_json {
-            print_result(result);
+            print_result(path_result);
         } else {
-            for res in result {
+            for res in path_result {
                 match res {
                     Ok(diags) => {
                         let json = serde_json::to_string_pretty(&diags);

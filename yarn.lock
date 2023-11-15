@@ -207,6 +207,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@osmium-libs/foundry-wrapper@workspace:libs/foundry-wrapper":
+  version: 0.0.0-use.local
+  resolution: "@osmium-libs/foundry-wrapper@workspace:libs/foundry-wrapper"
+  languageName: unknown
+  linkType: soft
+
 "@osmium-libs/lsp-handler@workspace:libs/lsp-handler":
   version: 0.0.0-use.local
   resolution: "@osmium-libs/lsp-handler@workspace:libs/lsp-handler"

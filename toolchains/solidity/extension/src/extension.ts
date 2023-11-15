@@ -5,7 +5,6 @@
 
 import * as path from 'path';
 import { workspace, ExtensionContext } from 'vscode';
-import { TextDecoder } from 'util';
 
 import {
 	LanguageClient,
@@ -14,18 +13,21 @@ import {
 	TransportKind
 } from 'vscode-languageclient/node';
 import { createLinterClient } from './linter';
+import { createFoundryCompilerClient } from './foundry-compiler';
 
+let linterClient: LanguageClient;
+let foundryCompilerClient: LanguageClient;
 
 let linterClient: LanguageClient;
 
 export async function activate(context: ExtensionContext) {
 	linterClient = createLinterClient(context);
+	foundryCompilerClient = createFoundryCompilerClient(context);
 
-	// Push the disposable to the context's subscriptions so that the
-	// client can be deactivated on extension deactivation
 	context.subscriptions.push(linterClient);
-	
+	context.subscriptions.push(foundryCompilerClient);
 
+	
 	const folders = workspace.workspaceFolders;
 	if (folders) {
 		const files = await workspace.findFiles('**/*.sol', `${folders[0].uri.fsPath}/**`);

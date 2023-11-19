@@ -61,6 +61,23 @@ impl RuleType for UseForbiddenName {
         }
         res
     }
+
+    fn get_documentation(&self) -> RuleDocumentation {
+        RuleDocumentation {
+            id: RULE_ID.to_string(),
+            severity: DEFAULT_SEVERITY,
+            description: "Avoid to use letters 'I', 'l', 'O' as identifiers.".to_string(),
+            category: "naming".to_string(),
+            example_config: "{\"id\": \"use-forbidden-name\", \"severity\": \"WARNING\", \"data\": []}".to_string(),
+            source_link: "https://github.com/astrodevs-labs/osmium/blob/dev/toolchains/solidity/core/crates/linter-lib/src/rules/naming/use_forbidden_name.rs".to_string(),
+            test_link: "https://github.com/astrodevs-labs/osmium/tree/dev/toolchains/solidity/core/crates/linter-lib/testdata/UseForbiddenName".to_string(),
+            options: vec![],
+            examples: Examples {
+                good: vec![],
+                bad: vec![],
+            },
+        }
+    }
 }
 
 impl UseForbiddenName {

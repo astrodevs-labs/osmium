@@ -67,6 +67,48 @@ impl RuleType for CustomErrors {
         }
         res
     }
+
+    fn get_documentation(&self) -> RuleDocumentation {
+        RuleDocumentation {
+            id: RULE_ID.to_string(),
+            severity: DEFAULT_SEVERITY,
+            description: "Enforces the use of Custom Errors over Require and Revert statements"
+                .to_string(),
+            category: "best-practises".to_string(),
+            example_config: "{\"id\": \"custom-errors\", \"severity\": \"WARNING\"}".to_string(),
+            source_link: "https://github.com/astrodevs-labs/osmium/blob/dev/toolchains/solidity/core/crates/linter-lib/src/rules/best_practices/custom_errors.rs".to_string(),
+            test_link: "https://github.com/astrodevs-labs/osmium/tree/dev/toolchains/solidity/core/crates/linter-lib/testdata/CustomErrors".to_string(),
+            options: vec![],
+            examples: Examples {
+                good: vec![
+                    Example {
+                        description: "Use Custom Errors".to_string(),
+                        code: "revert CustomErrorFunction();".to_string(),
+                    },
+                    Example {
+                        description: "Use of Custom Errors with arguments".to_string(),
+                        code: "revert CustomErrorFunction({ msg: \"Insufficient Balance\" });"
+                            .to_string(),
+                    },
+                ],
+                bad: vec![
+                    Example {
+                        description: "Use of require statement".to_string(),
+                        code: "require(userBalance >= availableAmount, \"Insufficient Balance\");"
+                            .to_string(),
+                    },
+                    Example {
+                        description: "Use of plain revert statement".to_string(),
+                        code: "revert();".to_string(),
+                    },
+                    Example {
+                        description: "Use of revert statement with message".to_string(),
+                        code: "revert(\"Insufficient Balance\");".to_string(),
+                    },
+                ],
+            },
+        }
+    }
 }
 
 impl CustomErrors {

@@ -51,6 +51,14 @@ struct Args {
         help = "Initialize rules file"
     )]
     init: bool,
+
+    #[arg(
+        short = 'd',
+        long = "documentation",
+        default_value = "false",
+        help = "exposes rules documentation"
+    )]
+    documentation: bool,
 }
 
 fn print_result(results: Vec<LintResult>) {
@@ -80,12 +88,29 @@ fn main() -> Result<(), SolidHunterError> {
         println!();
     }
 
+    if args.documentation {
+        println!("These are all rules documentations");
+        let linter: SolidLinter = SolidLinter::new_fileless();
+
+        let json = serde_json::to_string_pretty(&linter.get_documentation());
+        match json {
+            Ok(j) => {
+                println!("{}", j);
+            }
+            Err(e) => {
+                println!("{}", e);
+            }
+        }
+        return Ok(());
+    }
+
     if args.verbose {
         println!("Verbose output enabled");
         println!("Project path: {:?}", args.path);
         println!("Exclude path: {:?}", args.ignore_path);
         println!("Using rules file: {}", args.rules_file);
         println!("Verbose output: {}", args.verbose);
+        println!("Documentation output: {}", args.documentation);
     }
 
     if args.init {

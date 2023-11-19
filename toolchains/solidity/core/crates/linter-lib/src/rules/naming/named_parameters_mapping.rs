@@ -92,6 +92,58 @@ impl RuleType for NamedParametersMapping {
         }
         res
     }
+
+    fn get_documentation(&self) -> RuleDocumentation {
+        RuleDocumentation {
+            id: RULE_ID.to_string(),
+            severity: DEFAULT_SEVERITY,
+            description: "Solidity v0.8.18 introduced named parameters on the mappings definition.".to_string(),
+            category: "naming".to_string(),
+            example_config: "{\"id\": \"named-parameters-mapping\", \"severity\": \"WARNING\"}".to_string(),
+            source_link: "https://github.com/astrodevs-labs/osmium/blob/dev/toolchains/solidity/core/crates/linter-lib/src/rules/naming/named_parameters_mapping.rs".to_string(),
+            test_link: "https://github.com/astrodevs-labs/osmium/tree/dev/toolchains/solidity/core/crates/linter-lib/testdata/NamedParametersMapping".to_string(),
+            options: vec![],
+            examples: Examples {
+                good: vec![
+                    Example {
+                        description: "To enter \"users\" mapping the key called \"name\" is needed to get the \"balance\"".to_string(),
+                        code: "mapping(string name => uint256 balance) public users;".to_string(),
+                    },
+                    Example {
+                        description: "To enter owner token balance, the main key \"owner\" enters another mapping which its key is \"token\" to get its \"balance\"".to_string(),
+                        code: "mapping(address owner => mapping(address token => uint256 balance)) public tokenBalances;".to_string(),
+                    },
+                    Example {
+                        description: "Main key of mapping is enforced. On nested mappings other naming are not neccesary".to_string(),
+                        code: "mapping(address owner => mapping(address => uint256)) public tokenBalances;".to_string(),
+                    }, Example {
+                        description: "Main key of the parent mapping is enforced. No naming in nested mapping uint256".to_string(),
+                        code: "mapping(address owner => mapping(address token => uint256)) public tokenBalances;".to_string(),
+                    }, Example {
+                        description: "Main key of the parent mapping is enforced. No naming in nested mapping address".to_string(),
+                        code: "mapping(address owner => mapping(address => uint256 balance)) public tokenBalances;".to_string(),
+                    },
+                ],
+                bad: vec![
+                    Example {
+                        description: "No naming at all in regular mapping".to_string(),
+                        code: "mapping(address => uint256)) public tokenBalances;".to_string(),
+                    },
+                    Example {
+                        description: "Missing any variable name in regular mapping uint256".to_string(),
+                        code: "mapping(address token => uint256)) public tokenBalances;".to_string(),
+                    },
+                    Example {
+                        description: "Missing any variable name in regular mapping address".to_string(),
+                        code: "mapping(address => uint256 balance)) public tokenBalances;".to_string(),
+                    }, Example {
+                        description: "No MAIN KEY naming in nested mapping. Other naming are not enforced".to_string(),
+                        code: "mapping(address => mapping(address token => uint256 balance)) public tokenBalances;".to_string(),
+                    },
+                ],
+            },
+        }
+    }
 }
 
 impl NamedParametersMapping {

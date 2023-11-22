@@ -1,12 +1,8 @@
-
-use std::{cell::RefCell, rc::Rc};
 use osmium_libs_lsp_server_wrapper::{
-    lsp_types::*,
-    Result,
-    Client, 
-    LanguageServer, 
-    LspStdioServer};
+    lsp_types::*, Client, LanguageServer, LspStdioServer, Result,
+};
 use solidhunter_lib::{linter::SolidLinter, types::LintDiag};
+use std::{cell::RefCell, rc::Rc};
 
 struct Backend {
     connection: Rc<RefCell<Client>>,
@@ -28,19 +24,22 @@ impl LanguageServer for Backend {
     }
 
     fn initialized(&self, _: InitializedParams) {
-        self.connection.borrow_mut()
+        self.connection
+            .borrow_mut()
             .log_message(MessageType::INFO, "Server initialized!");
 
         self.linter
             .borrow_mut()
             .replace(SolidLinter::new_fileless());
 
-        self.connection.borrow_mut()
+        self.connection
+            .borrow_mut()
             .log_message(MessageType::INFO, "Linter initialized!");
     }
 
     fn shutdown(&self) -> Result<()> {
-        self.connection.borrow_mut()
+        self.connection
+            .borrow_mut()
             .log_message(MessageType::INFO, "Server shutdown!");
         Ok(())
     }
@@ -60,7 +59,10 @@ impl LanguageServer for Backend {
             format!("file changed!: {:}", params.text_document.uri),
         );
 
-        self.lint(params.text_document.uri, params.content_changes[0].text.clone());
+        self.lint(
+            params.text_document.uri,
+            params.content_changes[0].text.clone(),
+        );
     }
 }
 
@@ -91,10 +93,12 @@ impl Backend {
                 .map(|d| diagnostic_from_lintdiag(d.clone()))
                 .collect();
             eprintln!("diags: {:#?}", diags);
-            self.connection.borrow_mut()
+            self.connection
+                .borrow_mut()
                 .publish_diagnostics(uri.clone(), diags, None);
         } else if let Err(e) = diags_res {
-            self.connection.borrow_mut()
+            self.connection
+                .borrow_mut()
                 .log_message(MessageType::ERROR, e.to_string());
         }
     }
@@ -130,7 +134,7 @@ fn diagnostic_from_lintdiag(diag: LintDiag) -> Diagnostic {
 
 fn main() -> std::result::Result<(), usize> {
     let server = LspStdioServer::new();
-    LspStdioServer::serve(server, |connection| Backend::new(connection)).map_err(|err| {
+    LspStdioServer::serve(server, Backend::new).map_err(|err| {
         eprintln!("Error: {:?}", err);
         1
     })

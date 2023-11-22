@@ -1,11 +1,16 @@
 {
-  "name": "osmium-solidity-toolchain",
+  "name": "osmium-solidity",
   "version": "0.0.1",
   "workspaces": [
-    "*"
+    "core",
+    "extension"
   ],
   "license": "MIT",
   "scripts": {
-    "toolchain:build": "yarn workspaces foreach -pt run build"
+    "build": "cd core && yarn core:build && cd ../extension && yarn extension:build",
+    "lint": "cd core && yarn core:lint && cd ../extension && yarn extension:lint",
+    "test": "cd core && yarn core:test && cd ../extension && yarn extension:test",
+    "format": "cd core && yarn core:format && cd ../extension && yarn extension:format",
+    "publish": "cd core && yarn core:publish && cd ../extension && yarn extension:publish && cd .."
   }
 }

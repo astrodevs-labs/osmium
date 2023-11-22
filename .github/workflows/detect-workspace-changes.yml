@@ -19,6 +19,12 @@ on:
       extensions:
         description: "Array of affected extensions workspaces"
         value: ${{ jobs.detect_changes.outputs.extensions }}
+      libraries:
+        description: "Array of affected libraries workspaces"
+        value: ${{ jobs.detect_changes.outputs.libraries }}
+      packages:
+        description: "Array of affected packages workspaces"
+        value: ${{ jobs.detect_changes.outputs.packages }}
 
 jobs:
   detect_changes:
@@ -27,6 +33,8 @@ jobs:
       workspaces: ${{ toJson(fromJson(steps.build-array.outputs.result).affectedWorkspaces) }}
       toolchains: ${{ toJson(fromJson(steps.build-array.outputs.result).toolchainsWorkspaces) }}
       extensions: ${{ toJson(fromJson(steps.build-array.outputs.result).extensionsWorkspaces) }}
+      libraries: ${{ toJson(fromJson(steps.build-array.outputs.result).librariesWorkspaces) }}
+      packages: ${{ toJson(fromJson(steps.build-array.outputs.result).packagesWorkspaces) }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -45,7 +53,6 @@ jobs:
           corepack enable
           corepack prepare yarn@stable --activate
           yarn -v
-          yarn plugin import workspace-tools
       - name: Get yarn workspaces output
         id: raw-workspaces-list
         run: |
@@ -67,26 +74,68 @@ jobs:
             console.log(workspaces)
             const affectedWorkspaces = workspaces.filter(workspace => {
               return workspace.location !== '.'
+            }).map(workspace => {
+              return {
+                name: workspace.name
+              }
             })
             console.log(affectedWorkspaces)
-            const toolchainsWorkspaces = affectedWorkspaces.filter(workspace => {
-              return workspace.name.endsWith('-toolchain')
-            })
+            const librariesWorkspaces = affectedWorkspaces.filter(workspace => {
+              return workspace.name.startsWith('@osmium-libs/')
+            }).map(workspace => ({
+                name: workspace.name
+            }))
+            const packagesWorkspaces = affectedWorkspaces.filter(workspace => {
+              return workspace.name.startsWith('@osmium-packages/')
+            }).map(workspace => ({
+                name: workspace.name
+            }))
             const extensionsWorkspaces = affectedWorkspaces.filter(workspace => {
-              return workspace.name.match(/osmium-(?!packages)(?:manager|(?:\w+-(?!toolchain)(?!\w+-\w+)))/)
+              return workspace.name.match(/^osmium-(?:manager|(?!\w+-\w+)(?:\w+))$/)
+            }).map(workspace => ({
+                name: workspace.name
+            }))
+            const extensionsFoldersWorkspaces = affectedWorkspaces.filter(workspace => {
+              return workspace.name.match(/^osmium-\w+-\w+$/)
+            }).map(workspace => ({
+                name: workspace.name
+            }))
+
+            const missingExtensionsWorkspaces = extensionsFoldersWorkspaces.map(workspaceFolder => {
+              const extensionName = workspaceFolder.name.split('-').slice(0, 2).join('-')
+              const extensionWorkspace = extensionsWorkspaces.find(workspace => {
+                return workspace.name === extensionName
+              })
+              if (!extensionWorkspace) {
+                return {
+                  name: extensionName
+                }
+              }
+              return extensionWorkspace
             })
+
+            const completeList = [...extensionsWorkspaces, ...missingExtensionsWorkspaces]
+            const completeExtensionsWorkspaces = completeList.filter((workspace, index, self) => {
+              return index === self.findIndex((t) => (
+                t.name === workspace.name
+              ))
+            })
+
             return {
               affectedWorkspaces,
-              toolchainsWorkspaces,
-              extensionsWorkspaces
+              extensionsWorkspaces: completeExtensionsWorkspaces,
+              librariesWorkspaces,
+              packagesWorkspaces
             }
 
       - name: debug
         run: |
           echo "Affected workspaces: ${{ toJson(fromJson(steps.build-array.outputs.result).affectedWorkspaces) }}"
           echo "------------------------------------"
-          echo "Toolchains workspaces: ${{ toJson(fromJson(steps.build-array.outputs.result).toolchainsWorkspaces) }}"
-          echo "------------------------------------"
           echo "Extensions workspaces: ${{ toJson(fromJson(steps.build-array.outputs.result).extensionsWorkspaces) }}"
+          echo "------------------------------------"
+          echo "Libraries workspaces: ${{ toJson(fromJson(steps.build-array.outputs.result).librariesWorkspaces) }}"
+          echo "------------------------------------"
+          echo "Packages workspaces: ${{ toJson(fromJson(steps.build-array.outputs.result).packagesWorkspaces) }}"
       
       

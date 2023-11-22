@@ -150,8 +150,8 @@ jobs:
 
       - name: Set tag
         run: |
-          git tag "${{ matrix.workspace.name }}-${{ steps.tag.outputs.result }}"
-          git push origin "${{ matrix.workspace.name }}-${{ steps.tag.outputs.result }}"
+          git tag "${{ steps.get-tag-prefix.outputs.result }}-${{ steps.tag.outputs.result }}"
+          git push origin "${{ steps.get-tag-prefix.outputs.result }}-${{ steps.tag.outputs.result }}"
 
   publish-core:
     if: ${{ needs.setup.outputs.extensions != '[]' }}

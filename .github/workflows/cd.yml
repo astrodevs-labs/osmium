@@ -30,6 +30,7 @@ jobs:
   publish-libraries:
     if : ${{ needs.setup.outputs.libraries != '[]' }}
     runs-on: ubuntu-latest
+    continue-on-error: true
     needs: setup
     strategy:
       fail-fast: false
@@ -166,3 +167,6 @@ jobs:
     uses: ./.github/workflows/publish-extension.yml
     with:
       workspace: ${{ matrix.workspace.name }}
+    secrets:
+      CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      VSCE_PAT: ${{ secrets.VSCE_PAT }}

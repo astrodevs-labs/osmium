@@ -55,6 +55,10 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
+
+      - name: Get tags
+        run: git fetch --tags origin
+
       - uses: actions/setup-node@v3
         with:
           node-version: '18.16.1'
@@ -109,7 +113,7 @@ jobs:
           CARGO_BUILD_TARGET: ${{ matrix.target }}
 
       - name: Publish
-        run: yarn workspace ${{ inputs.workspace }} run publish ${{ github.ref_name == 'dev' && '--pre-release' || '' }} --target ${{matrix.code-target}} ${{ steps.tag.outputs.result }}
+        run: yarn workspace ${{ inputs.workspace }} run extension:publish ${{ github.ref_name == 'dev' && '--pre-release' || '' }} --target ${{matrix.code-target}} ${{ steps.tag.outputs.result }}
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}

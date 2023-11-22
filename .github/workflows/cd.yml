@@ -54,7 +54,6 @@ jobs:
       - name: Install dependencies
         run: |
           yarn install --immutable
-          cargo install wasm-pack
 
       - name: Build
         run: |
@@ -154,7 +153,47 @@ jobs:
           git tag "${{ matrix.workspace.name }}-${{ steps.tag.outputs.result }}"
           git push origin "${{ matrix.workspace.name }}-${{ steps.tag.outputs.result }}"
 
-  publish:
+  publish-core:
+    if: ${{ needs.setup.outputs.extensions != '[]' }}
+    needs: 
+      - setup
+      - publish-libraries
+      - compute-version
+    strategy:
+      fail-fast: false
+      matrix:
+        workspace: ${{ fromJson(needs.setup.outputs.extensions)}}
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.16.1'
+
+      - id: setup-yarn
+        # Install yarn 3 & workspace-tools
+        run: |
+          corepack enable
+          corepack prepare yarn@stable --activate
+          yarn -v
+
+      - name: Install dependencies
+        run: |
+          yarn install --immutable
+
+      - name: Build
+        run: |
+          yarn workspace ${{ matrix.workspace.name }} core:build
+
+      - name: Publish
+        run: yarn workspace ${{ matrix.workspace.name }} run core:publish 
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+  publish-extensions:
     if : ${{ needs.setup.outputs.extensions != '[]' }}
     needs: 
       - setup

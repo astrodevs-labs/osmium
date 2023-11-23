@@ -53,6 +53,32 @@ impl RuleType for OneContractPerFile {
         }
         res
     }
+
+    fn get_documentation(&self) -> RuleDocumentation {
+        RuleDocumentation {
+            id: RULE_ID.to_string(),
+            severity: DEFAULT_SEVERITY,
+            description: "Imported object name is not being used by the contract.".to_string(),
+            category: "best-practices".to_string(),
+            example_config: "{\"id\": \"one-contract-per-file\", \"severity\": \"WARNING\"}".to_string(),
+            source_link: "https://github.com/astrodevs-labs/osmium/blob/dev/toolchains/solidity/core/crates/linter-lib/src/rules/best_practices/one_contract_per_file.rs".to_string(),
+            test_link: "https://github.com/astrodevs-labs/osmium/tree/dev/toolchains/solidity/core/crates/linter-lib/testdata/OneContractPerFile".to_string(),
+            options: vec![],
+            examples: Examples {
+                good: vec![Example {
+                    description: "Imported object is being used".to_string(),
+                    code:
+                        "import { ERC20 } from \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\nContract MyToken is ERC20 {}"
+                            .to_string(),
+                }],
+                bad: vec![Example {
+                    description: "Imported object is not being used".to_string(),
+                    code: "import { ERC20 } from \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\nContract B {}"
+                        .to_string(),
+                }],
+            },
+        }
+    }
 }
 
 impl OneContractPerFile {

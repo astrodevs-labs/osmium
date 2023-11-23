@@ -44,6 +44,14 @@ struct Args {
 
     #[arg(short = 'e', long = "exclude", help = "Specify excluded files")]
     exclude: Option<Vec<String>>,
+
+    #[arg(
+        short = 'd',
+        long = "documentation",
+        default_value = "false",
+        help = "exposes rules documentation"
+    )]
+    documentation: bool,
 }
 
 fn print_result(results: Vec<LintResult>) {
@@ -62,6 +70,21 @@ fn print_result(results: Vec<LintResult>) {
 fn main() -> Result<(), SolidHunterError> {
     let mut args = Args::parse();
 
+    if args.documentation {
+        let linter: SolidLinter = SolidLinter::new_fileless();
+
+        let json = serde_json::to_string_pretty(&linter.get_documentation());
+        match json {
+            Ok(j) => {
+                println!("{}", j);
+            }
+            Err(e) => {
+                println!("{}", e);
+            }
+        }
+        return Ok(());
+    }
+
     if !args.to_json {
         println!();
         println!("SolidHunter: Fast and efficient Solidity linter");
@@ -79,6 +102,7 @@ fn main() -> Result<(), SolidHunterError> {
         println!("Using rules file: {}", args.rules_file);
         println!("Verbose output: {}", args.verbose);
         println!("Excluded files: {:?}", args.exclude);
+        println!("Documentation output: {}", args.documentation);
     }
 
     if args.init {

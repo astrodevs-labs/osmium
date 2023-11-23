@@ -54,6 +54,29 @@ impl RuleType for StateVisibility {
         }
         res
     }
+
+    fn get_documentation(&self) -> RuleDocumentation {
+        RuleDocumentation {
+            id: RULE_ID.to_string(),
+            severity: DEFAULT_SEVERITY,
+            description: "Explicitly mark visibility of state.".to_string(),
+            category: "security".to_string(),
+            example_config: "{\"id\": \"state-visibility\", \"severity\": \"WARNING\", \"data\": []}".to_string(),
+            source_link: "https://github.com/astrodevs-labs/osmium/blob/dev/toolchains/solidity/core/crates/linter-lib/src/rules/security/state_visibility.rs".to_string(),
+            test_link: "https://github.com/astrodevs-labs/osmium/tree/dev/toolchains/solidity/core/crates/linter-lib/testdata/".to_string(),
+            options: vec![],
+            examples: Examples {
+                good: vec![Example {
+                    description: "State explicitly marked with visibility".to_string(),
+                    code: "uint public data;".to_string(),
+                }],
+                bad: vec![Example {
+                    description: "Functions without explicitly marked visibility".to_string(),
+                    code: "uint data;".to_string(),
+                }],
+            },
+        }
+    }
 }
 
 impl StateVisibility {

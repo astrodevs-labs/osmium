@@ -9,32 +9,35 @@
     <meta name="generator" content="Retype 3.5.0">
 
     <!-- Primary Meta Tags -->
-    <title>Welcome</title>
-    <meta name="title" content="Welcome">
-    <meta name="description" content="Welcome to our Linter Rules Documentation. Here you will find all the rules implemented in our linter.">
+    <title>func-visibility</title>
+    <meta name="title" content="func-visibility">
+    <meta name="description" content="Explicitly mark visibility in function.">
 
     <!-- Canonical -->
-    <link rel="canonical" href="/">
+    <link rel="canonical" href="/security/func-visibility/">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="/">
-    <meta property="og:title" content="Welcome">
-    <meta property="og:description" content="Welcome to our Linter Rules Documentation. Here you will find all the rules implemented in our linter.">
+    <meta property="og:url" content="/security/func-visibility/">
+    <meta property="og:title" content="func-visibility">
+    <meta property="og:description" content="Explicitly mark visibility in function.">
+    <meta property="og:image" content="https://img.shields.io/badge/security-green">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="/">
-    <meta property="twitter:title" content="Welcome">
-    <meta property="twitter:description" content="Welcome to our Linter Rules Documentation. Here you will find all the rules implemented in our linter.">
+    <meta property="twitter:url" content="/security/func-visibility/">
+    <meta property="twitter:title" content="func-visibility">
+    <meta property="twitter:description" content="Explicitly mark visibility in function.">
+    <meta property="twitter:image" content="https://img.shields.io/badge/security-green">
 
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
-    <link href="resources/css/retype.css?v=3.5.0.754076586888" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=3.5.0.754076586888" rel="stylesheet">
 
-    <script data-cfasync="false" src="resources/js/config.js?v=3.5.0.754076586888" data-turbo-eval="false" defer></script>
-    <script data-cfasync="false" src="resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="resources/js/lunr.js?v=3.5.0.754076586888" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=3.5.0.754076586888" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.5.0.754076586888" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=3.5.0.754076586888" defer></script>
 </head>
 <body>
     <div id="docs-app" class="relative text-base antialiased text-gray-700 bg-white font-body dark:bg-dark-850 dark:text-dark-300">
@@ -49,7 +52,7 @@
                 <!-- Logo -->
                 <div class="flex items-center justify-between h-full py-2 md:w-75">
                     <div class="flex items-center px-2 md:px-6">
-                        <a id="docs-site-logo" href="" class="flex items-center leading-snug text-xl">
+                        <a id="docs-site-logo" href="../../" class="flex items-center leading-snug text-xl">
                             <span class="dark:text-white font-semibold line-clamp-1 md:line-clamp-2">Osmium Toolchain</span>
                         </a><span class="hidden px-2 py-1 ml-4 text-sm font-semibold leading-none text-root-logo-label-text bg-root-logo-label-bg rounded-sm md:inline-block">Docs</span>
                     </div>
@@ -149,13 +152,97 @@
                                 <!-- Rendered if sidebar right is enabled -->
                                 <div id="docs-sidebar-right-toggle"></div>
                                 <!-- Page content  -->
-<doc-anchor-target id="welcome" class="break-words">
+<doc-anchor-target id="func-visibility" class="break-words">
     <h1>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#welcome">#</doc-anchor-trigger>
-        <span>Welcome</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#func-visibility">#</doc-anchor-trigger>
+        <span>func-visibility</span>
     </h1>
 </doc-anchor-target>
-<p>Welcome to our Linter Rules Documentation. Here you will find all the rules implemented in our linter.</p>
+<p><img src="https://img.shields.io/badge/security-green" alt="" />	<img src="https://img.shields.io/badge/Default%20Severity-WARNING-yellow" alt="" /></p>
+<doc-anchor-target id="description">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#description">#</doc-anchor-trigger>
+        <span>Description</span>
+    </h2>
+</doc-anchor-target>
+<p>Explicitly mark visibility in function.</p>
+<doc-anchor-target id="options">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#options">#</doc-anchor-trigger>
+        <span>Options</span>
+    </h2>
+</doc-anchor-target>
+<div class="table-wrapper scrollbar overflow-hidden">
+<table class="comfortable">
+<thead>
+<tr>
+<th>description</th>
+<th>default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A JSON object with a single property &quot;ignoreConstructors&quot; specifying if the rule should ignore constructors. (Note: This is required to be true for Solidity &gt;=0.7.0 and false for &lt;0.7.0)</td>
+<td>{&quot;ignoreConstructors&quot;:false}</td>
+</tr>
+</tbody>
+</table>
+</div>
+<doc-anchor-target id="example-config">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#example-config">#</doc-anchor-trigger>
+        <span>Example Config</span>
+    </h2>
+</doc-anchor-target>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-json"><code v-pre class="language-json">{
+  &quot;id&quot;: &quot;func-visibility&quot;,
+  &quot;severity&quot;: &quot;WARNING&quot;,
+  &quot;data&quot;: {
+    &quot;ignoreConstructors&quot;: false
+  }
+}</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="examples">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#examples">#</doc-anchor-trigger>
+        <span>Examples</span>
+    </h2>
+</doc-anchor-target>
+<doc-anchor-target id="good">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#good">#</doc-anchor-trigger>
+        <span>Good</span>
+    </h3>
+</doc-anchor-target>
+<p>Functions explicitly marked with visibility</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-solidity"><code v-pre class="language-solidity">function b() internal { }
+function b() external { }
+function b() private { }
+function b() public { }
+constructor() public { }</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="bad">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#bad">#</doc-anchor-trigger>
+        <span>Bad</span>
+    </h3>
+</doc-anchor-target>
+<p>Functions without explicitly marked visibility</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-solidity"><code v-pre class="language-solidity">function b() { }</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="references">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#references">#</doc-anchor-trigger>
+        <span>References</span>
+    </h2>
+</doc-anchor-target>
+<ul>
+<li><a href="https://github.com/astrodevs-labs/osmium/blob/dev/toolchains/solidity/core/crates/linter-lib/src/rules/security/func_visibility.rs">Rule source</a></li>
+<li><a href="https://github.com/astrodevs-labs/osmium/tree/dev/toolchains/solidity/core/crates/linter-lib/testdata/FuncVisibility">Test</a></li>
+</ul>
 
                                 
                                 <!-- Required only on API pages -->
@@ -165,13 +252,20 @@
                             
                                 <nav class="flex mt-14">
                                     <div class="w-1/2">
+                                        <a class="px-5 py-4 h-full flex items-center break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-l-lg transition-colors duration-150 relative hover:z-5" href="../../security/avoid-tx-origin/">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="mr-3" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M19 11H7.41l5.29-5.29a.996.996 0 10-1.41-1.41l-7 7a1 1 0 000 1.42l7 7a1.024 1.024 0 001.42-.01.996.996 0 000-1.41L7.41 13H19c.55 0 1-.45 1-1s-.45-1-1-1z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
+                                            <span>
+                                                <span class="block text-xs font-normal text-gray-400 dark:text-dark-400">Previous</span>
+                                                <span class="block mt-1">avoid-​tx-​origin</span>
+                                            </span>
+                                        </a>
                                     </div>
                             
                                     <div class="w-1/2">
-                                        <a class="px-5 py-4 -mx-px h-full flex items-center justify-end break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-l rounded-r-lg transition-colors duration-150 relative hover:z-5" href="best-practices/explicit-types/">
+                                        <a class="px-5 py-4 -mx-px h-full flex items-center justify-end break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-r-lg transition-colors duration-150 relative hover:z-5" href="../../security/no-inline-assembly/">
                                             <span>
                                                 <span class="block text-xs font-normal text-right text-gray-400 dark:text-dark-400">Next</span>
-                                                <span class="block mt-1">explicit-​types</span>
+                                                <span class="block mt-1">no-​inline-​assembly</span>
                                             </span>
                                             <svg xmlns="http://www.w3.org/2000/svg" class="ml-3" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M19.92 12.38a1 1 0 00-.22-1.09l-7-7a.996.996 0 10-1.41 1.41l5.3 5.3H5c-.55 0-1 .45-1 1s.45 1 1 1h11.59l-5.29 5.29a.996.996 0 000 1.41c.19.2.44.3.7.3s.51-.1.71-.29l7-7c.09-.09.16-.21.21-.33z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
                                         </a>
@@ -215,6 +309,6 @@
 
     <div id="docs-overlay-target"></div>
 
-    <script data-cfasync="false">window.__DOCS__ = { "title": "Welcome", isRoot: true, level: 0, icon: "file", hasPrism: false, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
+    <script data-cfasync="false">window.__DOCS__ = { "title": "func-visibility", level: 2, icon: "file", hasPrism: true, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
 </body>
 </html>

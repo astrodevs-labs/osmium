@@ -42,7 +42,7 @@ jobs:
       - name: Build md from json
         run: |
           cd ./doc
-          node createMarkdownFilesFromJsonArray.js
+          node createMarkdownFilesFromJsonArray.js documentation.json
 
       - uses: retypeapp/action-build@latest
         with:

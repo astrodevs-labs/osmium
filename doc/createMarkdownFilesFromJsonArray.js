@@ -78,11 +78,10 @@ const parseJson = (rule) => {
 async function createMarkdownFilesFromJsonArray(path) {
   const fileContent = await readFileContent(path);
   const jsonContent = JSON.parse(fileContent);
-  let depth = 1;
   for (const key in jsonContent) {
     let content = '';
     const rule = jsonContent[key];
-    const body = parseJson(rule, depth);
+    const body = parseJson(rule);
     content += `# ${rule.id}\n\n` + body;
     saveToFile(`./${rule.category}/${rule.id}.md`, content);
   }

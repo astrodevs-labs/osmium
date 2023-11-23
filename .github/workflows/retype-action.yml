@@ -31,6 +31,7 @@ jobs:
 
       - name: Execute Binary to get documentation
         run: |
+          cd toolchains/solidity/core
           ./target/debug/solidhunter -d > ../../../doc/documentation.json
 
       - name: Set up Node.js
@@ -40,7 +41,7 @@ jobs:
 
       - name: Build md from json
         run: |
-          cd ../../../doc
+          cd ./doc
           node createMarkdownFilesFromJsonArray.js
 
       - uses: retypeapp/action-build@latest

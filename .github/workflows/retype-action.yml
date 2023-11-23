@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: 'astrodevs-labs/osmium'
-          ref: 'main'
+          ref: 'feature/180-auto-generated-user-docs-staging'
 
       - name: Set up Rust
         uses: actions-rs/toolchain@v1

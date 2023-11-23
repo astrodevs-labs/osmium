@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - main
-      - 180-auto-generated-user-docs-staging
+      - feature/180-auto-generated-user-docs-staging
   workflow_dispatch:
 
 jobs:

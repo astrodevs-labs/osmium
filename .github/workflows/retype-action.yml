@@ -46,7 +46,7 @@ jobs:
 
       - uses: retypeapp/action-build@latest
         with:
-          config: retype.yml
+          config: ./doc/retype.yml
 
       - uses: retypeapp/action-github-pages@latest
         with:

@@ -1,7 +1,7 @@
-use osmium_libs_lsp_handler::{lsp_types::{InitializeParams, WorkspaceFolder, MessageType}, Connection};
+use osmium_libs_lsp_server_wrapper::{lsp_types::{InitializeParams, WorkspaceFolder, MessageType}, Client};
 use glob::{glob, PatternError};
 
-pub fn get_closest_config_filepath(connection: &Connection, params: InitializeParams) -> Result<Option<String>, PatternError> {
+pub fn get_closest_config_filepath(connection: &Client, params: InitializeParams) -> Result<Option<String>, PatternError> {
     let root_path_url = params.root_uri.unwrap();
     let root_path = root_path_url.path();
     connection.log_message(MessageType::INFO, format!("root_path: {:?}", root_path));
@@ -26,7 +26,7 @@ pub fn get_closest_config_filepath(connection: &Connection, params: InitializePa
     Ok(Some(all_configs[0].clone()))
 }
 
-fn get_closest_workspace_config_filepath(conneciton: &Connection, folders: Vec<WorkspaceFolder>) -> Result<Option<String>, PatternError> {
+fn get_closest_workspace_config_filepath(conneciton: &Client, folders: Vec<WorkspaceFolder>) -> Result<Option<String>, PatternError> {
     let mut paths: Vec<String> = Vec::new();
     for folder in folders {
         let workspace_path = folder.uri.path();

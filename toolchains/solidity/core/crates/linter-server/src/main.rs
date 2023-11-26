@@ -5,19 +5,23 @@ use solidhunter_lib::{linter::SolidLinter, types::LintDiag};
 use std::{cell::RefCell, rc::Rc};
 mod utils;
 use utils::get_closest_config_filepath;
+mod get_content;
+use get_content::{ContentRequestParams, ContentResponse, ContentRequest};
 
 struct Backend {
     connection: Rc<RefCell<Client>>,
     linter: RefCell<Option<SolidLinter>>,
 }
 
-impl Handler for Backend {
+impl LanguageServer for Backend {
     fn initialize(&self, params: InitializeParams) -> Result<InitializeResult> {
-        self.connection
+        let connection = self.connection.borrow_mut();
+        connection
             .log_message(MessageType::INFO, "Server initializing!");
-        if let Ok(closest_config_path) =  get_closest_config_filepath(&self.connection, params.clone()) {
+        if let Ok(closest_config_path) =  get_closest_config_filepath(&connection, params.clone()) {
             if let Some(path) = closest_config_path {
-                self.connection
+                connection
+                
                     .log_message(MessageType::INFO, &format!("Initializing linter with workspace path: {:?}", path));
                 let mut linter = SolidLinter::new();
 
@@ -25,19 +29,22 @@ impl Handler for Backend {
                 if res.is_ok() {
                     self.linter.replace(Some(linter));
                 } else {
-                    self.connection
+                    connection
+                    
                         .log_message(MessageType::ERROR, "Failed to initialize linter with workspace path, using fileless linter");
                     let linter = SolidLinter::new_fileless();
                     self.linter.replace(Some(linter));
                 }
             } else {
-                self.connection
+                connection
+                
                     .log_message(MessageType::INFO, "Initializing linter without workspace path1");
                 let linter = SolidLinter::new_fileless();
                 self.linter.replace(Some(linter));
             }
         } else {
-            self.connection
+            connection
+            
                 .log_message(MessageType::INFO, "Initializing linter without workspace path2");
             let linter = SolidLinter::new_fileless();
             self.linter.replace(Some(linter));
@@ -90,6 +97,40 @@ impl Handler for Backend {
             params.content_changes[0].text.clone(),
         );
     }
+
+    fn did_change_watched_files(&self, params: DidChangeWatchedFilesParams) {
+        self.connection
+        .borrow_mut()
+            .log_message(MessageType::INFO, "configuration file changed!");
+
+        if params.changes[0].typ == FileChangeType::DELETED {
+            return;
+        }
+        let mut linter = SolidLinter::new();
+
+        let params = ContentRequestParams {
+            uri: params.changes[0].uri.path().to_string().clone(),
+        };
+        let res = self.connection.borrow_mut().send_request::<ContentRequest>(params);
+        if res.is_err() {
+            self.connection
+            .borrow_mut()
+                .log_message(MessageType::ERROR, "configuration file failed to load!");
+            return;
+        }
+        let response: ContentResponse = res.unwrap();
+        let res = linter.initialize_rules_content(&response.content);
+        if res.is_ok() {
+            self.connection
+            .borrow_mut()
+                .log_message(MessageType::INFO, "configuration file loaded!");
+            self.linter.replace(Some(linter));
+        } else {
+            self.connection
+            .borrow_mut()
+                .log_message(MessageType::ERROR, "configuration file failed to load!");
+        }
+    }
 }
 
 impl Backend {
@@ -126,25 +167,6 @@ impl Backend {
             self.connection
                 .borrow_mut()
                 .log_message(MessageType::ERROR, e.to_string());
-        }
-    }
-
-    fn did_change_watched_files(&self, params: DidChangeWatchedFilesParams) {
-        self.connection
-            .log_message(MessageType::INFO, "configuration file changed!");
-
-        if params.changes[0].typ == FileChangeType::DELETED {
-            return;
-        }
-        let mut linter = SolidLinter::new();
-        let res = linter.initialize_rules(params.changes[0].uri.as_str());
-        if res.is_ok() {
-            self.connection
-                .log_message(MessageType::INFO, "configuration file loaded!");
-            self.linter.replace(Some(linter));
-        } else {
-            self.connection
-                .log_message(MessageType::ERROR, "configuration file failed to load!");
         }
     }
 }

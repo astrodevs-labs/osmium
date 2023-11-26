@@ -3,9 +3,9 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
-import { glob } from 'glob';
 import * as path from 'path';
-import { workspace, ExtensionContext } from 'vscode';
+import { workspace, ExtensionContext, Uri } from 'vscode';
+import { TextDecoder } from 'util';
 
 import {
 	LanguageClient,
@@ -50,17 +50,18 @@ export async function activate(context: ExtensionContext) {
 		clientOptions
 	);
 
+	client.onRequest('osmium/getContent', async (params) => {
+    	const contentUint8 = await workspace.fs.readFile(Uri.parse(params.uri));
+    	const content = new TextDecoder().decode(contentUint8);
+    	return content;
+	});
+
 	// Start the client. This will also launch the server
 	client.start();
 
 	const folders = workspace.workspaceFolders;
 	if (folders) {
-		const folder = folders[0];
-		const configFiles = await workspace.findFiles('**/.solidhunter.json', `${folder.uri.fsPath}/**`);
-		if (configFiles.length > 0) {
-			workspace.openTextDocument(configFiles[0]);
-		}
-		const files = await workspace.findFiles('**/*.sol', `${folder.uri.fsPath}/**`);
+		const files = await workspace.findFiles('**/*.sol', `${folders[0].uri.fsPath}/**`);
 		files.forEach(file => {
 			workspace.openTextDocument(file);
 		});

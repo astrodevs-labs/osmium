@@ -134,6 +134,8 @@ impl SolidLinter {
             return Ok(FileDiags::new(content, Vec::new()));
         }
         self.parse_content(&filepath, content.as_str())
+    }
+
     fn _check_is_in_disable_range(&self, diag: &LintDiag, disable_ranges: &[DisableRange]) -> bool {
         let mut rules_occurrences = vec![];
 

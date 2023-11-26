@@ -68,7 +68,7 @@ fn print_result(results: Vec<LintResult>) {
 }
 
 fn main() -> Result<(), SolidHunterError> {
-    let mut args = Args::parse();
+    let args = Args::parse();
 
     if args.documentation {
         let linter: SolidLinter = SolidLinter::new_fileless();
@@ -107,26 +107,36 @@ fn main() -> Result<(), SolidHunterError> {
 
     if args.init {
         println!("Initializing rules file...");
-        let mut path: String = args.rules_file;
-        if args.path != "." && path == ".solidhunter.json" {
-            path = args.path.as_str().to_owned() + "/" + path.as_str();
+        if args.paths.len() == 0 {
+            create_rules_file(&args.rules_file);
         }
-        create_rules_file(&path);
+        for path in &args.paths {
+            if args.rules_file == ".solidhunter.json" {
+                create_rules_file(&(path.as_str().to_owned() + "/" + args.rules_file.as_str()));
+            }
+        }
         println!("Done!");
         return Ok(());
     }
 
     let mut linter: SolidLinter = SolidLinter::new();
-    let mut path: String = args.rules_file;
-    if args.path != "." && path == ".solidhunter.json" {
-        path = args.path.as_str().to_owned() + "/" +  path.as_str();
+    if args.paths.len() != 0 {
+        let mut path = args.rules_file;
+        if path == ".solidhunter.json" {
+            path = args.paths[0].as_str().to_owned() + "/" +  path.as_str();
+        }
+        linter.initialize_rules(&path)?;
     }
-    linter.initialize_rules(&path)?;
     linter.initialize_excluded_files(args.exclude.as_ref(), &args.paths)?;
 
     let mut results = vec![];
     for path in &args.paths {
         let result = linter.parse_path(path);
+        results.push(result);
+    }
+    // If no path is specified, we use the current directory
+    if args.paths.len() == 0 {
+        let result = linter.parse_path(".");
         results.push(result);
     }
     for path_result in results {

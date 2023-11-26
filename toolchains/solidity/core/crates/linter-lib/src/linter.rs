@@ -134,31 +134,39 @@ impl SolidLinter {
             return Ok(FileDiags::new(content, Vec::new()));
         }
         self.parse_content(&filepath, content.as_str())
-    fn _check_is_in_disable_range(
-        &self,
-        diag: &LintDiag,
-        ignore_states: &Vec<(usize, Ignore, Vec<&str>)>,
-    ) -> bool {
-        let mut rules_occurences: Vec<(&str, i32)> = Vec::new();
-        let ignore_states: Vec<(usize, Ignore, Vec<&str>)> = ignore_states
+    fn _check_is_in_disable_range(&self, diag: &LintDiag, disable_ranges: &[DisableRange]) -> bool {
+        let mut rules_occurrences = vec![];
+
+        let filtered_range = disable_ranges
             .iter()
-            .filter(|(line, _, _)| *line <= diag.range.start.line)
-            .map(|(line, ignore, rules)| (*line, *ignore, rules.to_vec()))
-            .map(|(line, ignore, rules)| {
-                if rules.is_empty() {
-                    (line, ignore, vec![""]) // empty rule means all rules
+            // we only care about ranges that start before the diag
+            .filter(|range| range.start_line <= diag.range.start.line)
+            .map(|range| {
+                if range.rule_ids.is_empty() {
+                    DisableRange {
+                        rule_ids: vec!["".to_string()], // empty rule means all rules
+                        ..range.clone()
+                    }
                 } else {
-                    (line, ignore, rules)
+                    range.clone()
                 }
             })
-            .collect::<Vec<(usize, Ignore, Vec<&str>)>>();
+            .collect::<Vec<DisableRange>>();
 
-        for (_, ignore, rules) in ignore_states {
-            match ignore {
+        for range in &filtered_range {
+            match range.ignore_type {
+                Ignore::SameLine | Ignore::NextLine => {
+                    if range.start_line == diag.range.start.line
+                        && (range.rule_ids.contains(&diag.id)
+                            || range.rule_ids.contains(&"".to_string()))
+                    {
+                        return true;
+                    }
+                }
                 Ignore::Disable => {
-                    for rule in rules {
+                    for rule in &range.rule_ids {
                         let mut found = false;
-                        for (rule_id, occurences) in &mut rules_occurences {
+                        for (rule_id, occurences) in &mut rules_occurrences {
                             if *rule_id == rule {
                                 *occurences += 1;
                                 found = true;
@@ -166,107 +174,57 @@ impl SolidLinter {
                             }
                         }
                         if !found {
-                            rules_occurences.push((rule, 1));
+                            rules_occurrences.push((rule, 1));
                         }
                     }
                 }
                 Ignore::Enable => {
-                    for rule in rules {
-                        for (rule_id, occurences) in &mut rules_occurences {
+                    for rule in &range.rule_ids {
+                        for (rule_id, occurences) in &mut rules_occurrences {
                             if *rule_id == rule {
                                 *occurences -= 1;
                                 break;
                             }
                         }
+                        // TODO: global disable followed by a scoped enable might not work
                     }
                 }
-                _ => {}
             }
         }
 
-        let disabled_rules = rules_occurences
+        let disabled_rules = rules_occurrences
             .iter()
             .filter(|(_, occurences)| *occurences > 0)
-            .map(|(rule, _)| *rule)
-            .collect::<Vec<&str>>();
+            .map(|(rule, _)| rule.to_string())
+            .collect::<Vec<String>>();
 
         for rule in disabled_rules {
             if rule.is_empty() {
                 return true;
-            } else if rule == diag.id.as_str() {
+            } else if rule == diag.id {
                 return true;
             }
         }
-
         false
     }
 
     fn _check_is_diag_ignored(&self, diag: &LintDiag, file: &SolidFile) -> bool {
-        let comments = file
+        let ignore_comments: Vec<IgnoreComment> = file
             .content
             .lines()
             .enumerate()
-            .filter_map(|(i, line)| {
-                for ignore in Ignore::iter() {
-                    let ignore_str = ignore.to_string();
-                    if line.contains(&ignore_str) {
-                        return Some((i + 1, ignore, line.split(&ignore_str).nth(1)));
-                    }
-                }
-                None
-            })
-            .collect::<Vec<(usize, Ignore, Option<&str>)>>();
+            .filter_map(|(line_number, line)| IgnoreComment::from_line(line_number + 1, line))
+            .collect();
+        let disable_ranges = build_disable_ranges(ignore_comments);
 
-        let mut ignore_states: Vec<(usize, Ignore, Vec<&str>)> = Vec::new();
-
-        for (line, ignore, rule_ids_str) in comments {
-            let rules_ids = rule_ids_str
-                .map(|s| {
-                    s.split(' ')
-                        .map(|s| s.trim())
-                        .filter(|s| !s.is_empty())
-                        .collect::<Vec<&str>>()
-                })
-                .filter(|s| !s.is_empty());
-
-            match ignore {
-                Ignore::Enable => {
-                    ignore_states.push((line, ignore, rules_ids.clone().unwrap_or(Vec::new())));
-                }
-                Ignore::Disable => {
-                    ignore_states.push((line, ignore, rules_ids.clone().unwrap_or(Vec::new())));
-                }
-                _ => {}
-            }
-
-            if diag.range.start.line == line + if ignore == Ignore::SameLine { 0 } else { 1 } {
-                match rules_ids {
-                    // If rules are specified, we ignore only the specified rules
-                    Some(rules_ids) => {
-                        if rules_ids.contains(&diag.id.as_str()) {
-                            return true;
-                        }
-                    }
-                    // If no rules are specified, we ignore all rules
-                    None => {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        if self._check_is_in_disable_range(diag, &ignore_states) {
-            return true;
-        }
-
-        false
+        self._check_is_in_disable_range(diag, &disable_ranges)
     }
 
     pub fn parse_content(&mut self, filepath: &str, content: &str) -> LintResult {
         let res = osmium_libs_solidity_ast_extractor::extract::extract_ast_from_content(content)?;
 
         self._add_file(filepath, res, content);
-        let mut res: Vec<LintDiag> = Vec::new();
+        let mut res: Vec<_> = vec![];
 
         for rule in &self.rules {
             let mut diags = rule.diagnose(&self.files[self.files.len() - 1], &self.files);

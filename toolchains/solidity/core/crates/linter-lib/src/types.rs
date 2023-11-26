@@ -11,7 +11,7 @@ pub use lint_diag::LintDiag;
 mod file_diags;
 pub use file_diags::FileDiags;
 mod ignore;
-pub use ignore::Ignore;
+pub use ignore::*;
 
 pub type LintResult = Result<FileDiags, SolidHunterError>;
 

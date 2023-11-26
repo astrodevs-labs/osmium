@@ -107,7 +107,11 @@ fn main() -> Result<(), SolidHunterError> {
 
     if args.init {
         println!("Initializing rules file...");
-        create_rules_file(".solidhunter.json");
+        let mut path: String = args.rules_file;
+        if args.path != "." && path == ".solidhunter.json" {
+            path = args.path.as_str().to_owned() + "/" + path.as_str();
+        }
+        create_rules_file(&path);
         println!("Done!");
         return Ok(());
     }

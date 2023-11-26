@@ -201,9 +201,7 @@ impl SolidLinter {
             .collect::<Vec<String>>();
 
         for rule in disabled_rules {
-            if rule.is_empty() {
-                return true;
-            } else if rule == diag.id {
+            if rule.is_empty() || rule == diag.id {
                 return true;
             }
         }

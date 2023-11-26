@@ -3,15 +3,45 @@ use osmium_libs_lsp_server_wrapper::{
 };
 use solidhunter_lib::{linter::SolidLinter, types::LintDiag};
 use std::{cell::RefCell, rc::Rc};
+mod utils;
+use utils::get_closest_config_filepath;
 
 struct Backend {
     connection: Rc<RefCell<Client>>,
     linter: RefCell<Option<SolidLinter>>,
 }
 
-impl LanguageServer for Backend {
-    fn initialize(&self, _: InitializeParams) -> Result<InitializeResult> {
-        eprintln!("starting example main loop");
+impl Handler for Backend {
+    fn initialize(&self, params: InitializeParams) -> Result<InitializeResult> {
+        self.connection
+            .log_message(MessageType::INFO, "Server initializing!");
+        if let Ok(closest_config_path) =  get_closest_config_filepath(&self.connection, params.clone()) {
+            if let Some(path) = closest_config_path {
+                self.connection
+                    .log_message(MessageType::INFO, &format!("Initializing linter with workspace path: {:?}", path));
+                let mut linter = SolidLinter::new();
+
+                let res = linter.initialize_rules(&path);
+                if res.is_ok() {
+                    self.linter.replace(Some(linter));
+                } else {
+                    self.connection
+                        .log_message(MessageType::ERROR, "Failed to initialize linter with workspace path, using fileless linter");
+                    let linter = SolidLinter::new_fileless();
+                    self.linter.replace(Some(linter));
+                }
+            } else {
+                self.connection
+                    .log_message(MessageType::INFO, "Initializing linter without workspace path1");
+                let linter = SolidLinter::new_fileless();
+                self.linter.replace(Some(linter));
+            }
+        } else {
+            self.connection
+                .log_message(MessageType::INFO, "Initializing linter without workspace path2");
+            let linter = SolidLinter::new_fileless();
+            self.linter.replace(Some(linter));
+        }
         Ok(InitializeResult {
             server_info: None,
             capabilities: ServerCapabilities {
@@ -24,10 +54,6 @@ impl LanguageServer for Backend {
     }
 
     fn initialized(&self, _: InitializedParams) {
-        self.connection
-            .borrow_mut()
-            .log_message(MessageType::INFO, "Server initialized!");
-
         self.linter
             .borrow_mut()
             .replace(SolidLinter::new_fileless());
@@ -100,6 +126,25 @@ impl Backend {
             self.connection
                 .borrow_mut()
                 .log_message(MessageType::ERROR, e.to_string());
+        }
+    }
+
+    fn did_change_watched_files(&self, params: DidChangeWatchedFilesParams) {
+        self.connection
+            .log_message(MessageType::INFO, "configuration file changed!");
+
+        if params.changes[0].typ == FileChangeType::DELETED {
+            return;
+        }
+        let mut linter = SolidLinter::new();
+        let res = linter.initialize_rules(params.changes[0].uri.as_str());
+        if res.is_ok() {
+            self.connection
+                .log_message(MessageType::INFO, "configuration file loaded!");
+            self.linter.replace(Some(linter));
+        } else {
+            self.connection
+                .log_message(MessageType::ERROR, "configuration file failed to load!");
         }
     }
 }

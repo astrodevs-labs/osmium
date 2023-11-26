@@ -257,6 +257,8 @@ dependencies = [
  "glob",
  "js-sys",
  "osmium-libs-lsp-server-wrapper",
+ "serde",
+ "serde_json",
  "solidhunter-lib",
 ]
 

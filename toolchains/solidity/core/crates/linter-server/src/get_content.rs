@@ -4,7 +4,7 @@ use osmium_libs_lsp_server_wrapper::lsp_types::{
 };
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ContentRequestParams {
     pub uri: String,
 }
@@ -12,7 +12,7 @@ pub struct ContentRequestParams {
 pub struct ContentRequest {
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ContentResponse {
     pub content: String,
 }

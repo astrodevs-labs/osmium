@@ -128,7 +128,7 @@ impl<'a> LspStdioServer {
                     continue;
                 }
                 Message::Response(resp) => {
-                    eprintln!("got response: {resp:?}");
+                    service.call_response(resp.id, resp.result)
                 }
                 Message::Notification(not) => {
                     let status = service.call_notification(&not.method, not.params);

@@ -1,5 +1,5 @@
 use osmium_libs_lsp_server_wrapper::{
-    lsp_types::*, Client, LanguageServer, LspStdioServer, Result,
+    lsp_types::*, Client, LanguageServer, LspStdioServer, Result, RequestId
 };
 use solidhunter_lib::{linter::SolidLinter, types::LintDiag};
 use std::{cell::RefCell, rc::Rc};
@@ -106,19 +106,51 @@ impl LanguageServer for Backend {
         if params.changes[0].typ == FileChangeType::DELETED {
             return;
         }
-        let mut linter = SolidLinter::new();
 
         let params = ContentRequestParams {
             uri: params.changes[0].uri.path().to_string().clone(),
         };
-        let res = self.connection.borrow_mut().send_request::<ContentRequest>(params);
+        
+        let res = self.connection.borrow_mut().send_request::<ContentRequest>(params.clone());
+             
+        
         if res.is_err() {
             self.connection
             .borrow_mut()
-                .log_message(MessageType::ERROR, "configuration file failed to load!");
+                .log_message(MessageType::ERROR, "Failed to send request to get configuration file content!");
+            return;
+        }
+
+        self.connection.borrow_mut().log_message(
+            MessageType::INFO,
+            format!("Sent request to get file content for config file : {:}", params.uri),
+        );
+    }
+
+    fn on_response(&self, _: RequestId, result: Option<serde_json::Value>) {
+        self.connection
+            .borrow_mut()
+            .log_message(MessageType::INFO, "Got response!");
+
+        if result.is_none() {
+            self.connection
+            .borrow_mut()
+                .log_message(MessageType::ERROR, "Get content response is empty!");
+            return;
+        }
+
+        eprintln!("result: {:#?}", result.clone().unwrap());
+
+        let res: serde_json::Result<ContentResponse> = serde_json::from_value::<ContentResponse>(result.unwrap());
+        if res.is_err() {
+            self.connection
+            .borrow_mut()
+                .log_message(MessageType::ERROR, "Failed to parse response!");
             return;
         }
         let response: ContentResponse = res.unwrap();
+
+        let mut linter = SolidLinter::new();
         let res = linter.initialize_rules_content(&response.content);
         if res.is_ok() {
             self.connection

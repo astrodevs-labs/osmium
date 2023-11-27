@@ -53,7 +53,9 @@ export async function activate(context: ExtensionContext) {
 	client.onRequest('osmium/getContent', async (params) => {
     	const contentUint8 = await workspace.fs.readFile(Uri.parse(params.uri));
     	const content = new TextDecoder().decode(contentUint8);
-    	return content;
+    	return {
+			content,
+		};
 	});
 
 	// Start the client. This will also launch the server

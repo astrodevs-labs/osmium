@@ -5,6 +5,7 @@ mod service;
 
 pub use crate::jsonrpc::{Error, Result};
 pub use client::Client;
+pub use lsp_server::RequestId;
 pub use lsp_types;
 use lsp_types::request::{
     GotoDeclarationParams, GotoDeclarationResponse, GotoImplementationParams,
@@ -1208,6 +1209,12 @@ pub trait LanguageServer {
         let _ = params;
         eprintln!("Got a workspace/executeCommand request, but it is not implemented");
         Err(Error::method_not_found())
+    }
+
+    fn on_response(&self, id: RequestId, response: Option<serde_json::Value>) {
+        let _ = id;
+        let _ = response;
+        eprintln!("Got a response, but it is not implemented");
     }
 
     // TODO: Add `work_done_progress_cancel()` here (since 3.15.0) when supported by `tower-lsp`.

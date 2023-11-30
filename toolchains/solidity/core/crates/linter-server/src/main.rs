@@ -21,7 +21,7 @@ impl LanguageServer for Backend {
             if let Some(path) = closest_config_path {
                 connection.log_message(
                     MessageType::INFO,
-                    &format!("Initializing linter with workspace path: {:?}", path),
+                    format!("Initializing linter with workspace path: {:?}", path),
                 );
                 let mut linter = SolidLinter::new();
 

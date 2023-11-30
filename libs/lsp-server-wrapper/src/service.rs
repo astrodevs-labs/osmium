@@ -327,11 +327,7 @@ impl<S: LanguageServer> LspService<S> {
         Ok(())
     }
 
-    pub fn call_response(
-        &self,
-        id: RequestId,
-        result: Option<serde_json::Value>,
-    ) {
+    pub fn call_response(&self, id: RequestId, result: Option<serde_json::Value>) {
         self.inner.backend.on_response(id, result)
     }
 }

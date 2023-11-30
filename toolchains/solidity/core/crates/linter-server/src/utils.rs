@@ -20,13 +20,11 @@ pub fn get_closest_config_filepath(
     // Return the path to the closest .solidhunter.json file
     let paths = glob(&format!("{}/**/.solidhunter.json", root_path))?;
     let mut all_configs = vec![];
-    for path in paths {
-        if let Ok(path) = path {
-            all_configs.push(path.to_str().unwrap().to_string());
-        }
+    for path in paths.flatten() {
+        all_configs.push(path.to_str().unwrap().to_string());
     }
-    all_configs.sort_by(|a, b| a.len().cmp(&b.len()));
-    if all_configs.len() == 0 {
+    all_configs.sort_by_key(|a| a.len());
+    if all_configs.is_empty() {
         return Ok(None);
     }
     Ok(Some(all_configs[0].clone()))
@@ -79,9 +77,9 @@ fn get_closest_workspace_config_filepath(
             }
         }
         connection.log_message(MessageType::INFO, format!("all_configs: {:?}", all_configs));
-        all_configs.sort_by(|a, b| a.len().cmp(&b.len()));
+        all_configs.sort_by_key(|a| a.len());
         // Push the shortest path , if any exist
-        if all_configs.len() > 0 {
+        if !all_configs.is_empty() {
             connection.log_message(
                 MessageType::INFO,
                 format!("pushing workspace_path: {:?}", workspace_path),
@@ -89,9 +87,9 @@ fn get_closest_workspace_config_filepath(
             paths.push(all_configs[0].clone());
         }
     }
-    paths.sort_by(|a, b| a.len().cmp(&b.len()));
+    paths.sort_by_key(|a| a.len());
     connection.log_message(MessageType::INFO, format!("paths: {:?}", paths));
-    if paths.len() == 0 {
+    if paths.is_empty() {
         return Ok(None);
     }
     Ok(Some(paths[0].clone()))

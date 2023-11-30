@@ -27,6 +27,14 @@ contract Test {
         return tx.origin; // solidhunter-disable-line
     }
 
+    function awesomeLineUpAny() public returns (address) {
+        // solidhunter-disable-next-line dummy-rule avoid-tx-origin dummy-rule2
+        return tx.origin;
+    }
+    function awesomeSameLineAny() public returns (address) {
+        return tx.origin; // solidhunter-disable-line dummy-rule avoid-tx-origin dummy-rule2
+    }
+
     // solidhunter-disable
     function awesome() public returns (address) {
         return tx.origin;

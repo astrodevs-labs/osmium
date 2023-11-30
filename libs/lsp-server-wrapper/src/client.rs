@@ -60,7 +60,10 @@ impl Client {
     /// immediately return `Err` with JSON-RPC error code `-32002` ([read more]).
     ///
     /// [read more]: https://microsoft.github.io/language-server-protocol/specification#initialize
-    pub fn register_capability(&self, registrations: Vec<Registration>) -> jsonrpc::Result<RequestId> {
+    pub fn register_capability(
+        &self,
+        registrations: Vec<Registration>,
+    ) -> jsonrpc::Result<RequestId> {
         self.send_request::<RegisterCapability>(RegistrationParams { registrations })
     }
 

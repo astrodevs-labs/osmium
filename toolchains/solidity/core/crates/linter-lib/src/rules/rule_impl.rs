@@ -26,7 +26,7 @@ pub fn parse_rules(path: &str) -> Result<Rules, SolidHunterError> {
 }
 
 pub fn parse_rules_content(content: &str) -> Result<Rules, SolidHunterError> {
-    let parsed: Rules = serde_json::from_str(&content)?;
+    let parsed: Rules = serde_json::from_str(content)?;
 
     Ok(parsed)
 }

@@ -111,9 +111,7 @@ fn main() -> Result<(), SolidHunterError> {
             create_rules_file(&args.rules_file);
         }
         for path in &args.paths {
-            if args.rules_file == ".solidhunter.json" {
-                create_rules_file(&(path.as_str().to_owned() + "/" + args.rules_file.as_str()));
-            }
+            create_rules_file(&(path.as_str().to_owned() + "/" + args.rules_file.as_str()));
         }
         println!("Done!");
         return Ok(());
@@ -121,11 +119,9 @@ fn main() -> Result<(), SolidHunterError> {
 
     let mut linter: SolidLinter = SolidLinter::new();
     if args.paths.is_empty() {
-        let mut path = args.rules_file;
-        if path == ".solidhunter.json" {
-            path = args.paths[0].as_str().to_owned() + "/" + path.as_str();
-        }
-        linter.initialize_rules(&path)?;
+        linter.initialize_rules(
+            &(args.paths[0].as_str().to_owned() + "/" + args.rules_file.as_str()),
+        )?;
     }
     linter.initialize_excluded_files(args.exclude.as_ref(), &args.paths)?;
 

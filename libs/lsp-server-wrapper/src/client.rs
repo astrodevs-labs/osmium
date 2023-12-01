@@ -60,7 +60,10 @@ impl Client {
     /// immediately return `Err` with JSON-RPC error code `-32002` ([read more]).
     ///
     /// [read more]: https://microsoft.github.io/language-server-protocol/specification#initialize
-    pub fn register_capability(&self, registrations: Vec<Registration>) -> jsonrpc::Result<()> {
+    pub fn register_capability(
+        &self,
+        registrations: Vec<Registration>,
+    ) -> jsonrpc::Result<RequestId> {
         self.send_request::<RegisterCapability>(RegistrationParams { registrations })
     }
 
@@ -79,7 +82,7 @@ impl Client {
     pub fn unregister_capability(
         &self,
         unregisterations: Vec<Unregistration>,
-    ) -> jsonrpc::Result<()> {
+    ) -> jsonrpc::Result<RequestId> {
         self.send_request::<UnregisterCapability>(UnregistrationParams { unregisterations })
     }
 
@@ -110,7 +113,7 @@ impl Client {
         typ: MessageType,
         message: M,
         actions: Option<Vec<MessageActionItem>>,
-    ) -> jsonrpc::Result<Option<MessageActionItem>> {
+    ) -> jsonrpc::Result<RequestId> {
         self.send_request_unchecked::<ShowMessageRequest>(ShowMessageRequestParams {
             typ,
             message: message.to_string(),
@@ -148,9 +151,8 @@ impl Client {
     /// # Compatibility
     ///
     /// This request was introduced in specification version 3.16.0.
-    pub fn show_document(&self, params: ShowDocumentParams) -> jsonrpc::Result<bool> {
-        let response = self.send_request::<ShowDocument>(params)?;
-        Ok(response.success)
+    pub fn show_document(&self, params: ShowDocumentParams) -> jsonrpc::Result<RequestId> {
+        self.send_request::<ShowDocument>(params)
     }
 
     // TODO: Add `work_done_progress_create()` here (since 3.15.0) when supported by `tower-lsp`.
@@ -196,7 +198,7 @@ impl Client {
     /// # Compatibility
     ///
     /// This request was introduced in specification version 3.16.0.
-    pub fn code_lens_refresh(&self) -> jsonrpc::Result<()> {
+    pub fn code_lens_refresh(&self) -> jsonrpc::Result<RequestId> {
         self.send_request::<CodeLensRefresh>(())
     }
 
@@ -222,7 +224,7 @@ impl Client {
     /// # Compatibility
     ///
     /// This request was introduced in specification version 3.16.0.
-    pub fn semantic_tokens_refresh(&self) -> jsonrpc::Result<()> {
+    pub fn semantic_tokens_refresh(&self) -> jsonrpc::Result<RequestId> {
         self.send_request::<SemanticTokensRefresh>(())
     }
 
@@ -247,7 +249,7 @@ impl Client {
     /// # Compatibility
     ///
     /// This request was introduced in specification version 3.17.0.
-    pub fn inline_value_refresh(&self) -> jsonrpc::Result<()> {
+    pub fn inline_value_refresh(&self) -> jsonrpc::Result<RequestId> {
         self.send_request::<InlineValueRefreshRequest>(())
     }
 
@@ -272,7 +274,7 @@ impl Client {
     /// # Compatibility
     ///
     /// This request was introduced in specification version 3.17.0.
-    pub fn inlay_hint_refresh(&self) -> jsonrpc::Result<()> {
+    pub fn inlay_hint_refresh(&self) -> jsonrpc::Result<RequestId> {
         self.send_request::<InlayHintRefreshRequest>(())
     }
 
@@ -295,7 +297,7 @@ impl Client {
     /// # Compatibility
     ///
     /// This request was introduced in specification version 3.17.0.
-    pub fn workspace_diagnostic_refresh(&self) -> jsonrpc::Result<()> {
+    pub fn workspace_diagnostic_refresh(&self) -> jsonrpc::Result<RequestId> {
         self.send_request::<WorkspaceDiagnosticRefresh>(())
     }
 
@@ -337,7 +339,7 @@ impl Client {
     /// # Compatibility
     ///
     /// This request was introduced in specification version 3.6.0.
-    pub fn configuration(&self, items: Vec<ConfigurationItem>) -> jsonrpc::Result<Vec<Value>> {
+    pub fn configuration(&self, items: Vec<ConfigurationItem>) -> jsonrpc::Result<RequestId> {
         self.send_request::<WorkspaceConfiguration>(ConfigurationParams { items })
     }
 
@@ -360,7 +362,7 @@ impl Client {
     /// # Compatibility
     ///
     /// This request was introduced in specification version 3.6.0.
-    pub fn workspace_folders(&self) -> jsonrpc::Result<Option<Vec<WorkspaceFolder>>> {
+    pub fn workspace_folders(&self) -> jsonrpc::Result<RequestId> {
         self.send_request::<WorkspaceFoldersRequest>(())
     }
 
@@ -377,7 +379,7 @@ impl Client {
     /// immediately return `Err` with JSON-RPC error code `-32002` ([read more]).
     ///
     /// [read more]: https://microsoft.github.io/language-server-protocol/specification#initialize
-    pub fn apply_edit(&self, edit: WorkspaceEdit) -> jsonrpc::Result<ApplyWorkspaceEditResponse> {
+    pub fn apply_edit(&self, edit: WorkspaceEdit) -> jsonrpc::Result<RequestId> {
         self.send_request::<ApplyWorkspaceEdit>(ApplyWorkspaceEditParams { edit, label: None })
     }
 
@@ -390,34 +392,24 @@ impl Client {
     where
         N: lsp_types::notification::Notification,
     {
-        let server_opt = self.inner.server.clone().unwrap().upgrade();
-        if server_opt.is_none() {
-            eprintln!("Cannot send request, server is not initialized");
-            return;
-        }
-        server_opt
-            .unwrap()
-            .send(Message::Notification(lsp_server::Notification::new(
-                N::METHOD.to_string(),
-                params,
-            )));
+        self.send_notification_unchecked::<N>(params)
     }
 
     fn send_notification_unchecked<N>(&self, params: N::Params)
     where
         N: lsp_types::notification::Notification,
     {
-        let server_opt = self.inner.server.clone().unwrap().upgrade();
-        if server_opt.is_none() {
-            eprintln!("Cannot send request, server is not initialized");
-            return;
+        match self.inner.server.clone().unwrap().upgrade() {
+            Some(server) => {
+                server.send(Message::Notification(lsp_server::Notification::new(
+                    N::METHOD.to_string(),
+                    params,
+                )));
+            }
+            None => {
+                eprintln!("Cannot send notification, server is not initialized");
+            }
         }
-        server_opt
-            .unwrap()
-            .send(Message::Notification(lsp_server::Notification::new(
-                N::METHOD.to_string(),
-                params,
-            )));
     }
 
     /// Sends a custom request to the client.
@@ -428,43 +420,32 @@ impl Client {
     /// immediately return `Err` with JSON-RPC error code `-32002` ([read more]).
     ///
     /// [read more]: https://microsoft.github.io/language-server-protocol/specification#initialize
-    pub fn send_request<R>(&self, params: R::Params) -> jsonrpc::Result<R::Result>
+    pub fn send_request<R>(&self, params: R::Params) -> jsonrpc::Result<RequestId>
     where
         R: lsp_types::request::Request,
     {
-        let server_opt = self.inner.server.clone().unwrap().upgrade();
-        if server_opt.is_none() {
-            eprintln!("Cannot send request, server is not initialized");
-            return Err(jsonrpc::not_initialized_error());
-        }
-        server_opt
-            .as_ref()
-            .unwrap()
-            .send(Message::Request(lsp_server::Request::new(
-                RequestId::from(self.next_request_id().to_string()),
-                R::METHOD.to_string(),
-                params,
-            )));
-        Err(jsonrpc::not_initialized_error())
+        self.send_request_unchecked::<R>(params)
     }
 
-    fn send_request_unchecked<R>(&self, params: R::Params) -> jsonrpc::Result<R::Result>
+    fn send_request_unchecked<R>(&self, params: R::Params) -> jsonrpc::Result<RequestId>
     where
         R: lsp_types::request::Request,
     {
-        let server_opt = self.inner.server.clone().unwrap().upgrade();
-        if server_opt.is_none() {
-            eprintln!("Cannot send request, server is not initialized");
-            return Err(jsonrpc::not_initialized_error());
+        match self.inner.server.clone().unwrap().upgrade() {
+            Some(server) => {
+                let id = RequestId::from(self.next_request_id().to_string());
+                server.send(Message::Request(lsp_server::Request::new(
+                    id.clone(),
+                    R::METHOD.to_string(),
+                    params,
+                )));
+                Ok(id)
+            }
+            None => {
+                eprintln!("Cannot send request, server is not initialized");
+                Err(jsonrpc::not_initialized_error())
+            }
         }
-        server_opt
-            .unwrap()
-            .send(Message::Request(lsp_server::Request::new(
-                RequestId::from(self.next_request_id().to_string()),
-                R::METHOD.to_string(),
-                params,
-            )));
-        Err(jsonrpc::not_initialized_error())
     }
 }
 

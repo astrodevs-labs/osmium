@@ -3,6 +3,7 @@ mod state;
 pub(crate) use self::state::{ServerState, State};
 pub use crate::client::Client;
 use crate::{jsonrpc, LanguageServer};
+use lsp_server::RequestId;
 use lsp_types::request::*;
 use lsp_types::*;
 use std::cell::RefCell;
@@ -324,5 +325,9 @@ impl<S: LanguageServer> LspService<S> {
             }
         }
         Ok(())
+    }
+
+    pub fn call_response(&self, id: RequestId, result: Option<serde_json::Value>) {
+        self.inner.backend.on_response(id, result)
     }
 }

@@ -77,17 +77,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "lsp-server-wrapper"
-version = "0.1.0"
-dependencies = [
- "lsp-server",
- "lsp-types",
- "serde",
- "serde_json",
- "tracing",
-]
-
-[[package]]
 name = "lsp-types"
 version = "0.94.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -105,6 +94,17 @@ name = "once_cell"
 version = "1.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dd8b5dd2ae5ed71462c540258bedcb51965123ad7e7ccf4b9a8cafaa4a63576d"
+
+[[package]]
+name = "osmium-libs-lsp-server-wrapper"
+version = "0.2.0"
+dependencies = [
+ "lsp-server",
+ "lsp-types",
+ "serde",
+ "serde_json",
+ "tracing",
+]
 
 [[package]]
 name = "percent-encoding"

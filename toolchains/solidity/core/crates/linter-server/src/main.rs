@@ -39,7 +39,7 @@ impl LanguageServer for Backend {
             } else {
                 connection.log_message(
                     MessageType::INFO,
-                    "Initializing linter without workspace path1",
+                    "Initializing linter without workspace path",
                 );
                 let linter = SolidLinter::new_fileless();
                 self.linter.replace(Some(linter));
@@ -47,7 +47,7 @@ impl LanguageServer for Backend {
         } else {
             connection.log_message(
                 MessageType::INFO,
-                "Initializing linter without workspace path2",
+                "Initializing linter without workspace path",
             );
             let linter = SolidLinter::new_fileless();
             self.linter.replace(Some(linter));
@@ -143,9 +143,6 @@ impl LanguageServer for Backend {
                 .log_message(MessageType::ERROR, "Get content response is empty!");
             return;
         }
-
-        eprintln!("result: {:#?}", result.clone().unwrap());
-
         let res: serde_json::Result<ContentResponse> =
             serde_json::from_value::<ContentResponse>(result.unwrap());
         if res.is_err() {

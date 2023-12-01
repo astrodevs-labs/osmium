@@ -111,17 +111,23 @@ fn main() -> Result<(), SolidHunterError> {
             create_rules_file(&args.rules_file);
         }
         for path in &args.paths {
-            create_rules_file(&(path.as_str().to_owned() + "/" + args.rules_file.as_str()));
+            if let Ok(metadata) = std::fs::metadata(path.as_str()) {
+                if metadata.is_dir() {
+                    create_rules_file(&(path.as_str().to_owned() + "/" + args.rules_file.as_str()));
+                }
+            }
         }
         println!("Done!");
         return Ok(());
     }
 
     let mut linter: SolidLinter = SolidLinter::new();
-    if args.paths.is_empty() {
+    if !args.paths.is_empty() {
         linter.initialize_rules(
             &(args.paths[0].as_str().to_owned() + "/" + args.rules_file.as_str()),
         )?;
+    } else {
+        linter.initialize_rules(&args.rules_file)?;
     }
     linter.initialize_excluded_files(args.exclude.as_ref(), &args.paths)?;
 

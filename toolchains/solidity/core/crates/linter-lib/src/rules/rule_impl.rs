@@ -9,7 +9,7 @@ pub fn create_rules_file(path: &str) {
     };
     let serialized = serde_json::to_string_pretty(&rules).unwrap();
 
-    std::fs::write(path, serialized).unwrap();
+    let _ = std::fs::write(path, serialized);
 }
 
 pub fn parse_rules(path: &str) -> Result<Rules, SolidHunterError> {

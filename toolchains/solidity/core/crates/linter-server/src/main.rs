@@ -17,29 +17,20 @@ impl LanguageServer for Backend {
     fn initialize(&self, params: InitializeParams) -> Result<InitializeResult> {
         let connection = self.connection.borrow_mut();
         connection.log_message(MessageType::INFO, "Server initializing!");
-        if let Ok(closest_config_path) = get_closest_config_filepath(&connection, params.clone()) {
-            if let Some(path) = closest_config_path {
-                connection.log_message(
-                    MessageType::INFO,
-                    format!("Initializing linter with workspace path: {:?}", path),
-                );
-                let mut linter = SolidLinter::new();
+        if let Ok(Some(path)) = get_closest_config_filepath(&connection, params.clone()) {
+            connection.log_message(
+                MessageType::INFO,
+                format!("Initializing linter with workspace path: {:?}", path),
+            );
+            let mut linter = SolidLinter::new();
 
-                let res = linter.initialize_rules(&path);
-                if res.is_ok() {
-                    self.linter.replace(Some(linter));
-                } else {
-                    connection.log_message(
-                        MessageType::ERROR,
-                        "Failed to initialize linter with workspace path, using fileless linter",
-                    );
-                    let linter = SolidLinter::new_fileless();
-                    self.linter.replace(Some(linter));
-                }
+            let res = linter.initialize_rules(&path);
+            if res.is_ok() {
+                self.linter.replace(Some(linter));
             } else {
                 connection.log_message(
-                    MessageType::INFO,
-                    "Initializing linter without workspace path",
+                    MessageType::ERROR,
+                    "Failed to initialize linter with workspace path, using fileless linter",
                 );
                 let linter = SolidLinter::new_fileless();
                 self.linter.replace(Some(linter));

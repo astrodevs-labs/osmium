@@ -136,15 +136,103 @@ impl SolidLinter {
         self.parse_content(&filepath, content.as_str())
     }
 
+    fn _check_is_in_disable_range(&self, diag: &LintDiag, disable_ranges: &[DisableRange]) -> bool {
+        let mut rules_occurrences = vec![];
+
+        let filtered_range = disable_ranges
+            .iter()
+            // we only care about ranges that start before the diag
+            .filter(|range| range.start_line <= diag.range.start.line)
+            .map(|range| {
+                if range.rule_ids.is_empty() {
+                    DisableRange {
+                        rule_ids: vec!["".to_string()], // empty rule means all rules
+                        ..range.clone()
+                    }
+                } else {
+                    range.clone()
+                }
+            })
+            .collect::<Vec<DisableRange>>();
+
+        for range in &filtered_range {
+            match range.ignore_type {
+                Ignore::SameLine | Ignore::NextLine => {
+                    if range.start_line == diag.range.start.line
+                        && (range.rule_ids.contains(&diag.id)
+                            || range.rule_ids.contains(&"".to_string()))
+                    {
+                        return true;
+                    }
+                }
+                Ignore::Disable => {
+                    for rule in &range.rule_ids {
+                        let mut found = false;
+                        for (rule_id, occurences) in &mut rules_occurrences {
+                            if *rule_id == rule {
+                                *occurences += 1;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if !found {
+                            rules_occurrences.push((rule, 1));
+                        }
+                    }
+                }
+                Ignore::Enable => {
+                    for rule in &range.rule_ids {
+                        for (rule_id, occurences) in &mut rules_occurrences {
+                            if *rule_id == rule {
+                                *occurences -= 1;
+                                break;
+                            }
+                        }
+                        // TODO: global disable followed by a scoped enable might not work
+                    }
+                }
+            }
+        }
+
+        let disabled_rules = rules_occurrences
+            .iter()
+            .filter(|(_, occurences)| *occurences > 0)
+            .map(|(rule, _)| rule.to_string())
+            .collect::<Vec<String>>();
+
+        for rule in disabled_rules {
+            if rule.is_empty() || rule == diag.id {
+                return true;
+            }
+        }
+        false
+    }
+
+    fn _check_is_diag_ignored(&self, diag: &LintDiag, file: &SolidFile) -> bool {
+        let ignore_comments: Vec<IgnoreComment> = file
+            .content
+            .lines()
+            .enumerate()
+            .filter_map(|(line_number, line)| IgnoreComment::from_line(line_number + 1, line))
+            .collect();
+        let disable_ranges = build_disable_ranges(ignore_comments);
+
+        self._check_is_in_disable_range(diag, &disable_ranges)
+    }
+
     pub fn parse_content(&mut self, filepath: &str, content: &str) -> LintResult {
         let res = osmium_libs_solidity_ast_extractor::extract::extract_ast_from_content(content)?;
 
         self._add_file(filepath, res, content);
-        let mut res: Vec<LintDiag> = Vec::new();
+        let mut res: Vec<_> = vec![];
 
         for rule in &self.rules {
             let mut diags = rule.diagnose(&self.files[self.files.len() - 1], &self.files);
-            res.append(&mut diags);
+            for diag in &mut diags {
+                if !self._check_is_diag_ignored(diag, &self.files[self.files.len() - 1]) {
+                    res.push(diag.clone());
+                }
+            }
         }
         Ok(FileDiags::new(content.to_string(), res))
     }

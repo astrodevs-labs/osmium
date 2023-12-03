@@ -18,7 +18,7 @@ fs.readdir('target', { withFileTypes: true }, (err, dirs) => {
         return;
       }
     const files = entries.filter(file => file.isFile()).map(file => file.name);
-    const serverBinaries = files.filter(file => file.endsWith('-server'));
+    const serverBinaries = files.filter(file => file.endsWith('-server') || file.endsWith('-server.exe'));
     serverBinaries.forEach(binary => {
         fs.copyFile(`target/${dir}/${binary}`, `${outputFolder}/${binary}`, (err) => {
             if (err) {

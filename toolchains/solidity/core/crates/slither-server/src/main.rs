@@ -1,11 +1,11 @@
 mod slither;
 mod types;
+mod error;
 
-use tokio::net::{TcpListener, TcpStream};
 use tower_lsp::jsonrpc::Result;
 use tower_lsp::lsp_types::*;
 use tower_lsp::{Client, LanguageServer, LspService, Server};
-
+use crate::error::SlitherError;
 use crate::slither::*;
 
 #[derive(Debug)]
@@ -58,62 +58,45 @@ impl LanguageServer for Backend {
     }
 
     async fn did_open(&self, file: DidOpenTextDocumentParams) {
-        let res = exec_slither(file.text_document.uri.path());
-        self.client.publish_diagnostics(file.text_document.uri, res, None).await;
-        self.client
-            .log_message(MessageType::INFO, "file opened!")
-            .await;
+        self.client.log_message(MessageType::INFO, format!("Opened file '{}' for analyzing.", file.text_document.uri.path())).await;
+        self.check_slither_result(file.text_document.uri).await
     }
 
     async fn did_change(&self, file: DidChangeTextDocumentParams) {
-        let res = exec_slither(file.text_document.uri.path());
-        self.client.publish_diagnostics(file.text_document.uri, res, None).await;
-        self.client
-            .log_message(MessageType::INFO, "file changed!")
-            .await;
+        self.client.log_message(MessageType::INFO, format!("Changed file '{}' for analyzing.", file.text_document.uri.path())).await;
+        self.check_slither_result(file.text_document.uri).await
     }
 
     async fn did_save(&self, file: DidSaveTextDocumentParams) {
-        let res = exec_slither(file.text_document.uri.path());
-        self.client.publish_diagnostics(file.text_document.uri, res, None).await;
-        self.client
-            .log_message(MessageType::INFO, "file saved!")
-            .await;
+        self.client.log_message(MessageType::INFO, format!("Saved file '{}' for analyzing.", file.text_document.uri.path())).await;
+        self.check_slither_result(file.text_document.uri).await
+    }
+}
+
+impl Backend {
+    async fn check_slither_result(&self, uri: Url) {
+        let res = exec_slither(uri.path());
+        match res {
+            Ok(res) => {
+                self.client.log_message(MessageType::INFO, format!("File '{}' did generate {} security diagnostics.", uri.path(), res.len())).await;
+                self.client.publish_diagnostics(uri, res, None).await;
+            },
+            Err(SlitherError::SlitherParseError(e)) => {
+                self.client.log_message(MessageType::ERROR, format!("File '{}' did generate an error while parsing the output: {:?}", uri.path(), e)).await;
+                self.client.publish_diagnostics(uri, vec![], None).await;
+            },
+            Err(e) => {
+                self.client.log_message(MessageType::ERROR, format!("File '{}' did generate an error: {:?}", uri.path(), e)).await;
+            }
+        }
     }
 }
 
 #[tokio::main]
 async fn main() {
-    #[cfg(feature = "runtime-agnostic")]
-    use tokio_util::compat::{TokioAsyncReadCompatExt, TokioAsyncWriteCompatExt};
-
-    let mut args = std::env::args();
-    let stream = match args.nth(1).as_deref() {
-        None => {
-            // If no argument is supplied (args is just the program name), then
-            // we presume that the client has opened the TCP port and is waiting
-            // for us to connect. This is the connection pattern used by clients
-            // built with vscode-langaugeclient.
-            TcpStream::connect("127.0.0.1:9257").await.unwrap()
-        }
-        Some("--listen") => {
-            // If the `--listen` argument is supplied, then the roles are
-            // reversed: we need to start a server and wait for the client to
-            // connect.
-            let listener = TcpListener::bind("127.0.0.1:9257").await.unwrap();
-            let (stream, _) = listener.accept().await.unwrap();
-            stream
-        }
-        Some(arg) => panic!(
-            "Unrecognized argument: {}. Use --listen to listen for connections.",
-            arg
-        ),
-    };
-
-    let (read, write) = tokio::io::split(stream);
-    #[cfg(feature = "runtime-agnostic")]
-        let (read, write) = (read.compat(), write.compat_write());
+    let stdin = tokio::io::stdin();
+    let stdout = tokio::io::stdout();
 
     let (service, socket) = LspService::new(|client| Backend { client });
-    Server::new(read, write, socket).serve(service).await;
+    Server::new(stdin, stdout, socket).serve(service).await;
 }

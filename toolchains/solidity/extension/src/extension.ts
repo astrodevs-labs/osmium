@@ -5,13 +5,13 @@
 
 import * as path from 'path';
 import { workspace, ExtensionContext } from 'vscode';
-[]
 import {
 	LanguageClient,
 } from 'vscode-languageclient/node';
 import { createLinterClient } from './linter';
 import { createFoundryCompilerClient } from './foundry-compiler';
 
+let slitherClient: LanguageClient;
 let linterClient: LanguageClient;
 let foundryCompilerClient: LanguageClient;
 

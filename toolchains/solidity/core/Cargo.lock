@@ -247,12 +247,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "either"
-version = "1.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a26ae43d7bcc3b814de94796a5e736d4029efb0ee900c12e2d54c993ad1a1e07"
-
-[[package]]
 name = "errno"
 version = "0.3.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -543,16 +537,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dd8b5dd2ae5ed71462c540258bedcb51965123ad7e7ccf4b9a8cafaa4a63576d"
 
 [[package]]
-name = "osmium-libs-foundry-wrapper"
+name = "os"
 version = "0.1.0"
-dependencies = [
- "clap",
- "glob",
- "serde",
- "serde_json",
- "thiserror",
- "which",
-]
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9ffda62bb984a82b17675005290ffa19b76fb74c3774cb8bed86bccb628ca911"
 
 [[package]]
 name = "osmium-libs-lsp-server-wrapper"
@@ -815,7 +803,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "slither"
+name = "slither-server"
 version = "0.3.0"
 dependencies = [
  "colored",
@@ -823,6 +811,7 @@ dependencies = [
  "serde",
  "serde_derive",
  "serde_json",
+ "thiserror",
  "tokio",
  "tower-lsp",
 ]
@@ -1129,19 +1118,6 @@ name = "wasi"
 version = "0.11.0+wasi-snapshot-preview1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c8d87e72b64a3b4db28d11ce29237c246188f4f51057d65a7eab63b7987e423"
-
-[[package]]
-name = "which"
-version = "5.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9bf3ea8596f3a0dd5980b46430f2058dfe2c36a27ccfbb1845d6fbfcd9ba6e14"
-dependencies = [
- "either",
- "home",
- "once_cell",
- "rustix",
- "windows-sys 0.48.0",
-]
 
 [[package]]
 name = "windows-sys"

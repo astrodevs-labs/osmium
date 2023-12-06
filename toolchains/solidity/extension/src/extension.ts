@@ -11,13 +11,16 @@ import {
 } from 'vscode-languageclient/node';
 import { createLinterClient } from './linter';
 import { createFoundryCompilerClient } from './foundry-compiler';
+import { createTestsPositionsClient } from './tests-positions';
 
 let linterClient: LanguageClient;
 let foundryCompilerClient: LanguageClient;
+let testsPositionsClient: LanguageClient;
 
 export async function activate(context: ExtensionContext) {
 	linterClient = createLinterClient(context);
 	foundryCompilerClient = createFoundryCompilerClient(context);
+	testsPositionsClient = await createTestsPositionsClient(context);
 
 	context.subscriptions.push(linterClient);
 	context.subscriptions.push(foundryCompilerClient);

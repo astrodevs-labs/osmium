@@ -1,5 +1,4 @@
 use std::process::Command;
-use serde_json;
 use crate::{types::ProjectCompileOutput, error::Error, utils::{find_projects_paths, find_forge_executable, check_executable_argument}};
 
 #[derive(Debug)]

@@ -11,6 +11,7 @@ impl ProjectCompileOutput {
     }
 }
 
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct CompilationError {
     #[serde(rename = "sourceLocation")]

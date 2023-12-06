@@ -100,7 +100,7 @@ jobs:
 
       - name: Install
         run: |
-          yarn install --frozen-lockfile
+          yarn install --immutable
 
       - name: Get tag prefix
         id: get-tag-prefix

@@ -63,7 +63,7 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-      - run: yarn install --frozen-lockfile
+      - run: yarn install --immutable
         if: steps.yarn-cache.outputs.cache-hit != 'true'
 
       - run: yarn workspace ${{ matrix.workspace.name }} run lint
@@ -99,7 +99,7 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-      - run: yarn install --frozen-lockfile
+      - run: yarn install --immutable
         if: steps.yarn-cache.outputs.cache-hit != 'true'
         
       - run: yarn workspace ${{ matrix.workspace.name }} run format

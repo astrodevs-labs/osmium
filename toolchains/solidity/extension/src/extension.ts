@@ -5,16 +5,19 @@ import {
 import { createLinterClient } from './linter';
 import { createFoundryCompilerClient } from './foundry-compiler';
 import { createSlitherClient } from './slither';
+import { createTestsPositionsClient } from './tests-positions';
 import registerForgeFmtLinter from "./fmt-wrapper";
 
 let slitherClient: LanguageClient;
 let linterClient: LanguageClient;
 let foundryCompilerClient: LanguageClient;
+let testsPositionsClient: LanguageClient;
 
 export async function activate(context: ExtensionContext) {
 	linterClient = createLinterClient(context);
 	foundryCompilerClient = createFoundryCompilerClient(context);
 	slitherClient = createSlitherClient(context);
+	testsPositionsClient = await createTestsPositionsClient(context);
 
 	context.subscriptions.push(linterClient);
 	context.subscriptions.push(foundryCompilerClient);

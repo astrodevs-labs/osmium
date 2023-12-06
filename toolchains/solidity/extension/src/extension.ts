@@ -4,7 +4,7 @@
  * ------------------------------------------------------------------------------------------ */
 
 import * as path from 'path';
-import { workspace, ExtensionContext, Uri } from 'vscode';
+import { workspace, ExtensionContext } from 'vscode';
 import { TextDecoder } from 'util';
 
 import {

@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as os from 'os';
-import { workspace, ExtensionContext } from "vscode";
+import { workspace, ExtensionContext, Uri } from "vscode";
 import {
 	LanguageClient,
 	LanguageClientOptions,
@@ -46,7 +46,7 @@ export function createLinterClient(context: ExtensionContext): LanguageClient {
 		clientOptions
 	);
 
-	client.onRequest('osmium/getContent', async (params) => {
+	client.onRequest('osmium/getContent', async (params: { uri: string}) => {
     	const contentUint8 = await workspace.fs.readFile(Uri.parse(params.uri));
     	const content = new TextDecoder().decode(contentUint8);
     	return {

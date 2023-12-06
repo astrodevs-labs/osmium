@@ -1,10 +1,12 @@
 use get_tests_positions::{GetTestsPositionsParams, GetTestsPositionsResponse, TestContract};
-use osmium_libs_solidity_ast_extractor::File;
 use osmium_libs_solidity_ast_extractor::retriever::retrieve_functions_nodes;
-use tower_lsp::jsonrpc::{Result, self};
+use osmium_libs_solidity_ast_extractor::File;
+use osmium_libs_solidity_ast_extractor::{
+    extract::extract_ast_from_content, retriever::retrieve_contract_nodes,
+};
+use tower_lsp::jsonrpc::{self, Result};
 use tower_lsp::lsp_types::*;
 use tower_lsp::{Client, LanguageServer, LspService, Server};
-use osmium_libs_solidity_ast_extractor::{extract::extract_ast_from_content, retriever::retrieve_contract_nodes};
 
 mod get_tests_positions;
 mod utils;
@@ -37,18 +39,21 @@ impl Backend {
         Self { client }
     }
 
-    async fn get_tests_positions(&self, params: GetTestsPositionsParams) -> Result<GetTestsPositionsResponse> {
+    async fn get_tests_positions(
+        &self,
+        params: GetTestsPositionsParams,
+    ) -> Result<GetTestsPositionsResponse> {
         self.client
             .log_message(MessageType::INFO, "Getting tests positions for file")
             .await;
         let res = extract_ast_from_content(&params.file_content);
-        
+
         if let Ok(ast) = res {
-           self.extract_tests_positions(ast)
+            self.extract_tests_positions(ast)
         } else {
             let err = res.unwrap_err();
             eprintln!("Error: {:?}", err);
-            return Err(jsonrpc::Error::invalid_params(format!("Error: {:?}", err)));
+            Err(jsonrpc::Error::invalid_params(format!("Error: {:?}", err)))
         }
     }
 
@@ -58,11 +63,9 @@ impl Backend {
         for contract in contracts {
             let mut tests_ranges = vec![];
             let mut functions = retrieve_functions_nodes(&contract);
-            let tests = functions
-                .iter_mut()
-                .filter(|f| 
-                    f.name.is_some() && f.name.as_ref().unwrap().as_string().starts_with("test")
-                );
+            let tests = functions.iter_mut().filter(|f| {
+                f.name.is_some() && f.name.as_ref().unwrap().as_string().starts_with("test")
+            });
             for test in tests {
                 let name = match &test.name {
                     Some(name) => name,
@@ -75,9 +78,7 @@ impl Backend {
                 tests_ranges,
             });
         }
-        Ok(GetTestsPositionsResponse {
-            ranges,
-        })
+        Ok(GetTestsPositionsResponse { ranges })
     }
 }
 

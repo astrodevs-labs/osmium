@@ -1,6 +1,8 @@
 use glob::glob;
 use std::path::PathBuf;
 
+use crate::Error;
+
 pub fn find_projects_paths(root_path: &str) -> Result<Vec<PathBuf>, glob::PatternError> {
     let pattern = format!("{}/**/foundry.toml", root_path);
     let filespaths = glob(&pattern)?

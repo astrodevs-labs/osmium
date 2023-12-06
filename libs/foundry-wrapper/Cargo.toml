@@ -13,41 +13,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 glob = "0.3.1"
 clap = "4.4.8"
-thiserror = "1.0"
-foundry-config = { git = "https://github.com/foundry-rs/foundry" }
-forge = { git = "https://github.com/foundry-rs/foundry" }
-foundry-cli = { git = "https://github.com/foundry-rs/foundry" }
-foundry-common = { git = "https://github.com/foundry-rs/foundry" }
-# solc & compilation utilities
-foundry-compilers = { version = "0.1", default-features = false }
-
-# forge dependencies
-eyre = "0.6"
-once_cell = "1"
-semver = "1"
-tracing = "0.1"
-regex = { version = "1", default-features = false }
-yansi = "0.5"
-
-[patch.crates-io]
-ethers = { git = "https://github.com/gakonst/ethers-rs", rev = "546ea029362a7502365667c6f99fac92ad0aeb9f" }
-ethers-core = { git = "https://github.com/gakonst/ethers-rs", rev = "546ea029362a7502365667c6f99fac92ad0aeb9f"  }
-ethers-contract = { git = "https://github.com/gakonst/ethers-rs", rev = "546ea029362a7502365667c6f99fac92ad0aeb9f"  }
-ethers-contract-abigen = { git = "https://github.com/gakonst/ethers-rs", rev = "546ea029362a7502365667c6f99fac92ad0aeb9f"  }
-ethers-providers = { git = "https://github.com/gakonst/ethers-rs", rev = "546ea029362a7502365667c6f99fac92ad0aeb9f"  }
-ethers-signers = { git = "https://github.com/gakonst/ethers-rs", rev = "546ea029362a7502365667c6f99fac92ad0aeb9f"  }
-ethers-middleware = { git = "https://github.com/gakonst/ethers-rs", rev = "546ea029362a7502365667c6f99fac92ad0aeb9f"  }
-ethers-solc = { git = "https://github.com/gakonst/ethers-rs", rev = "546ea029362a7502365667c6f99fac92ad0aeb9f"  }
-
-foundry-block-explorers = { git = "https://github.com/foundry-rs/block-explorers" }
-
-alloy-dyn-abi = { git = "https://github.com/alloy-rs/core/" }
-alloy-json-abi = { git = "https://github.com/alloy-rs/core/" }
-alloy-primitives = { git = "https://github.com/alloy-rs/core/" }
-alloy-sol-macro = { git = "https://github.com/alloy-rs/core/" }
-alloy-sol-types = { git = "https://github.com/alloy-rs/core/" }
-alloy-sol-type-parser = { git = "https://github.com/alloy-rs/core/" }
-syn-solidity = { git = "https://github.com/alloy-rs/core/" }
-
-revm = { git = "https://github.com/bluealloy/revm", rev = "1609e07c68048909ad1682c98cf2b9baa76310b5" }
-revm-primitives = { git = "https://github.com/bluealloy/revm", rev = "1609e07c68048909ad1682c98cf2b9baa76310b5" }
+thiserror = "1.0.50"
+which = "5.0"
+serde = "1.0.193"
+serde_json = "1.0.108"

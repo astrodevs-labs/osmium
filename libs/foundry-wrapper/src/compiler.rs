@@ -1,9 +1,12 @@
-use crate::{types::{WorkspaceConfig, ProjectCompileOutput}, error::Error, utils::install_missing_dependencies};
+use std::process::Command;
+use serde_json;
+use crate::{types::ProjectCompileOutput, error::Error, utils::{find_projects_paths, find_forge_executable, check_executable_argument}};
 
 #[derive(Debug)]
-pub struct CompilerInner {
+struct CompilerInner {
     root_path: String,
-    workspace_config: WorkspaceConfig,
+    workspaces: Vec<String>,
+    executable_path: String,
 }
 
 #[derive(Debug)]
@@ -12,54 +15,53 @@ pub struct Compiler {
 }
 
 impl Compiler {
-    pub fn new() -> Self {
-        Self {
+    pub fn new_with_executable_check() -> Result<Self, Error> {
+        let executable_path = find_forge_executable()?;
+        check_executable_argument(executable_path.to_str().unwrap_or_default())?;
+        Ok(Self {
             inner: CompilerInner {
                 root_path: String::new(),
-                workspace_config: WorkspaceConfig::new(),
+                workspaces: Vec::new(),
+                executable_path: executable_path.to_str().unwrap_or_default().to_string(),
             }
-        }
+        })
+    }
+
+    fn find_closest_workspace(&self, file_path: &str) -> Option<String> {
+        self.inner.workspaces
+            .iter()
+            .filter(|path| file_path.starts_with(path.as_str()))
+            .max_by_key(|path| path.len())
+            .map(|path| path.to_string())
     }
 
     pub fn load_workspace(&mut self, root_folder: String) -> Result<(), Error> {
-        self.inner.workspace_config.load_projects(&root_folder)?;
+        let paths = find_projects_paths(&root_folder)?;
+        for path in paths {
+            if let Some(path) = path.to_str() {
+                self.inner.workspaces.push(path.to_string());
+            }
+        }
         self.inner.root_path = root_folder;
         Ok(())
     }
 
-    pub fn reload_project_for_file(&mut self, file_path: &str) -> Result<(), Error> {
-        self.inner.workspace_config.reload_project_for_file(file_path)
+    pub fn reload_project_for_file(&mut self, _: &str) -> Result<(), Error> {
+        Ok(())
     }
 
     pub fn compile(&mut self, file_path: &str) -> Result<(String, ProjectCompileOutput), Error> {
-        let (_, config) = self.inner.workspace_config.get_config_for_file(file_path)
-            .ok_or_else(|| Error::InvalidFilePath(file_path.to_string()))?;
-
-        if install_missing_dependencies(config, true) {
-            let path = self.inner.root_path.clone();
-            self.inner.workspace_config.reload_project_for_file(&path)?;
-        }
-        let (project_path, project) = self.inner.workspace_config.get_project_for_file(file_path)
-            .ok_or_else(|| Error::InvalidFilePath(file_path.to_string()))?;
-
-        Ok((project_path, project.compile()?))
-
-        /*
-         if install::install_missing_dependencies(&mut config, self.args.silent) &&
-            config.auto_detect_remappings
-        {
-            // need to re-configure here to also catch additional remappings
-            config = self.load_config();
-            project = config.project()?;
-        }
-
-        let filters = self.skip.unwrap_or_default();
-
-        if self.args.silent {
-            compile::suppress_compile_with_filter(&project, filters)
-        } else {
-            let compiler = ProjectCompiler::with_filter(self.names, self.sizes, filters);
-            compiler.compile(&project)
-        } */
+        let workspace_path = self.find_closest_workspace(&file_path).ok_or_else(|| Error::InvalidFilePath(file_path.to_string()))?;
+        let json = Command::new(&self.inner.executable_path)
+            .current_dir(&workspace_path)
+            .arg("compile")
+            .arg("--format-json")
+            .output()
+            .map_err(|e| {
+                Error::ExecutableError(e)
+            })?;
+        let output_str = String::from_utf8_lossy(&json.stdout);
+        let compile_output: ProjectCompileOutput = serde_json::from_str(&output_str)?;
+        return Ok((workspace_path, compile_output));
     }
 }

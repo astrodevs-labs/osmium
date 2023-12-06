@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use tower_lsp::lsp_types::{Position, Range, Diagnostic, DiagnosticSeverity as Severity};
+use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity as Severity, Position, Range};
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct SlitherResult {
@@ -12,7 +12,6 @@ pub struct SlitherResult {
 pub struct SlitherResults {
     pub detectors: Vec<SlitherDetector>,
 }
-
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct SlitherDetector {
@@ -47,7 +46,6 @@ pub struct SlitherSourceMapping {
     pub ending_column: usize,
     pub length: usize,
     pub start: usize,
-
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -75,13 +73,12 @@ pub struct SlitherAdditionalFields {
     pub variable_name: Option<String>,
 }
 
-
 pub fn diag_from_json(json: SlitherDetector) -> Vec<Diagnostic> {
     let mut results: Vec<Diagnostic> = Vec::new();
-    
+
     for idx in 0..json.elements.len() {
         if json.elements[idx].source_mapping.lines.len() == 0
-        || json.elements[idx].type_ == "contract"
+            || json.elements[idx].type_ == "contract"
         {
             continue;
         }
@@ -90,11 +87,11 @@ pub fn diag_from_json(json: SlitherDetector) -> Vec<Diagnostic> {
         let end_col = json.elements[idx].source_mapping.ending_column;
         let range = Range {
             start: Position {
-                line: lines[0] as u32 -1,
+                line: lines[0] as u32 - 1,
                 character: start_col as u32 - 1,
             },
             end: Position {
-                line: lines[lines.len() - 1] as u32 -1,
+                line: lines[lines.len() - 1] as u32 - 1,
                 character: end_col as u32,
             },
         };
@@ -107,7 +104,7 @@ pub fn diag_from_json(json: SlitherDetector) -> Vec<Diagnostic> {
             "Informational" => severity = Severity::INFORMATION,
             _ => severity = Severity::ERROR,
         }
-    
+
         results.push(Diagnostic {
             range,
             severity: Some(severity),
@@ -122,7 +119,6 @@ pub fn diag_from_json(json: SlitherDetector) -> Vec<Diagnostic> {
     }
 
     results
-
 }
 
 ////////////////////////////////////////////////////////////

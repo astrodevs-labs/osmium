@@ -19,28 +19,4 @@ extension = { version = "0.1.0", path = "crates/extension", default-features = f
 solidhunter = { version = "0.2.1", path = "crates/solidhunter", default-features = false }
 linter-cli = { version = "0.2.0", path = "crates/linter-cli", default-features = false }
 linter-server = { version = "0.1.0", path = "crates/linter-server", default-features = false }
-foundry-compiler = { version = "0.1.0", path = "crates/foundry-compiler", default-features = false }
-foundry-server = { version = "0.1.0", path = "crates/foundry-server", default-features = false }
-
-[patch.crates-io]
-ethers = { git = "https://github.com/gakonst/ethers-rs", rev = "546ea029362a7502365667c6f99fac92ad0aeb9f" }
-ethers-core = { git = "https://github.com/gakonst/ethers-rs", rev = "546ea029362a7502365667c6f99fac92ad0aeb9f"  }
-ethers-contract = { git = "https://github.com/gakonst/ethers-rs", rev = "546ea029362a7502365667c6f99fac92ad0aeb9f"  }
-ethers-contract-abigen = { git = "https://github.com/gakonst/ethers-rs", rev = "546ea029362a7502365667c6f99fac92ad0aeb9f"  }
-ethers-providers = { git = "https://github.com/gakonst/ethers-rs", rev = "546ea029362a7502365667c6f99fac92ad0aeb9f"  }
-ethers-signers = { git = "https://github.com/gakonst/ethers-rs", rev = "546ea029362a7502365667c6f99fac92ad0aeb9f"  }
-ethers-middleware = { git = "https://github.com/gakonst/ethers-rs", rev = "546ea029362a7502365667c6f99fac92ad0aeb9f"  }
-ethers-solc = { git = "https://github.com/gakonst/ethers-rs", rev = "546ea029362a7502365667c6f99fac92ad0aeb9f"  }
-
-foundry-block-explorers = { git = "https://github.com/foundry-rs/block-explorers" }
-
-alloy-dyn-abi = { git = "https://github.com/alloy-rs/core/" }
-alloy-json-abi = { git = "https://github.com/alloy-rs/core/" }
-alloy-primitives = { git = "https://github.com/alloy-rs/core/" }
-alloy-sol-macro = { git = "https://github.com/alloy-rs/core/" }
-alloy-sol-types = { git = "https://github.com/alloy-rs/core/" }
-alloy-sol-type-parser = { git = "https://github.com/alloy-rs/core/" }
-syn-solidity = { git = "https://github.com/alloy-rs/core/" }
-
-revm = { git = "https://github.com/bluealloy/revm", rev = "1609e07c68048909ad1682c98cf2b9baa76310b5" }
-revm-primitives = { git = "https://github.com/bluealloy/revm", rev = "1609e07c68048909ad1682c98cf2b9baa76310b5" }
+foundry-compiler-server = { version = "0.1.0", path = "crates/foundry-compiler-server", default-features = false }

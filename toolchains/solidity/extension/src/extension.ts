@@ -18,8 +18,6 @@ import { createFoundryCompilerClient } from './foundry-compiler';
 let linterClient: LanguageClient;
 let foundryCompilerClient: LanguageClient;
 
-let linterClient: LanguageClient;
-
 export async function activate(context: ExtensionContext) {
 	linterClient = createLinterClient(context);
 	foundryCompilerClient = createFoundryCompilerClient(context);

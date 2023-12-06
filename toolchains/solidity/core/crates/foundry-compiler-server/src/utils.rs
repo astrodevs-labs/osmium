@@ -1,5 +1,5 @@
 use osmium_libs_foundry_wrapper::Severity;
-use tower_lsp::lsp_types::{InitializeParams, DiagnosticSeverity};
+use tower_lsp::lsp_types::{DiagnosticSeverity, InitializeParams};
 
 pub fn get_root_path(params: InitializeParams) -> Option<String> {
     if let Some(root_uri) = params.root_uri {

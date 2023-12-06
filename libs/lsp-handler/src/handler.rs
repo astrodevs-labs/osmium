@@ -490,7 +490,10 @@ pub trait Handler {
     ///
     /// This request was introduced in specification version 3.15.0.
 
-    fn selection_range(&mut self, params: SelectionRangeParams) -> Result<Option<Vec<SelectionRange>>> {
+    fn selection_range(
+        &mut self,
+        params: SelectionRangeParams,
+    ) -> Result<Option<Vec<SelectionRange>>> {
         let _ = params;
         log("Got a textDocument/selectionRange request, but it is not implemented");
         Err(Error::method_not_found())

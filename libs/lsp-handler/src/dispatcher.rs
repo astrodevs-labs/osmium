@@ -36,14 +36,14 @@ use wasm_bindgen::prelude::*;
 pub struct Dispatcher {
     handlers: Vec<Box<dyn Handler>>,
     connection: Connection,
-    }
+}
 
 impl Dispatcher {
     pub fn new(connection: Connection) -> Self {
         Dispatcher {
             handlers: Vec::new(),
             connection,
-                    }
+        }
     }
 
     pub fn setup<F>(&mut self, creators: Vec<F>)
@@ -1535,7 +1535,10 @@ impl Handler for Dispatcher {
         Ok(Some(text_edit))
     }
 
-    fn selection_range(&mut self, params: SelectionRangeParams) -> Result<Option<Vec<SelectionRange>>> {
+    fn selection_range(
+        &mut self,
+        params: SelectionRangeParams,
+    ) -> Result<Option<Vec<SelectionRange>>> {
         let mut text_edit: Vec<SelectionRange> = vec![];
         for handler in &mut self.handlers {
             let res = handler.selection_range(params.clone());

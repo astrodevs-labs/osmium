@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ProjectCompileOutput {
-    errors: Vec<CompilationError>
+    errors: Vec<CompilationError>,
 }
 
 impl ProjectCompileOutput {
@@ -10,7 +10,6 @@ impl ProjectCompileOutput {
         self.errors.as_ref()
     }
 }
-
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct CompilationError {
@@ -64,7 +63,7 @@ impl CompilationError {
     pub fn get_range(&self, source_content: &str) -> Option<Range> {
         Some(Range {
             start: self.get_start_position(source_content)?,
-            end: self.get_end_position(source_content)?
+            end: self.get_end_position(source_content)?,
         })
     }
 
@@ -79,7 +78,7 @@ impl CompilationError {
 #[derive(Clone, Debug)]
 pub struct Position {
     pub line: u32,
-    pub column: u32
+    pub column: u32,
 }
 
 impl Position {
@@ -89,8 +88,8 @@ impl Position {
             if idx < l.len() {
                 return Some(Self {
                     line: i as u32,
-                    column: idx as u32
-                })
+                    column: idx as u32,
+                });
             }
             idx -= l.len() + 1;
         }
@@ -101,7 +100,7 @@ impl Position {
 #[derive(Clone, Debug)]
 pub struct Range {
     pub start: Position,
-    pub end: Position
+    pub end: Position,
 }
 
 #[derive(Clone, Debug)]
@@ -117,7 +116,7 @@ impl From<String> for Severity {
             s if s.to_uppercase() == "ERROR" => Self::Error,
             s if s.to_uppercase() == "WARNING" => Self::Warning,
             s if s.to_uppercase() == "INFO" => Self::Info,
-            _ => Self::Info
+            _ => Self::Info,
         }
     }
 }

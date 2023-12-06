@@ -1,5 +1,9 @@
+use crate::{
+    error::Error,
+    types::ProjectCompileOutput,
+    utils::{check_executable_argument, find_forge_executable, find_projects_paths},
+};
 use std::process::Command;
-use crate::{types::ProjectCompileOutput, error::Error, utils::{find_projects_paths, find_forge_executable, check_executable_argument}};
 
 #[derive(Debug)]
 struct CompilerInner {
@@ -22,12 +26,13 @@ impl Compiler {
                 root_path: String::new(),
                 workspaces: Vec::new(),
                 executable_path: executable_path.to_str().unwrap_or_default().to_string(),
-            }
+            },
         })
     }
 
     fn find_closest_workspace(&self, file_path: &str) -> Option<String> {
-        self.inner.workspaces
+        self.inner
+            .workspaces
             .iter()
             .filter(|path| file_path.starts_with(path.as_str()))
             .max_by_key(|path| path.len())
@@ -50,17 +55,17 @@ impl Compiler {
     }
 
     pub fn compile(&mut self, file_path: &str) -> Result<(String, ProjectCompileOutput), Error> {
-        let workspace_path = self.find_closest_workspace(&file_path).ok_or_else(|| Error::InvalidFilePath(file_path.to_string()))?;
+        let workspace_path = self
+            .find_closest_workspace(file_path)
+            .ok_or_else(|| Error::InvalidFilePath(file_path.to_string()))?;
         let json = Command::new(&self.inner.executable_path)
             .current_dir(&workspace_path)
             .arg("compile")
             .arg("--format-json")
             .output()
-            .map_err(|e| {
-                Error::ExecutableError(e)
-            })?;
+            .map_err(Error::ExecutableError)?;
         let output_str = String::from_utf8_lossy(&json.stdout);
         let compile_output: ProjectCompileOutput = serde_json::from_str(&output_str)?;
-        return Ok((workspace_path, compile_output));
+        Ok((workspace_path, compile_output))
     }
 }

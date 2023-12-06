@@ -2,10 +2,9 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum Error {
-    
     #[error("Workspace loading error: {0}")]
     InvalidRootPath(#[from] glob::PatternError),
-    
+
     #[error("Invalid file path: {0}")]
     InvalidFilePath(String),
 

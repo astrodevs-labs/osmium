@@ -5,21 +5,14 @@ use tower_lsp::lsp_types::Diagnostic;
 
 pub fn is_slither_installed() -> bool {
     let output = Command::new("slither").arg("--version").output();
-
-    match output {
-        Err(_) => false,
-        Ok(_) => true,
-    }
+    output.is_ok()
 }
 
 pub fn is_solc_installed() -> bool {
     let output = Command::new("solc").arg("--version").output();
-
-    match output {
-        Err(_) => false,
-        Ok(_) => true,
-    }
+    output.is_ok()
 }
+
 #[cfg(target_family = "windows")]
 fn normalize_slither_path(path: &str) -> String {
     let mut path = path.replace("%3A/", "://");
@@ -42,7 +35,7 @@ pub fn exec_slither(filepath: &str) -> Result<Vec<Diagnostic>, SlitherError> {
         .arg("-")
         .output()?;
     if out.status.code() == Some(1) {
-        return Err(SlitherError::SlitherError);
+        return Err(SlitherError::Unknown);
     }
     if out.stdout.is_empty() {
         return Ok(results);
@@ -52,5 +45,5 @@ pub fn exec_slither(filepath: &str) -> Result<Vec<Diagnostic>, SlitherError> {
     for detector in json.results.detectors {
         results.append(&mut crate::types::diag_from_json(detector.clone()));
     }
-    return Ok(results);
+    Ok(results)
 }

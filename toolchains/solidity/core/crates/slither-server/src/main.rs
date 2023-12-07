@@ -43,7 +43,6 @@ impl LanguageServer for Backend {
                 }),
                 ..ServerCapabilities::default()
             },
-            ..Default::default()
         })
     }
 
@@ -114,7 +113,7 @@ impl Backend {
                     .await;
                 self.client.publish_diagnostics(uri, res, None).await;
             }
-            Err(SlitherError::SlitherParseError(e)) => {
+            Err(SlitherError::ParsingFailed(e)) => {
                 self.client
                     .log_message(
                         MessageType::ERROR,

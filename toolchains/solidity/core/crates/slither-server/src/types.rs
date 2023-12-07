@@ -77,7 +77,7 @@ pub fn diag_from_json(json: SlitherDetector) -> Vec<Diagnostic> {
     let mut results: Vec<Diagnostic> = Vec::new();
 
     for idx in 0..json.elements.len() {
-        if json.elements[idx].source_mapping.lines.len() == 0
+        if json.elements[idx].source_mapping.lines.is_empty()
             || json.elements[idx].type_ == "contract"
         {
             continue;
@@ -96,14 +96,13 @@ pub fn diag_from_json(json: SlitherDetector) -> Vec<Diagnostic> {
             },
         };
 
-        let severity;
-        match json.impact.as_str() {
-            "High" => severity = Severity::ERROR,
-            "Medium" => severity = Severity::WARNING,
-            "Low" => severity = Severity::HINT,
-            "Informational" => severity = Severity::INFORMATION,
-            _ => severity = Severity::ERROR,
-        }
+        let severity = match json.impact.as_str() {
+            "High" => Severity::ERROR,
+            "Medium" => Severity::WARNING,
+            "Low" => Severity::HINT,
+            "Informational" => Severity::INFORMATION,
+            _ => Severity::ERROR,
+        };
 
         results.push(Diagnostic {
             range,

@@ -13,3 +13,7 @@ pub fn find_projects_paths(root_path: &str) -> Result<Vec<PathBuf>, glob::Patter
         .map(|path| path.parent().unwrap().to_path_buf())
         .collect())
 }
+
+pub fn normalize_path(path: &str) -> String {
+    path.replace("\\", "/").replace("//", "/").replace("\\\\", "/")
+}

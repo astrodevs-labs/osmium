@@ -6,15 +6,17 @@ import {
 	ServerOptions,
 	TransportKind
 } from 'vscode-languageclient/node';
+import * as os from 'os';
 
 export function createFoundryCompilerClient(context: ExtensionContext): LanguageClient {
     // The server is implemented in node
 	const serverBinary = context.asAbsolutePath(
-		path.join('dist', 'foundry-compiler-server')
+		path.join('dist',
+		os.platform().startsWith("win") ? 'foundry-compiler-server.exe' : 'foundry-compiler-server')
 	);
 
 	// If the extension is launched in debug mode then the debug server options are used
-	// Otherwise the run options are used
+	// Otherwise the run options are used[]
 	const serverOptions: ServerOptions = {
 		run: { command: serverBinary, transport: TransportKind.stdio },
 		debug: {

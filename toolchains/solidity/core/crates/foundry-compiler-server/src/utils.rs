@@ -17,3 +17,19 @@ pub fn convert_severity(severity: Severity) -> DiagnosticSeverity {
         Severity::Info => DiagnosticSeverity::INFORMATION,
     }
 }
+
+#[cfg(target_family = "windows")]
+pub fn normalize_path(path: &str) -> String {
+    let mut path = path.replace("%3A/", "://");
+    path.remove(0);
+    path.to_string()
+}
+
+#[cfg(not(target_family = "windows"))]
+pub fn normalize_path(path: &str) -> String {
+    path.to_string()
+}
+
+pub fn slashify_path(path: &str) -> String {
+    path.replace("\\", "/").replace("\\\\", "/").replace("//", "/")
+}

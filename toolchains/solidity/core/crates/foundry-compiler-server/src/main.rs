@@ -7,7 +7,7 @@ use tower_lsp::jsonrpc::Result;
 use tower_lsp::lsp_types::*;
 use tower_lsp::{Client, LanguageServer, LspService, Server};
 mod utils;
-use utils::{convert_severity, get_root_path};
+use utils::{convert_severity, get_root_path, normalize_path, slashify_path};
 mod affected_files_store;
 use affected_files_store::AffectedFilesStore;
 
@@ -41,7 +41,7 @@ impl LanguageServer for Backend {
                     ),
                 )
                 .await;
-            self.load_workspace(path).await;
+            self.load_workspace(normalize_path(path.as_str())).await;
         } else {
             self.client
                 .log_message(
@@ -74,7 +74,10 @@ impl LanguageServer for Backend {
                 format!("file opened!: {:}", params.text_document.uri),
             )
             .await;
-        self.compile(params.text_document.uri.path().to_string())
+        if params.text_document.uri.path().contains("forge-std") {
+            return;
+        }
+        self.compile(slashify_path(&normalize_path(params.text_document.uri.path())))
             .await;
     }
 
@@ -85,7 +88,7 @@ impl LanguageServer for Backend {
                 format!("file changed!: {:}", params.text_document.uri),
             )
             .await;
-        self.compile(params.text_document.uri.path().to_string())
+        self.compile(slashify_path(&normalize_path(params.text_document.uri.path())))
             .await;
     }
 
@@ -164,7 +167,7 @@ impl Backend {
                 .log_message(MessageType::INFO, format!("Compile errors: {:?}", output.get_errors()))
                 .await;*/
                 drop(state);
-                self.publish_errors_diagnostics(project_path, filepath, output)
+                self.publish_errors_diagnostics(slashify_path(&project_path), filepath, output)
                     .await;
             }
             Err(err) => {
@@ -184,7 +187,7 @@ impl Backend {
         filepath: String,
         output: ProjectCompileOutput,
     ) {
-        let mut diagnostics = HashMap::<Url, Vec<Diagnostic>>::new();
+        let mut diagnostics = HashMap::<String, Vec<Diagnostic>>::new();
         for error in output.get_errors() {
             eprintln!("error: {:?}", error);
             let (source_content_filepath, range) =
@@ -212,11 +215,10 @@ impl Backend {
                 tags: None,
                 data: None,
             };
-            let url = Url::parse(&format!(
-                "file://{}",
-                source_content_filepath.to_str().unwrap()
-            ))
-            .unwrap();
+            let url = match source_content_filepath.to_str() {
+                Some(source_path) => slashify_path(source_path),
+                None => continue,
+            };
             if !diagnostics.contains_key(&url) {
                 diagnostics.insert(url.clone(), vec![diagnostic]);
             } else {
@@ -227,9 +229,13 @@ impl Backend {
         self.add_not_affected_files(project_path, filepath, &mut diagnostics)
             .await;
         for (uri, diags) in diagnostics.iter() {
-            self.client
-                .publish_diagnostics(uri.clone(), diags.clone(), None)
+            if let Ok(url) = Url::parse(&format!("file://{}", &uri)) {
+                self.client
+                .publish_diagnostics(url, diags.clone(), None)
                 .await;
+            } else {
+                self.client.log_message(MessageType::ERROR, "error, cannot parse file uri").await;
+            }
         }
     }
 
@@ -285,7 +291,7 @@ impl Backend {
         &self,
         project_path: String,
         filepath: String,
-        files: &mut HashMap<Url, Vec<Diagnostic>>,
+        raised_diagnostics: &mut HashMap<String, Vec<Diagnostic>>,
     ) {
         let mut state = self.state.lock().await;
 
@@ -296,10 +302,11 @@ impl Backend {
         let affected_files = state.affected_files.get_affected_files(&project_path);
         drop(state);
         let mut without_diagnostics = vec![];
+
         for file in affected_files {
-            let url = Url::parse(&format!("file://{}", file)).unwrap();
+            if !raised_diagnostics.contains_key(&file) { // if not potential not affected file is not in raised diags
             if let std::collections::hash_map::Entry::Vacant(e) = files.entry(url) {
-                e.insert(vec![]);
+                raised_diagnostics.insert(file.clone(), vec![]);
                 without_diagnostics.push(file);
             }
         }

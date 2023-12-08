@@ -84,14 +84,15 @@ pub struct Position {
 impl Position {
     pub fn from_index(idx: i32, source: &str) -> Option<Self> {
         let mut idx: usize = idx as usize;
-        for (i, l) in source.lines().enumerate() {
-            if idx < l.len() {
+        for (i, l) in source.split("\n").enumerate() {
+            let line_length = l.len() + if l.ends_with("\r") { 2 } else { 1 };
+            if idx < line_length {
                 return Some(Self {
                     line: i as u32,
                     column: idx as u32,
                 });
             }
-            idx -= l.len() + 1;
+            idx -= line_length
         }
         None
     }

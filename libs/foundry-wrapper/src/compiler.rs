@@ -1,7 +1,7 @@
 use crate::{
     error::Error,
     types::ProjectCompileOutput,
-    utils::{check_executable_argument, find_forge_executable, find_projects_paths},
+    utils::{check_executable_argument, find_forge_executable, find_projects_paths, normalize_path},
 };
 use std::process::Command;
 
@@ -31,10 +31,11 @@ impl Compiler {
     }
 
     fn find_closest_workspace(&self, file_path: &str) -> Option<String> {
+        let filepath = normalize_path(file_path);
         self.inner
             .workspaces
             .iter()
-            .filter(|path| file_path.starts_with(path.as_str()))
+            .filter(|path| filepath.starts_with(path.as_str()))
             .max_by_key(|path| path.len())
             .map(|path| path.to_string())
     }
@@ -43,7 +44,7 @@ impl Compiler {
         let paths = find_projects_paths(&root_folder)?;
         for path in paths {
             if let Some(path) = path.to_str() {
-                self.inner.workspaces.push(path.to_string());
+                self.inner.workspaces.push(normalize_path(path));
             }
         }
         self.inner.root_path = root_folder;

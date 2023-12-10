@@ -27,7 +27,8 @@ export async function activate(context: ExtensionContext) {
 	if (folders) {
 		const files = await workspace.findFiles('**/*.sol', `${folders[0].uri.fsPath}/**`);
 		files.forEach(file => {
-			workspace.openTextDocument(file);
+			if (!file.path.includes('forge-std'))
+				workspace.openTextDocument(file);
 		});
 	}
 

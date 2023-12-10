@@ -29,14 +29,19 @@ impl AffectedFilesStore {
      * @param {String} project_path Project path
      * @returns {Vec<String>} List of files that are not raising an error anymore
      */
-    pub fn fill_affected_files(&mut self, raised_files: Vec<String>, project_path: &str) -> Vec<String> {
+    pub fn fill_affected_files(
+        &mut self,
+        raised_files: Vec<String>,
+        project_path: &str,
+    ) -> Vec<String> {
         let mut affected_files = Vec::new();
         if let Some(project_files) = self.projects_files.get_mut(project_path) {
-            project_files.retain(|file| !raised_files.contains(&file));
+            project_files.retain(|file| !raised_files.contains(file));
             affected_files = project_files.clone();
             project_files.extend(raised_files);
         } else {
-            self.projects_files.insert(project_path.to_string(), raised_files);
+            self.projects_files
+                .insert(project_path.to_string(), raised_files);
         }
         affected_files
     }

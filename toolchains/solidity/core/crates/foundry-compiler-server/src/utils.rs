@@ -53,7 +53,9 @@ pub fn normalize_path(path: &str) -> String {
  * @returns {String} Slashified path
  */
 pub fn slashify_path(path: &str) -> String {
-    path.replace("\\", "/").replace("\\\\", "/").replace("//", "/")
+    path.replace('\\', "/")
+        .replace("\\\\", "/")
+        .replace("//", "/")
 }
 
 pub fn normalized_slash_path(path: &str) -> String {

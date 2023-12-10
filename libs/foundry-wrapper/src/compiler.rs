@@ -1,7 +1,9 @@
 use crate::{
     error::Error,
     types::ProjectCompileOutput,
-    utils::{check_executable_argument, find_forge_executable, find_projects_paths, normalize_path},
+    utils::{
+        check_executable_argument, find_forge_executable, find_projects_paths, normalize_path,
+    },
 };
 use std::process::Command;
 

@@ -7,7 +7,7 @@ use tower_lsp::jsonrpc::Result;
 use tower_lsp::lsp_types::*;
 use tower_lsp::{Client, LanguageServer, LspService, Server};
 mod utils;
-use utils::{convert_severity, get_root_path, slashify_path, normalized_slash_path};
+use utils::{convert_severity, get_root_path, normalized_slash_path, slashify_path};
 mod affected_files_store;
 use affected_files_store::AffectedFilesStore;
 
@@ -30,7 +30,7 @@ impl LanguageServer for Backend {
         self.client
             .log_message(MessageType::INFO, "Foundry server initializing!")
             .await;
-        if let Some(root_path) =  get_root_path(params.clone()) {
+        if let Some(root_path) = get_root_path(params.clone()) {
             self.client
                 .log_message(
                     MessageType::INFO,
@@ -73,7 +73,8 @@ impl LanguageServer for Backend {
                 format!("file opened!: {:}", params.text_document.uri),
             )
             .await;
-        let _ = self.compile(normalized_slash_path(params.text_document.uri.path()))
+        let _ = self
+            .compile(normalized_slash_path(params.text_document.uri.path()))
             .await;
     }
 
@@ -84,7 +85,8 @@ impl LanguageServer for Backend {
                 format!("file changed!: {:}", params.text_document.uri),
             )
             .await;
-        let _ = self.compile(normalized_slash_path(params.text_document.uri.path()))
+        let _ = self
+            .compile(normalized_slash_path(params.text_document.uri.path()))
             .await;
     }
 
@@ -158,7 +160,7 @@ impl Backend {
                 .unwrap()
                 .to_string();
             self.load_workspace(folder_path).await?
-        }     
+        }
         Ok(())
     }
 
@@ -207,10 +209,11 @@ impl Backend {
 
         for error in output.get_errors() {
             // Generate diagnostic from compilation error
-            let (affected_file, diagnostic) = match self.extract_diagnostic(&error, &project_path).await {
-                Some(diagnostic) => diagnostic,
-                None => continue,
-            };
+            let (affected_file, diagnostic) =
+                match self.extract_diagnostic(error, &project_path).await {
+                    Some(diagnostic) => diagnostic,
+                    None => continue,
+                };
 
             // Add diagnostic to the hashmap
             let url = match affected_file.to_str() {
@@ -224,14 +227,20 @@ impl Backend {
             }
         }
 
-        self.reset_not_affected_files(project_path, filepath, &raised_diagnostics).await;
+        self.reset_not_affected_files(project_path, filepath, &raised_diagnostics)
+            .await;
         for (uri, diags) in raised_diagnostics.iter() {
             if let Ok(url) = Url::parse(&format!("file://{}", &uri)) {
                 self.client
-                .publish_diagnostics(url, diags.clone(), None)
-                .await;
+                    .publish_diagnostics(url, diags.clone(), None)
+                    .await;
             } else {
-                self.client.log_message(MessageType::ERROR, format!("error, cannot parse file uri : {}", uri)).await;
+                self.client
+                    .log_message(
+                        MessageType::ERROR,
+                        format!("error, cannot parse file uri : {}", uri),
+                    )
+                    .await;
             }
         }
     }
@@ -243,13 +252,19 @@ impl Backend {
      * @returns {Option<(PathBuf, Diagnostic)>} Diagnostic
      * @returns {None} If the diagnostic cannot be extracted
      */
-    async fn extract_diagnostic(&self, compilation_error: &CompilationError, project_path: &str) -> Option<(PathBuf, Diagnostic)> {
+    async fn extract_diagnostic(
+        &self,
+        compilation_error: &CompilationError,
+        project_path: &str,
+    ) -> Option<(PathBuf, Diagnostic)> {
         eprintln!("Compilation error: {:?}", compilation_error);
-        let (source_content_filepath, range) =
-            match self.extract_diagnostic_range(&project_path, compilation_error).await {
-                Some((source_content_filepath, range)) => (source_content_filepath, range),
-                None => return None,
-            };
+        let (source_content_filepath, range) = match self
+            .extract_diagnostic_range(project_path, compilation_error)
+            .await
+        {
+            Some((source_content_filepath, range)) => (source_content_filepath, range),
+            None => return None,
+        };
         let diagnostic = Diagnostic {
             range: Range {
                 start: Position {
@@ -294,8 +309,11 @@ impl Backend {
             }
             None => {
                 self.client
-                .log_message(MessageType::ERROR, format!("error, cannot get filepath: {:?}", error))
-                .await;
+                    .log_message(
+                        MessageType::ERROR,
+                        format!("error, cannot get filepath: {:?}", error),
+                    )
+                    .await;
                 return None;
             }
         };
@@ -347,7 +365,9 @@ impl Backend {
             .affected_files
             .add_project_file(project_path.clone(), filepath.clone());
         let raised_files = raised_diagnostics.keys().cloned().collect::<Vec<String>>();
-        let without_diagnostics = state.affected_files.fill_affected_files(raised_files, &project_path);
+        let without_diagnostics = state
+            .affected_files
+            .fill_affected_files(raised_files, &project_path);
 
         self.client
             .log_message(
@@ -358,15 +378,16 @@ impl Backend {
 
         for file in without_diagnostics.iter() {
             if let Ok(url) = Url::parse(&format!("file://{}", &file)) {
-                self.client
-                    .publish_diagnostics(url, vec![], None)
-                    .await;
+                self.client.publish_diagnostics(url, vec![], None).await;
             } else {
-                self.client.log_message(MessageType::ERROR, format!("error, cannot parse file uri : {}", file)).await;
+                self.client
+                    .log_message(
+                        MessageType::ERROR,
+                        format!("error, cannot parse file uri : {}", file),
+                    )
+                    .await;
             }
         }
-
-        
     }
 }
 

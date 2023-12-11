@@ -18,7 +18,10 @@ impl LanguageServer for Backend {
     async fn initialize(&self, _: InitializeParams) -> Result<InitializeResult> {
         if !is_slither_installed() {
             self.client
-                .show_message(MessageType::ERROR, "Slither is not installed! Please install it and restart the extension")
+                .show_message(
+                    MessageType::ERROR,
+                    "Slither is not installed! Please install it and restart the extension",
+                )
                 .await;
             self.client
                 .log_message(MessageType::ERROR, "Slither is not installed!")
@@ -27,7 +30,10 @@ impl LanguageServer for Backend {
         }
         if !is_solc_installed() {
             self.client
-                .show_message(MessageType::ERROR, "Solc is not installed! Please install it and restart the extension")
+                .show_message(
+                    MessageType::ERROR,
+                    "Solc is not installed! Please install it and restart the extension",
+                )
                 .await;
             self.client
                 .log_message(MessageType::ERROR, "Solc is not installed!")

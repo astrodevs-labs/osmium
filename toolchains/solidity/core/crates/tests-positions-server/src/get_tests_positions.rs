@@ -8,13 +8,20 @@ pub struct GetTestsPositionsParams {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TestContract {
-    pub contract_range: Range,
-    pub tests_ranges: Vec<Range>,
+    pub name: String,
+    pub range: Range,
+    pub tests: Vec<Test>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Test {
+    pub name: String,
+    pub range: Range,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GetTestsPositionsResponse {
-    pub ranges: Vec<TestContract>,
+    pub contracts: Vec<TestContract>,
 }
 
 pub struct GetTestsPositionsRequest {}

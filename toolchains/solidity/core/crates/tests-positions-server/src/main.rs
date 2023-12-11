@@ -1,4 +1,4 @@
-use get_tests_positions::{GetTestsPositionsParams, GetTestsPositionsResponse, TestContract};
+use get_tests_positions::{GetTestsPositionsParams, GetTestsPositionsResponse, TestContract, Test};
 use osmium_libs_solidity_ast_extractor::retriever::retrieve_functions_nodes;
 use osmium_libs_solidity_ast_extractor::File;
 use osmium_libs_solidity_ast_extractor::{
@@ -58,27 +58,33 @@ impl Backend {
     }
 
     pub fn extract_tests_positions(&self, ast: File) -> Result<GetTestsPositionsResponse> {
-        let mut ranges = vec![];
+        let mut res = vec![];
         let contracts = retrieve_contract_nodes(&ast);
         for contract in contracts {
-            let mut tests_ranges = vec![];
+            let mut tests: Vec<Test> = vec![];
             let mut functions = retrieve_functions_nodes(&contract);
-            let tests = functions.iter_mut().filter(|f| {
+            let contract_tests = functions.iter_mut().filter(|f| {
                 f.name.is_some() && f.name.as_ref().unwrap().as_string().starts_with("test")
             });
-            for test in tests {
+            for test in contract_tests {
                 let name = match &test.name {
                     Some(name) => name,
                     None => continue,
                 };
-                tests_ranges.push(range_from_spanned(name));
+                tests.push(
+                    Test {
+                        name: name.as_string(),
+                        range: range_from_spanned(name),
+                    }
+                );
             }
-            ranges.push(TestContract {
-                contract_range: range_from_spanned(&contract.name),
-                tests_ranges,
+            res.push(TestContract {
+                name: contract.name.as_string(),
+                range: range_from_spanned(&contract.name),
+                tests,
             });
         }
-        Ok(GetTestsPositionsResponse { ranges })
+        Ok(GetTestsPositionsResponse { contracts: res })
     }
 }
 

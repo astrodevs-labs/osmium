@@ -77,7 +77,7 @@ const testContract = (workspace: string, contractName: string): Promise<FileResu
             reject("No forge found");
         }
 
-        exec('forge test --json --match-contract ' + contractName, {
+        exec(`forge test --json --match-contract '${contractName}'`, {
             cwd: workspace
         }, (error, stdout, stderr) => {
             if (error) {
@@ -99,8 +99,7 @@ const testFunction = (workspace: string, contractName: string, functionName: str
         if (!(await hasForge(workspace))) {
             reject("No forge found");
         }
-
-        exec('forge test --json --match-contract ' + contractName + " --match-test " + functionName, {
+        exec(`forge test --json --match-contract '${contractName}' --match-test '${functionName}'`, {
             cwd: workspace
         }, (error, stdout, stderr) => {
             if (error) {
@@ -118,4 +117,4 @@ const testFunction = (workspace: string, contractName: string, functionName: str
 };
 
 
-export {hasForge, testAll, testContract, testFunction};
+export {hasForge, testAll, testContract, testFunction, FileResult, SuiteResult, TestResult};

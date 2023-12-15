@@ -19,11 +19,11 @@ let testsPositionsClient: LanguageClient;
 let testManager: TestManager;
 
 export async function activate(context: ExtensionContext) {
-	linterClient = createLinterClient(context);
+	linterClient = await createLinterClient(context);
 	foundryCompilerClient = createFoundryCompilerClient(context);
 	testsPositionsClient = await createTestsPositionsClient(context);
-	if (vscode.workspace.workspaceFolders?.length)
-		testManager = new TestManager(testsPositionsClient, vscode.workspace.workspaceFolders[0].uri.fsPath);
+	if (workspace.workspaceFolders?.length)
+		testManager = new TestManager(testsPositionsClient, workspace.workspaceFolders[0].uri.fsPath);
 
 	// Push the disposable to the context's subscriptions so that the
 	// client can be deactivated on extension deactivation
@@ -32,7 +32,7 @@ export async function activate(context: ExtensionContext) {
 	
 	const folders = workspace.workspaceFolders;
 	if (folders) {
-		const files = await vscode.workspace.findFiles('**/*.sol', `${folders[0].uri.fsPath}/**`);
+		const files = await workspace.findFiles('**/*.sol', `${folders[0].uri.fsPath}/**`);
 		files.forEach(file => {
 			if (!file.path.includes('forge-std'))
 				workspace.openTextDocument(file);

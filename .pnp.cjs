@@ -22,6 +22,10 @@ const RAW_RUNTIME_STATE =
       "reference": "workspace:libs/ast-extractor"\
     },\
     {\
+      "name": "@osmium-libs/foundry-wrapper",\
+      "reference": "workspace:libs/foundry-wrapper"\
+    },\
+    {\
       "name": "@osmium-libs/lsp-handler",\
       "reference": "workspace:libs/lsp-handler"\
     },\
@@ -62,6 +66,7 @@ const RAW_RUNTIME_STATE =
   "ignorePatternData": "(^(?:\\\\.yarn\\\\/sdks(?:\\\\/(?!\\\\.{1,2}(?:\\\\/|$))(?:(?:(?!(?:^|\\\\/)\\\\.{1,2}(?:\\\\/|$)).)*?)|$))$)",\
   "fallbackExclusionList": [\
     ["@osmium-libs/ast-extractor", ["workspace:libs/ast-extractor"]],\
+    ["@osmium-libs/foundry-wrapper", ["workspace:libs/foundry-wrapper"]],\
     ["@osmium-libs/lsp-handler", ["workspace:libs/lsp-handler"]],\
     ["@osmium-libs/lsp-launcher", ["workspace:libs/lsp-launcher"]],\
     ["@osmium-libs/lsp-server-wrapper", ["workspace:libs/lsp-server-wrapper"]],\
@@ -338,6 +343,15 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./libs/ast-extractor/",\
         "packageDependencies": [\
           ["@osmium-libs/ast-extractor", "workspace:libs/ast-extractor"]\
+        ],\
+        "linkType": "SOFT"\
+      }]\
+    ]],\
+    ["@osmium-libs/foundry-wrapper", [\
+      ["workspace:libs/foundry-wrapper", {\
+        "packageLocation": "./libs/foundry-wrapper/",\
+        "packageDependencies": [\
+          ["@osmium-libs/foundry-wrapper", "workspace:libs/foundry-wrapper"]\
         ],\
         "linkType": "SOFT"\
       }]\

@@ -6,10 +6,12 @@ type TestResult = {
     reason: string | null,
     counterexample: any | null,
     logs: any[],
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     decoded_logs: string[]
     kind: any,
     traces: any
     coverage: any
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     labeled_addresses: {
         [key: string]: string
     }
@@ -22,6 +24,7 @@ type SuiteResult = {
         nanos: number
         secs: number
     },
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     test_results: {
         [key: string]: TestResult
     },
@@ -57,13 +60,15 @@ const testAll = async (workspace: string): Promise<FileResult> => {
         exec('forge test --json', {
             cwd: workspace
         }, (error, stdout, stderr) => {
-            if (error) {
-                if (!stderr.length) {
-                    resolve(JSON.parse(stdout));
-                }
-                console.log(stderr);
-                vscode.window.showErrorMessage('Error while running forge tests.');
-                reject(stderr);
+            if (error) { // An error is returned by node if the forge test command fails, which is the case if a test fails
+              if (!stderr.length) {
+                return resolve(JSON.parse(stdout));
+              }
+              console.log(stderr);
+              vscode.window.showErrorMessage(
+                "Error while running forge tests."
+              );
+              reject(stderr);
             } else {
                 resolve(JSON.parse(stdout));
             }
@@ -80,9 +85,9 @@ const testContract = (workspace: string, contractName: string): Promise<FileResu
         exec(`forge test --json --match-contract '${contractName}'`, {
             cwd: workspace
         }, (error, stdout, stderr) => {
-            if (error) {
+            if (error) { // An error is returned by node if the forge test command fails, which is the case if a test fails
                 if (!stderr.length) {
-                    resolve(JSON.parse(stdout));
+                    return resolve(JSON.parse(stdout));
                 }
                 console.log(stderr);
                 vscode.window.showErrorMessage('Error while running forge tests.');
@@ -102,9 +107,9 @@ const testFunction = (workspace: string, contractName: string, functionName: str
         exec(`forge test --json --match-contract '${contractName}' --match-test '${functionName}'`, {
             cwd: workspace
         }, (error, stdout, stderr) => {
-            if (error) {
+            if (error) { // An error is returned by node if the forge test command fails, which is the case if a test fails
                 if (!stderr.length) {
-                    resolve(JSON.parse(stdout));
+                    return resolve(JSON.parse(stdout));
                 }
                 console.log(stderr);
                 vscode.window.showErrorMessage('Error while running forge tests.');

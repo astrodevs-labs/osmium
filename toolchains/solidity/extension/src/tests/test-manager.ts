@@ -23,7 +23,9 @@ export class TestManager {
         // Uncomment this when debugging is supported
         //this.testController.createRunProfile("Debug tests", vscode.TestRunProfileKind.Run, (request, token) => this.runHandler(true, request, token))
 
-        vscode.workspace.onDidOpenTextDocument(this.parseTestsInDocument);
+        vscode.workspace.onDidOpenTextDocument((e) => {
+          this.parseTestsInDocument(e);
+        });
 
         console.log("Test manager created"); 
     }

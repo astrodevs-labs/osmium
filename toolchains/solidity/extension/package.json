@@ -22,10 +22,27 @@
   "contributes": {
     "commands": [
       {
-        "command": "extension.helloWorld",
-        "title": "Hello World"
+        "command": "osmium.lint-sol-file",
+        "title": "Osmium: Lint Solidity File"
+      },
+      {
+        "command": "osmium.lint-sol-workspace",
+        "title": "Osmium: Lint Solidity Workspace"
+      },
+      {
+        "command": "osmium.lint-sol-file-from-explorer",
+        "title": "Osmium: Lint Solidity File"
       }
     ],
+    "menus": {
+      "explorer/context": [
+        {
+          "when": "resourceLangId == solidity",
+          "command": "extension.lint-sol-file-from-explorer",
+          "group": "navigation"
+        }
+      ]
+    },
     "languages": [
       {
         "id": "solidity",

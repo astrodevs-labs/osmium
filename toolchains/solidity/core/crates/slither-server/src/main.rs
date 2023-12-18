@@ -78,19 +78,18 @@ impl LanguageServer for Backend {
                 ),
             )
             .await;
-        self.check_slither_result(file.text_document.uri).await
-    }
-
-    async fn did_change(&self, file: DidChangeTextDocumentParams) {
-        self.client
-            .log_message(
-                MessageType::INFO,
-                format!(
-                    "Changed file '{}' for analyzing.",
-                    file.text_document.uri.path()
-                ),
-            )
-            .await;
+        if file.text_document.uri.path().ends_with(".t.sol") {
+            self.client
+                .log_message(
+                    MessageType::INFO,
+                    format!(
+                        "File '{}' is a test solidity file, skipping analysis.",
+                        file.text_document.uri.path()
+                    ),
+                )
+                .await;
+            return;
+        }
         self.check_slither_result(file.text_document.uri).await
     }
 
@@ -104,6 +103,18 @@ impl LanguageServer for Backend {
                 ),
             )
             .await;
+        if file.text_document.uri.path().ends_with(".t.sol") {
+            self.client
+                .log_message(
+                    MessageType::INFO,
+                    format!(
+                        "File '{}' is a test solidity file, skipping analysis.",
+                        file.text_document.uri.path()
+                    ),
+                )
+                .await;
+            return;
+        }
         self.check_slither_result(file.text_document.uri).await
     }
 }

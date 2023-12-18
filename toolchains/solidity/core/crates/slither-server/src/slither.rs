@@ -35,6 +35,7 @@ pub fn exec_slither(filepath: &str) -> Result<Vec<Diagnostic>, SlitherError> {
         .arg("-")
         .output()?;
     if out.status.code() == Some(1) {
+        eprintln!("Unknown error occured: {:?}", out);
         return Err(SlitherError::Unknown);
     }
     if out.stdout.is_empty() {

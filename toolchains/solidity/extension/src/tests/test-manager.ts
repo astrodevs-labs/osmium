@@ -90,9 +90,16 @@ export class TestManager {
                   const functionResult = await testFunction(this.workspace, test.parent!.label, test.label);
                   const functionTime = Date.now() - date;
                   if (this.analyzeTestResults(functionResult)) {
-                      run.passed(test, functionTime);
+                    run.passed(test, functionTime);
                   } else {
-                      run.failed(test, new vscode.TestMessage("Contract test failed"), functionTime);
+                    for (const suiteResult of Object.values(functionResult)) {
+                      for (const testResult of Object.values(suiteResult.test_results)) {
+                          run.appendOutput(testResult.decoded_logs[0]);
+                          run.appendOutput(testResult.decoded_logs[1]);
+                          run.appendOutput(testResult.decoded_logs[2]);
+                        }
+                    }
+                    run.failed(test, new vscode.TestMessage("Contract test failed"), functionTime);
                   }
               break;
             }

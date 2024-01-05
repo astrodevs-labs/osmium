@@ -1,4 +1,4 @@
-use get_tests_positions::{GetTestsPositionsParams, GetTestsPositionsResponse, TestContract, Test};
+use get_tests_positions::{GetTestsPositionsParams, GetTestsPositionsResponse, Test, TestContract};
 use osmium_libs_solidity_ast_extractor::retriever::retrieve_functions_nodes;
 use osmium_libs_solidity_ast_extractor::File;
 use osmium_libs_solidity_ast_extractor::{
@@ -71,12 +71,10 @@ impl Backend {
                     Some(name) => name,
                     None => continue,
                 };
-                tests.push(
-                    Test {
-                        name: name.as_string(),
-                        range: range_from_spanned(name),
-                    }
-                );
+                tests.push(Test {
+                    name: name.as_string(),
+                    range: range_from_spanned(name),
+                });
             }
             res.push(TestContract {
                 name: contract.name.as_string(),

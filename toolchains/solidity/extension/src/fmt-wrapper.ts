@@ -47,7 +47,7 @@ function forgeFmt(
   const commandArgs = ["fmt"];
 
   if (root) {
-    commandArgs.push("--root", root);
+    commandArgs.push("--root", `"${root}"`);
   }
 
   if (check) {
@@ -58,12 +58,14 @@ function forgeFmt(
     commandArgs.push("--raw");
   }
 
-  commandArgs.push(...files);
+  commandArgs.push(
+    ...files.map((file) => (file.includes(" ") ? `"${file}"` : file))
+  );
 
   const command = `forge ${commandArgs.join(" ")}`;
 
   if (debug) {
-    console.debug(command);
+    console.debug("command =>", command);
   }
 
   return new Promise((resolve, reject) => {
@@ -81,48 +83,6 @@ function forgeFmt(
 }
 
 function registerForgeFmtLinter(context: vscode.ExtensionContext) {
-  const lintSolFromExplorer = vscode.commands.registerCommand(
-    "osmium.lint-sol-file-from-explorer",
-    function (uri) {
-      if (!isFmtInstalled()) {
-        vscode.window.showErrorMessage(
-          "Forge fmt is not installed. Please install it and try again."
-        );
-        return;
-      }
-
-      const options: ForgeFmtOptions = {
-        root: vscode.workspace.workspaceFolders?.[0].uri.fsPath,
-        check: false,
-        raw: false,
-      };
-
-      const args: ForgeFmtArgs = {
-        options,
-        files: [uri.fsPath],
-      };
-
-      forgeFmt(args)
-        .then((result) => {
-          if (result.exitCode === 0) {
-            vscode.window.showInformationMessage("Forge fmt ran successfully.");
-          } else {
-            vscode.window.showErrorMessage(
-              "Forge fmt failed. Please check the output for details."
-            );
-
-            console.log(result.output);
-          }
-        })
-        .catch((error) => {
-          vscode.window.showErrorMessage(
-            "Forge fmt failed. Please check the output for details."
-          );
-          console.error(error);
-        });
-    }
-  );
-
   const lintSolFile = vscode.commands.registerCommand(
     "osmium.lint-sol-file",
     function () {
@@ -216,7 +176,7 @@ function registerForgeFmtLinter(context: vscode.ExtensionContext) {
         files: [vscode.workspace.workspaceFolders?.[0].uri.fsPath],
       };
 
-      forgeFmt(args, true)
+      forgeFmt(args)
         .then((result) => {
           if (result.exitCode === 0) {
             vscode.window.showInformationMessage("Forge fmt ran successfully.");
@@ -275,8 +235,6 @@ function registerForgeFmtLinter(context: vscode.ExtensionContext) {
       },
     }
   );
-
-  context.subscriptions.push(lintSolFromExplorer);
 
   context.subscriptions.push(lintSolFile);
   context.subscriptions.push(lintSolWorkspace);

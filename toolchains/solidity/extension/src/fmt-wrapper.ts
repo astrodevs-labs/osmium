@@ -197,7 +197,7 @@ function registerForgeFmtLinter(context: vscode.ExtensionContext) {
     }
   );
 
-  const linter = vscode.languages.registerDocumentFormattingEditProvider(
+  const formatter = vscode.languages.registerDocumentFormattingEditProvider(
     "solidity",
     {
       provideDocumentFormattingEdits: (document) => {
@@ -239,7 +239,7 @@ function registerForgeFmtLinter(context: vscode.ExtensionContext) {
   context.subscriptions.push(lintSolFile);
   context.subscriptions.push(lintSolWorkspace);
 
-  context.subscriptions.push(linter);
+  context.subscriptions.push(formatter);
 }
 
 export default registerForgeFmtLinter;

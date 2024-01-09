@@ -918,6 +918,7 @@ version = "0.3.0"
 dependencies = [
  "osmium-libs-lsp-server-wrapper",
  "osmium-libs-solidity-ast-extractor",
+ "regex",
  "serde",
  "serde_json",
  "tokio",

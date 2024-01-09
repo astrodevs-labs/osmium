@@ -59,12 +59,13 @@ impl Backend {
 
     pub fn extract_tests_positions(&self, ast: File) -> Result<GetTestsPositionsResponse> {
         let mut res = vec![];
+        let re = regex::Regex::new(r"^test.*_.+").unwrap();
         let contracts = retrieve_contract_nodes(&ast);
         for contract in contracts {
             let mut tests: Vec<Test> = vec![];
             let mut functions = retrieve_functions_nodes(&contract);
             let contract_tests = functions.iter_mut().filter(|f| {
-                f.name.is_some() && f.name.as_ref().unwrap().as_string().starts_with("test")
+                f.name.is_some() && re.is_match(f.name.as_ref().unwrap().as_string().as_str())
             });
             for test in contract_tests {
                 let name = match &test.name {

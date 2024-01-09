@@ -44,7 +44,6 @@ export class TestManager {
         console.log("Run handler called");
         const run = this.testController.createTestRun(request);
         const queue: vscode.TestItem[] = [];
-        // const getType = (testItem: vscode.TestItem) => this.testData.get(testItem);
       
         // Loop through all included tests, or all known tests, and add them to our queue
         if (request.include) {

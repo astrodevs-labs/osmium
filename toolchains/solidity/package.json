@@ -12,5 +12,8 @@
     "test": "cd core && yarn core:test && cd ../extension && yarn extension:test",
     "format": "cd core && yarn core:format && cd ../extension && yarn extension:format",
     "publish": "cd core && yarn core:publish && cd ../extension && yarn extension:publish && cd .."
+  },
+  "dependencies": {
+    "@types/node": "^20.10.1"
   }
 }

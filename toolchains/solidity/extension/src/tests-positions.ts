@@ -9,12 +9,12 @@ import {
 } from 'vscode-languageclient/node';
 import { TextDecoder } from 'util';
 
-export async function createLinterClient(context: ExtensionContext): Promise<LanguageClient> {
+export async function createTestsPositionsClient(context: ExtensionContext): Promise<LanguageClient> {
     // The server is implemented in node
 	const serverBinary = context.asAbsolutePath(
 		path.join(
 			'dist', 
-			os.platform().startsWith("win") ? 'linter-server.exe' : 'linter-server'
+			os.platform().startsWith("win") ? 'tests-positions-server.exe' : 'tests-positions-server'
 		)
 	);
 
@@ -31,28 +31,20 @@ export async function createLinterClient(context: ExtensionContext): Promise<Lan
 	// Options to control the language client
 	const clientOptions: LanguageClientOptions = {
 		// Register the server for plain text documents
-		documentSelector: [{ scheme: 'file', language: 'solidity' }],
+		//documentSelector: [{ scheme: 'file', language: 'solidity' }],
 		synchronize: {
 			// Notify the server about file changes to '.clientrc files contained in the workspace
-			fileEvents: workspace.createFileSystemWatcher('**/.solidhunter.json')
+			//fileEvents: workspace.createFileSystemWatcher('**/.solidhunter.json')
 		}
 	};
 
 	// Create the language client and start the client.
 	const client = new LanguageClient(
-		'osmium-solidity-linter',
-		'Osmium Solidity Linter Language Server',
+		'osmium-tests-positions',
+		'Osmium Solidity Tests Positions Language Server',
 		serverOptions,
 		clientOptions
 	);
-
-	client.onRequest('osmium/getContent', async (params: { uri: string}) => {
-    	const contentUint8 = await workspace.fs.readFile(Uri.parse(params.uri));
-    	const content = new TextDecoder().decode(contentUint8);
-    	return {
-			content,
-		};
-	});
 
 	// Start the client. This will also launch the server
 	await client.start();

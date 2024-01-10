@@ -7,7 +7,7 @@ use tower_lsp::lsp_types::{DiagnosticSeverity, InitializeParams};
  * @returns {Option<String>} Normalized path
  */
 pub fn get_root_path(params: InitializeParams) -> Option<String> {
-    if let Some(folder) = params.workspace_folders?.get(0) {
+    if let Some(folder) = params.workspace_folders?.first() {
         return Some(normalize_path(folder.uri.path()));
     } else if let Some(root_uri) = params.root_uri {
         return Some(normalize_path(root_uri.path()));

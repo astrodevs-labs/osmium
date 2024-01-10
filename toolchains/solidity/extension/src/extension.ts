@@ -5,20 +5,25 @@ import {
 import { createLinterClient } from './linter';
 import { createFoundryCompilerClient } from './foundry-compiler';
 import { createSlitherClient } from './slither';
+import { createTestsPositionsClient } from './tests-positions';
 import registerForgeFmtLinter from "./fmt-wrapper";
+import { TestManager } from './tests/test-manager';
 
 let slitherClient: LanguageClient;
 let linterClient: LanguageClient;
 let foundryCompilerClient: LanguageClient;
+let testsPositionsClient: LanguageClient;
+let testManager: TestManager;
 
 export async function activate(context: ExtensionContext) {
-	linterClient = createLinterClient(context);
+	linterClient = await createLinterClient(context);
 	foundryCompilerClient = createFoundryCompilerClient(context);
 	slitherClient = createSlitherClient(context);
+	testsPositionsClient = await createTestsPositionsClient(context);
+	if (workspace.workspaceFolders?.length)
+		testManager = new TestManager(testsPositionsClient, workspace.workspaceFolders[0].uri.fsPath);
 
-	context.subscriptions.push(linterClient);
-	context.subscriptions.push(foundryCompilerClient);
-	context.subscriptions.push(slitherClient);
+	context.subscriptions.push(linterClient, foundryCompilerClient, slitherClient, testsPositionsClient, testManager.testController);
 
 	registerForgeFmtLinter(context);
 

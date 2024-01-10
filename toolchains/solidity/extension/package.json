@@ -16,7 +16,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onLanguage:solidity"
+    "workspaceContains:solidity"
   ],
   "main": "./dist/extension.js",
   "contributes": {

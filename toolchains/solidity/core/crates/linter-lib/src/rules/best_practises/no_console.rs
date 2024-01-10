@@ -99,8 +99,8 @@ impl RuleType for NoConsole {
             description: "No console.log/logInt/logBytesX/logString/etc & No hardhat and forge-std console.sol import statements.".to_string(),
             category: "best-practices".to_string(),
             example_config: "{\"id\": \"no-console\", \"severity\": \"WARNING\"}".to_string(),
-            source_link: "https://github.com/astrodevs-labs/osmium/blob/dev/toolchains/solidity/core/crates/linter-lib/src/rules/best_practices/no_console.rs".to_string(),
-            test_link: "https://github.com/astrodevs-labs/osmium/tree/dev/toolchains/solidity/core/crates/linter-lib/testdata/NoConsole".to_string(),
+            source_link: "https://github.com/astrodevs-labs/osmium/blob/main/toolchains/solidity/core/crates/linter-lib/src/rules/best_practices/no_console.rs".to_string(),
+            test_link: "https://github.com/astrodevs-labs/osmium/tree/main/toolchains/solidity/core/crates/linter-lib/testdata/NoConsole".to_string(),
             options: vec![],
             examples: Examples {
                 good: vec![],

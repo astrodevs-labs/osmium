@@ -59,8 +59,8 @@ impl RuleType for FunctionMaxLines {
                     .to_string(),
             category: "best-practices".to_string(),
             example_config: "{\"id\": \"function-max-lines\", \"severity\": \"WARNING\", \"data\": 20}".to_string(),
-            source_link: "https://github.com/astrodevs-labs/osmium/blob/dev/toolchains/solidity/core/crates/linter-lib/src/rules/best_practices/function_max_lines.rs".to_string(),
-            test_link: "https://github.com/astrodevs-labs/osmium/tree/dev/toolchains/solidity/core/crates/linter-lib/testdata/FunctionMaxLines".to_string(),
+            source_link: "https://github.com/astrodevs-labs/osmium/blob/main/toolchains/solidity/core/crates/linter-lib/src/rules/best_practices/function_max_lines.rs".to_string(),
+            test_link: "https://github.com/astrodevs-labs/osmium/tree/main/toolchains/solidity/core/crates/linter-lib/testdata/FunctionMaxLines".to_string(),
             options: vec![Options {
                 description: "Maximum allowed lines count per function	".to_string(),
                 default: "50".to_string(),

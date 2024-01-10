@@ -71,8 +71,8 @@ impl RuleType for FuncParamNameMixedCase {
             description: "Function param name must be in mixedCase.".to_string(),
             category: "naming".to_string(),
             example_config: "{\"id\": \"func-param-name-mixedcase\", \"severity\": \"WARNING\"}".to_string(),
-            source_link: "https://github.com/astrodevs-labs/osmium/blob/dev/toolchains/solidity/core/crates/linter-lib/src/rules/naming/func_param_name_mixedcase.rs".to_string(),
-            test_link: "https://github.com/astrodevs-labs/osmium/tree/dev/toolchains/solidity/core/crates/linter-lib/testdata/FuncParamNameMixedcase".to_string(),
+            source_link: "https://github.com/astrodevs-labs/osmium/blob/main/toolchains/solidity/core/crates/linter-lib/src/rules/naming/func_param_name_mixedcase.rs".to_string(),
+            test_link: "https://github.com/astrodevs-labs/osmium/tree/main/toolchains/solidity/core/crates/linter-lib/testdata/FuncParamNameMixedcase".to_string(),
             options: vec![],
             examples: Examples {
                 good: vec![],

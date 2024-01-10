@@ -85,8 +85,8 @@ impl RuleType for NotRelyOnTime {
             description: "Avoid making time-based decisions in your business logic.".to_string(),
             category: "security".to_string(),
             example_config: "{\"id\": \"not-rely-on-time\", \"severity\": \"WARNING\"}".to_string(),
-            source_link: "https://github.com/astrodevs-labs/osmium/blob/dev/toolchains/solidity/core/crates/linter-lib/src/rules/security/not_rely_on_time.rs".to_string(),
-            test_link: "https://github.com/astrodevs-labs/osmium/tree/dev/toolchains/solidity/core/crates/linter-lib/testdata/NotRelyOnTime".to_string(),
+            source_link: "https://github.com/astrodevs-labs/osmium/blob/main/toolchains/solidity/core/crates/linter-lib/src/rules/security/not_rely_on_time.rs".to_string(),
+            test_link: "https://github.com/astrodevs-labs/osmium/tree/main/toolchains/solidity/core/crates/linter-lib/testdata/NotRelyOnTime".to_string(),
             options: vec![],
             examples: Examples {
                 good: vec![],

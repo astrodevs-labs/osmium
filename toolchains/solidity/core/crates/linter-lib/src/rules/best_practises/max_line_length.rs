@@ -62,8 +62,8 @@ impl RuleType for MaxLineLength {
             description: "Line length must be no more than maxlen.".to_string(),
             category: "best-practices".to_string(),
             example_config: "{\"id\": \"max-line-length\", \"severity\": \"WARNING\", \"data\": 80}".to_string(),
-            source_link: "https://github.com/astrodevs-labs/osmium/blob/dev/toolchains/solidity/core/crates/linter-lib/src/rules/best_practices/max_line_length.rs".to_string(),
-            test_link: "https://github.com/astrodevs-labs/osmium/tree/dev/toolchains/solidity/core/crates/linter-lib/testdata/MaxLineLength".to_string(),
+            source_link: "https://github.com/astrodevs-labs/osmium/blob/main/toolchains/solidity/core/crates/linter-lib/src/rules/best_practices/max_line_length.rs".to_string(),
+            test_link: "https://github.com/astrodevs-labs/osmium/tree/main/toolchains/solidity/core/crates/linter-lib/testdata/MaxLineLength".to_string(),
             options: vec![Options {
                 description: "Maximum allowed number of characters per line".to_string(),
                 default: "120".to_string(),

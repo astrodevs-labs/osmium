@@ -431,7 +431,7 @@ checksum = "302d7ab3130588088d277783b1e2d2e10c9e9e4a16dd9050e6ec93fb3e7048f4"
 
 [[package]]
 name = "linter-server"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "glob",
  "osmium-libs-lsp-server-wrapper",
@@ -848,7 +848,7 @@ dependencies = [
 
 [[package]]
 name = "solidhunter"
-version = "0.2.3"
+version = "0.2.4"
 dependencies = [
  "clap",
  "colored",
@@ -859,7 +859,7 @@ dependencies = [
 
 [[package]]
 name = "solidhunter-lib"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "anyhow",
  "clap",

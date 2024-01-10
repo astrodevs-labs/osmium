@@ -76,8 +76,8 @@ impl RuleType for CustomErrors {
                 .to_string(),
             category: "best-practises".to_string(),
             example_config: "{\"id\": \"custom-errors\", \"severity\": \"WARNING\"}".to_string(),
-            source_link: "https://github.com/astrodevs-labs/osmium/blob/dev/toolchains/solidity/core/crates/linter-lib/src/rules/best_practices/custom_errors.rs".to_string(),
-            test_link: "https://github.com/astrodevs-labs/osmium/tree/dev/toolchains/solidity/core/crates/linter-lib/testdata/CustomErrors".to_string(),
+            source_link: "https://github.com/astrodevs-labs/osmium/blob/main/toolchains/solidity/core/crates/linter-lib/src/rules/best_practices/custom_errors.rs".to_string(),
+            test_link: "https://github.com/astrodevs-labs/osmium/tree/main/toolchains/solidity/core/crates/linter-lib/testdata/CustomErrors".to_string(),
             options: vec![],
             examples: Examples {
                 good: vec![

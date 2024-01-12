@@ -99,6 +99,47 @@ impl RuleType for FoundryTestFunctions {
         }
         res
     }
+
+    fn get_documentation(&self) -> RuleDocumentation {
+        RuleDocumentation {
+            id: RULE_ID.to_string(),
+            severity: DEFAULT_SEVERITY,
+            description: "Enforce naming convention on functions for Foundry test cases"
+                .to_string(),
+            category: "naming".to_string(),
+            example_config: "{\"id\": \"foundry-test-functions\", \"severity\": \"WARNING\", \"data\": [\"setUp\"]}".to_string(),
+            source_link: "https://github.com/astrodevs-labs/osmium/blob/main/toolchains/solidity/core/crates/linter-lib/src/rules/naming/foundry_test_functions.rs".to_string(),
+            test_link: "https://github.com/astrodevs-labs/osmium/tree/main/toolchains/solidity/core/crates/linter-lib/testdata/FoundryTestFunctions".to_string(),
+            options: vec![Options {
+                description: "Array of function to be skipped".to_string(),
+                default: "[]".to_string(),
+            }],
+            examples: Examples {
+                good: vec![
+                    Example {
+                        description: "Foundry test case with correct Function declaration"
+                            .to_string(),
+                        code: "function test_NumberIs42() public {}".to_string(),
+                    },
+                    Example {
+                        description: "Foundry test case with correct Function declaration"
+                            .to_string(),
+                        code: "function testFail_Subtract43() public {}".to_string(),
+                    },
+                    Example {
+                        description: "Foundry test case with correct Function declaration"
+                            .to_string(),
+                        code: "function testFuzz_FuzzyTest() public {}".to_string(),
+                    },
+                ],
+                bad: vec![Example {
+                    description: "Foundry test case with incorrect Function declaration"
+                        .to_string(),
+                    code: "function numberIs42() public {}".to_string(),
+                }],
+            },
+        }
+    }
 }
 
 impl FoundryTestFunctions {

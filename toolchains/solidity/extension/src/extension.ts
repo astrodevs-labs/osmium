@@ -1,72 +1,41 @@
-/* --------------------------------------------------------------------------------------------
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License. See License.txt in the project root for license information.
- * ------------------------------------------------------------------------------------------ */
-
-import { glob } from 'glob';
-import * as path from 'path';
 import { workspace, ExtensionContext } from 'vscode';
-
 import {
 	LanguageClient,
-	LanguageClientOptions,
-	ServerOptions,
-	TransportKind
 } from 'vscode-languageclient/node';
+import { createLinterClient } from './linter';
+import { createFoundryCompilerClient } from './foundry-compiler';
+import { createSlitherClient } from './slither';
+import { createTestsPositionsClient } from './tests-positions';
+import registerForgeFmtLinter from "./fmt-wrapper";
+import { TestManager } from './tests/test-manager';
 
-let client: LanguageClient;
+let slitherClient: LanguageClient;
+let linterClient: LanguageClient;
+let foundryCompilerClient: LanguageClient;
+let testsPositionsClient: LanguageClient;
+let testManager: TestManager;
 
 export async function activate(context: ExtensionContext) {
-	// The server is implemented in node
-	const serverBinary = context.asAbsolutePath(
-		path.join('dist', 'linter-server')
-	);
+	linterClient = await createLinterClient(context);
+	foundryCompilerClient = createFoundryCompilerClient(context);
+	slitherClient = createSlitherClient(context);
+	testsPositionsClient = await createTestsPositionsClient(context);
+	if (workspace.workspaceFolders?.length)
+		testManager = new TestManager(testsPositionsClient, workspace.workspaceFolders[0].uri.fsPath);
 
-	// If the extension is launched in debug mode then the debug server options are used
-	// Otherwise the run options are used
-	const serverOptions: ServerOptions = {
-		run: { command: serverBinary, transport: TransportKind.stdio },
-		debug: {
-			command: serverBinary,
-			transport: TransportKind.stdio,
-		}
-	};
+	context.subscriptions.push(linterClient, foundryCompilerClient, slitherClient, testsPositionsClient, testManager.testController);
 
-	// Options to control the language client
-	const clientOptions: LanguageClientOptions = {
-		// Register the server for plain text documents
-		documentSelector: [{ scheme: 'file', language: 'solidity' }],
-		synchronize: {
-			// Notify the server about file changes to '.clientrc files contained in the workspace
-			fileEvents: workspace.createFileSystemWatcher('**/.solidhunter.json')
-		}
-	};
+	registerForgeFmtLinter(context);
 
-	// Create the language client and start the client.
-	client = new LanguageClient(
-		'osmium-solidity',
-		'Osmium Solidity Language Server',
-		serverOptions,
-		clientOptions
-	);
-
-	// Start the client. This will also launch the server
-	client.start();
-
+	
 	const folders = workspace.workspaceFolders;
 	if (folders) {
-		const folder = folders[0];
-		const files = await workspace.findFiles('**/*.sol', `${folder.uri.fsPath}/**`);
+		const files = await workspace.findFiles('**/*.sol', `${folders[0].uri.fsPath}/**`);
 		files.forEach(file => {
-			workspace.openTextDocument(file);
+			if (!file.path.includes('forge-std')) {
+				workspace.openTextDocument(file);
+			}
 		});
 	}
 
-}
-
-export function deactivate(): Thenable<void> | undefined {
-	if (!client) {
-		return undefined;
-	}
-	return client.stop();
 }

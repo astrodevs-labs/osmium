@@ -515,6 +515,23 @@ impl RuleType for Ordering {
         visitor.visit_file(&file.data);
         visitor.reports
     }
+
+    fn get_documentation(&self) -> RuleDocumentation {
+        RuleDocumentation {
+            id: RULE_ID.to_string(),
+            severity: DEFAULT_SEVERITY,
+            description: "Check order of elements in file and inside each contract, according to the style guide.".to_string(),
+            category: "order".to_string(),
+            example_config: "{\"id\": \"ordering\", \"severity\": \"WARNING\"}".to_string(),
+            source_link: "https://github.com/astrodevs-labs/osmium/blob/main/toolchains/solidity/core/crates/linter-lib/src/rules/order/ordering.rs".to_string(),
+            test_link: "https://github.com/astrodevs-labs/osmium/tree/main/toolchains/solidity/core/crates/linter-lib/testdata/Ordering".to_string(),
+            options: vec![],
+            examples: Examples {
+                good: vec![],
+                bad: vec![],
+            },
+        }
+    }
 }
 
 impl Ordering {

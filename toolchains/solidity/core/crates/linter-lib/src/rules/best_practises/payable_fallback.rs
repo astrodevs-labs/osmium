@@ -36,6 +36,30 @@ impl RuleType for PayableFallback {
         }
         res
     }
+
+    fn get_documentation(&self) -> RuleDocumentation {
+        RuleDocumentation {
+            id: RULE_ID.to_string(),
+            severity: DEFAULT_SEVERITY,
+            description: "When fallback is not payable you will not be able to receive ethers."
+                .to_string(),
+            category: "best-practices".to_string(),
+            example_config: "{\"id\": \"payable-fallback\", \"severity\": \"WARNING\"}".to_string(),
+            source_link: "https://github.com/astrodevs-labs/osmium/blob/main/toolchains/solidity/core/crates/linter-lib/src/rules/best_practices/payable_fallback.rs".to_string(),
+            test_link: "https://github.com/astrodevs-labs/osmium/tree/main/toolchains/solidity/core/crates/linter-lib/testdata/PayableFallback".to_string(),
+            options: vec![],
+            examples: Examples {
+                good: vec![Example {
+                    description: "Fallback is payable".to_string(),
+                    code: "pragma solidity 0.4.4;\n\ncontract A {\n\tfunction () public payable {}\n}".to_string(),
+                }],
+                bad: vec![Example {
+                    description: "Fallback is not payable".to_string(),
+                    code: "pragma solidity 0.4.4;\n\ncontract A {\n\tfunction () public {}\n}".to_string(),
+                }],
+            },
+        }
+    }
 }
 
 fn check_fallback_payable(file: &SolidFile) -> Vec<Option<Range>> {

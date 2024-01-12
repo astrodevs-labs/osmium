@@ -56,6 +56,23 @@ impl RuleType for ContractNameCamelCase {
         }
         res
     }
+
+    fn get_documentation(&self) -> RuleDocumentation {
+        RuleDocumentation {
+            id: RULE_ID.to_string(),
+            severity: DEFAULT_SEVERITY,
+            description: "Contract name must be in CamelCase.".to_string(),
+            category: "naming".to_string(),
+            example_config: "{\"id\": \"contract-name-camelcase\", \"severity\": \"WARNING\"}".to_string(),
+            source_link: "https://github.com/astrodevs-labs/osmium/blob/main/toolchains/solidity/core/crates/linter-lib/src/rules/naming/contract_name_camelcase.rs".to_string(),
+            test_link: "https://github.com/astrodevs-labs/osmium/tree/main/toolchains/solidity/core/crates/linter-lib/testdata/ContractNameCamelcase".to_string(),
+            options: vec![],
+            examples: Examples {
+                good: vec![],
+                bad: vec![],
+            },
+        }
+    }
 }
 
 impl ContractNameCamelCase {

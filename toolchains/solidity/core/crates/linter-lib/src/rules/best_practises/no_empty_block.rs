@@ -34,6 +34,47 @@ impl RuleType for NoEmptyBlock {
         }
         res
     }
+
+    fn get_documentation(&self) -> RuleDocumentation {
+        RuleDocumentation {
+            id: RULE_ID.to_string(),
+            severity: DEFAULT_SEVERITY,
+            description: "Code block has zero statements inside. Exceptions apply.".to_string(),
+            category: "best-practices".to_string(),
+            example_config: "{\"id\": \"no-empty-block\", \"severity\": \"WARNING\"}".to_string(),
+            source_link: "https://github.com/astrodevs-labs/osmium/blob/main/toolchains/solidity/core/crates/linter-lib/src/rules/best_practices/no_empty_block.rs".to_string(),
+            test_link: "https://github.com/astrodevs-labs/osmium/tree/main/toolchains/solidity/core/crates/linter-lib/testdata/NoEmptyBlock".to_string(),
+            options: vec![],
+            examples: Examples {
+                good: vec![
+                    Example {
+                        description: "Empty fallback function".to_string(),
+                        code: "fallback() external {}".to_string(),
+                    },
+                    Example {
+                        description: "Empty constructor with member initialization list"
+                            .to_string(),
+                        code: "constructor(uint param) Foo(param) Bar(param*2) { }".to_string(),
+                    },
+                ],
+                bad: vec![
+                    Example {
+                        description: "Empty block on if statement".to_string(),
+                        code: "if (condition) { }".to_string(),
+                    },
+                    Example {
+                        description: "Empty contract".to_string(),
+                        code: "contract Foo { }".to_string(),
+                    },
+                    Example {
+                        description: "Empty block in constructor without parent initialization"
+                            .to_string(),
+                        code: "constructor() { }".to_string(),
+                    },
+                ],
+            },
+        }
+    }
 }
 
 fn check_empty_block(file: &SolidFile) -> Vec<Option<Range>> {

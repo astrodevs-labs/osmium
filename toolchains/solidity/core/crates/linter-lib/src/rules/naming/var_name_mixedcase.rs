@@ -68,6 +68,23 @@ impl RuleType for VarNameMixedCase {
         }
         res
     }
+
+    fn get_documentation(&self) -> RuleDocumentation {
+        RuleDocumentation {
+            id: RULE_ID.to_string(),
+            severity: DEFAULT_SEVERITY,
+            description: "Variable name must be in mixedCase. (Does not check IMMUTABLES, use immutable-vars-naming)".to_string(),
+            category: "naming".to_string(),
+            example_config: "{\"id\": \"var-name-mixedcase\", \"severity\": \"WARNING\"}".to_string(),
+            source_link: "https://github.com/astrodevs-labs/osmium/blob/main/toolchains/solidity/core/crates/linter-lib/src/rules/naming/var_name_mixedcase.rs".to_string(),
+            test_link: "https://github.com/astrodevs-labs/osmium/tree/main/toolchains/solidity/core/crates/linter-lib/testdata/VarNameMixedcase".to_string(),
+            options: vec![],
+            examples: Examples {
+                good: vec![],
+                bad: vec![],
+            },
+        }
+    }
 }
 
 impl VarNameMixedCase {

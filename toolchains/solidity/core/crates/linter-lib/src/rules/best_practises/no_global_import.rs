@@ -33,6 +33,46 @@ impl RuleType for NoGlobalImport {
         }
         res
     }
+
+    fn get_documentation(&self) -> RuleDocumentation {
+        RuleDocumentation {
+            id: RULE_ID.to_string(),
+            severity: DEFAULT_SEVERITY,
+            description: "Import statement includes an entire file instead of selected symbols."
+                .to_string(),
+            category: "best-practices".to_string(),
+            example_config: "{\"id\": \"no-global-import\", \"severity\": \"WARNING\"}".to_string(),
+            source_link: "https://github.com/astrodevs-labs/osmium/blob/main/toolchains/solidity/core/crates/linter-lib/src/rules/best_practices/no_global_import.rs".to_string(),
+            test_link: "https://github.com/astrodevs-labs/osmium/tree/main/toolchains/solidity/core/crates/linter-lib/testdata/NoGlobalImport".to_string(),
+            options: vec![],
+            examples: Examples {
+                good: vec![
+                    Example {
+                        description: "import names explicitly".to_string(),
+                        code: "import {A} from \"./A.sol\"".to_string(),
+                    },
+                    Example {
+                        description: "import entire file into a name".to_string(),
+                        code: "import \"./A.sol\" as A".to_string(),
+                    },
+                    Example {
+                        description: "import entire file into a name".to_string(),
+                        code: "import * as A from \"./A.sol\"".to_string(),
+                    },
+                ],
+                bad: vec![
+                    Example {
+                        description: "import all members from a file".to_string(),
+                        code: "import * from \"foo.sol\";".to_string(),
+                    },
+                    Example {
+                        description: "import an entire file".to_string(),
+                        code: "import \"foo.sol\"".to_string(),
+                    },
+                ],
+            },
+        }
+    }
 }
 
 fn check_global_import(file: &SolidFile) -> Vec<Option<Range>> {

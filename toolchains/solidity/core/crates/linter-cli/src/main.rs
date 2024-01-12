@@ -44,6 +44,14 @@ struct Args {
 
     #[arg(short = 'e', long = "exclude", help = "Specify excluded files")]
     exclude: Option<Vec<String>>,
+
+    #[arg(
+        short = 'd',
+        long = "documentation",
+        default_value = "false",
+        help = "exposes rules documentation"
+    )]
+    documentation: bool,
 }
 
 fn print_result(results: Vec<LintResult>) {
@@ -60,7 +68,22 @@ fn print_result(results: Vec<LintResult>) {
 }
 
 fn main() -> Result<(), SolidHunterError> {
-    let mut args = Args::parse();
+    let args = Args::parse();
+
+    if args.documentation {
+        let linter: SolidLinter = SolidLinter::new_fileless();
+
+        let json = serde_json::to_string_pretty(&linter.get_documentation());
+        match json {
+            Ok(j) => {
+                println!("{}", j);
+            }
+            Err(e) => {
+                println!("{}", e);
+            }
+        }
+        return Ok(());
+    }
 
     if !args.to_json {
         println!();
@@ -79,26 +102,43 @@ fn main() -> Result<(), SolidHunterError> {
         println!("Using rules file: {}", args.rules_file);
         println!("Verbose output: {}", args.verbose);
         println!("Excluded files: {:?}", args.exclude);
+        println!("Documentation output: {}", args.documentation);
     }
 
     if args.init {
         println!("Initializing rules file...");
-        create_rules_file(".solidhunter.json");
+        if args.paths.is_empty() {
+            create_rules_file(&args.rules_file);
+        }
+        for path in &args.paths {
+            if let Ok(metadata) = std::fs::metadata(path.as_str()) {
+                if metadata.is_dir() {
+                    create_rules_file(&(path.as_str().to_owned() + "/" + args.rules_file.as_str()));
+                }
+            }
+        }
         println!("Done!");
         return Ok(());
     }
 
-    if args.paths.is_empty() {
-        args.paths.push(String::from("."));
-    }
-
     let mut linter: SolidLinter = SolidLinter::new();
-    linter.initialize_rules(&args.rules_file)?;
+    if !args.paths.is_empty() {
+        linter.initialize_rules(
+            &(args.paths[0].as_str().to_owned() + "/" + args.rules_file.as_str()),
+        )?;
+    } else {
+        linter.initialize_rules(&args.rules_file)?;
+    }
     linter.initialize_excluded_files(args.exclude.as_ref(), &args.paths)?;
 
     let mut results = vec![];
     for path in &args.paths {
         let result = linter.parse_path(path);
+        results.push(result);
+    }
+    // If no path is specified, we use the current directory
+    if args.paths.is_empty() {
+        let result = linter.parse_path(".");
         results.push(result);
     }
     for path_result in results {

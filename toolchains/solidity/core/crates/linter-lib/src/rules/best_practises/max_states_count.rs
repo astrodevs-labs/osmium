@@ -68,6 +68,24 @@ impl RuleType for MaxStatesCount {
         }
         res
     }
+
+    fn get_documentation(&self) -> RuleDocumentation {
+        RuleDocumentation {
+            id: RULE_ID.to_string(),
+            severity: DEFAULT_SEVERITY,
+            description: "Contract has \"some count\" states declarations but allowed no more than maxstates.".to_string(),
+            category: "best-practices".to_string(),
+            example_config: " {\"id\": \"max-states-count\", \"severity\": \"WARNING\", \"data\": [15]}".to_string(),
+            source_link: "https://github.com/astrodevs-labs/osmium/blob/main/toolchains/solidity/core/crates/linter-lib/src/rules/best_practices/max_states_count.rs".to_string(),
+            test_link: "https://github.com/astrodevs-labs/osmium/tree/main/toolchains/solidity/core/crates/linter-lib/testdata/MaxStatesCount".to_string(),
+            options: vec![Options{description: "Maximum allowed states declarations".to_string(),
+                default: "15".to_string(),}],
+            examples: Examples {
+                good: vec![],
+                bad: vec![],
+            },
+        }
+    }
 }
 
 impl MaxStatesCount {

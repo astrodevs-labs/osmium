@@ -150,6 +150,50 @@ impl RuleType for PrivateVarsLeadingUnderscore {
         }
         res
     }
+
+    fn get_documentation(&self) -> RuleDocumentation {
+        RuleDocumentation {
+            id: RULE_ID.to_string(),
+            severity: DEFAULT_SEVERITY,
+            description: "Non-external functions and state variables should start with a single underscore. Others, shouldn't".to_string(),
+            category: "naming".to_string(),
+            example_config: " {\"id\": \"private-vars-leading-underscore\", \"severity\": \"WARNING\", \"data\": {\"strict\": true}}".to_string(),
+            source_link: "https://github.com/astrodevs-labs/osmium/blob/main/toolchains/solidity/core/crates/linter-lib/src/rules/naming/private_vars_leading_underscore.rs".to_string(),
+            test_link: "https://github.com/astrodevs-labs/osmium/tree/main/toolchains/solidity/core/crates/linter-lib/testdata/PrivateVarsLeadingUnderscore".to_string(),
+            options: vec![Options {
+                description: "A JSON object with a single property \"strict\" specifying if the rule should apply to ALL non state variables. Default: { strict: false }.".to_string(),
+                default: "{\"strict\":false}".to_string(),
+            }],
+            examples: Examples {
+                good: vec![Example {
+                    description: "Internal function with correct naming".to_string(),
+                    code: "function _thisIsInternal() internal {}".to_string(),
+                }, Example {
+                    description: "Private function with correct naming".to_string(),
+                    code: "function _thisIsPrivate() private {}".to_string(),
+                }, Example {
+                    description: "Internal state variable with correct naming".to_string(),
+                    code: "uint256 internal _thisIsInternalVariable;".to_string(),
+                }, Example {
+                    description: "Internal state variable with correct naming (no visibility is considered internal)".to_string(),
+                    code: "uint256 _thisIsInternalVariable;".to_string(),
+                }],
+                bad: vec![Example {
+                    description: "Internal function with incorrect naming".to_string(),
+                    code: "function thisIsInternal() internal {}".to_string(),
+                }, Example {
+                    description: "Private function with incorrect naming".to_string(),
+                    code: "function thisIsPrivate() private {}".to_string(),
+                }, Example {
+                    description: "Internal state variable with incorrect naming".to_string(),
+                    code: "uint256 internal thisIsInternalVariable;".to_string(),
+                }, Example {
+                    description: "Internal state variable with incorrect naming (no visibility is considered internal)".to_string(),
+                    code: "uint256 thisIsInternalVariable;".to_string(),
+                }],
+            },
+        }
+    }
 }
 
 impl PrivateVarsLeadingUnderscore {

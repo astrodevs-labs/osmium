@@ -7,6 +7,7 @@ use osmium_libs_solidity_ast_extractor::Spanned;
 pub const RULE_ID: &str = "func-visibility";
 
 // specific
+const DEFAULT_SEVERITY: Severity = Severity::WARNING;
 const DEFAULT_MESSAGE: &str =
     "Explicitly mark visibility in function (public, private, internal, external)";
 pub const DEFAULT_IGNORE_CONSTRUCTORS: bool = true;
@@ -76,6 +77,32 @@ impl RuleType for FuncVisibility {
         }
         res
     }
+
+    fn get_documentation(&self) -> RuleDocumentation {
+        RuleDocumentation {
+            id: RULE_ID.to_string(),
+            severity: DEFAULT_SEVERITY,
+            description: "Explicitly mark visibility in function.".to_string(),
+            category: "security".to_string(),
+            example_config: "{\"id\": \"func-visibility\", \"severity\": \"WARNING\", \"data\": {\"ignoreConstructors\": false}}".to_string(),
+            source_link: "https://github.com/astrodevs-labs/osmium/blob/main/toolchains/solidity/core/crates/linter-lib/src/rules/security/func_visibility.rs".to_string(),
+            test_link: "https://github.com/astrodevs-labs/osmium/tree/main/toolchains/solidity/core/crates/linter-lib/testdata/FuncVisibility".to_string(),
+            options: vec![Options {
+                description: "A JSON object with a single property \"ignoreConstructors\" specifying if the rule should ignore constructors. (Note: This is required to be true for Solidity >=0.7.0 and false for <0.7.0)".to_string(),
+                default: "{\"ignoreConstructors\":false}".to_string(),
+            }],
+            examples: Examples {
+                good: vec![Example {
+                    description: "Functions explicitly marked with visibility".to_string(),
+                    code: "function b() internal { }\nfunction b() external { }\nfunction b() private { }\nfunction b() public { }\nconstructor() public { }".to_string(),
+                }],
+                bad: vec![Example {
+                    description: "Functions without explicitly marked visibility".to_string(),
+                    code: "function b() { }".to_string(),
+                }],
+            },
+        }
+    }
 }
 
 impl FuncVisibility {
@@ -103,7 +130,7 @@ impl FuncVisibility {
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),
-            severity: Severity::WARNING,
+            severity: DEFAULT_SEVERITY,
             data: Some(serde_json::json!({
                 "ignoreConstructors": DEFAULT_IGNORE_CONSTRUCTORS,
             })),

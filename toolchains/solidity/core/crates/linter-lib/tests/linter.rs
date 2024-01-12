@@ -171,7 +171,8 @@ test_directories! {
     Ordering,
     PrivateVarsLeadingUnderscore,
     FoundryTestFunctions,
-    AvoidTxOrigin
+    AvoidTxOrigin,
+    SolidHunterIgnoreRule,
 }
 
 #[allow(non_snake_case)]

@@ -114,6 +114,54 @@ impl RuleType for ExplicitTypes {
         }
         res
     }
+
+    fn get_documentation(&self) -> RuleDocumentation {
+        RuleDocumentation {
+            id: RULE_ID.to_string(),
+            severity: DEFAULT_SEVERITY,
+            description:
+                "Forbid or enforce explicit types (like uint256) that have an alias (like uint)."
+                    .to_string(),
+            category: "best-practices".to_string(),
+            example_config: "{\"id\": \"explicit-types\", \"severity\": \"WARNING\", \"data\": \"explicit\"}".to_string(),
+            source_link: "https://github.com/astrodevs-labs/osmium/blob/main/toolchains/solidity/core/crates/linter-lib/src/rules/best_practices/explicit_types.rs".to_string(),
+            test_link: "https://github.com/astrodevs-labs/osmium/tree/main/toolchains/solidity/core/crates/linter-lib/testdata/ExplicitTypes".to_string(),
+            options: vec![Options {
+                description: "Options need to be one of \"explicit\", \"implicit\"".to_string(),
+                default: "explicit".to_string(),
+            }],
+            examples: Examples {
+                good: vec![
+                    Example {
+                        description: "If explicit is selected".to_string(),
+                        code: "uint256 public variableName;".to_string(),
+                    },
+                    Example {
+                        description: "If implicit is selected".to_string(),
+                        code: "uint public variableName;".to_string(),
+                    },
+                    Example {
+                        description: "If explicit is selected".to_string(),
+                        code: "uint256 public variableName = uint256(5);".to_string(),
+                    },
+                ],
+                bad: vec![
+                    Example {
+                        description: "If explicit is selected".to_string(),
+                        code: "uint public variableName;".to_string(),
+                    },
+                    Example {
+                        description: "If implicit is selected".to_string(),
+                        code: "uint256 public variableName;".to_string(),
+                    },
+                    Example {
+                        description: "At any setting".to_string(),
+                        code: "uint public variableName = uint256(5);".to_string(),
+                    },
+                ],
+            },
+        }
+    }
 }
 
 impl ExplicitTypes {
@@ -134,7 +182,6 @@ impl ExplicitTypes {
         let rule = ExplicitTypes { rule: value, data };
         Box::new(rule)
     }
-
     pub(crate) fn create_default() -> RuleEntry {
         RuleEntry {
             id: RULE_ID.to_string(),

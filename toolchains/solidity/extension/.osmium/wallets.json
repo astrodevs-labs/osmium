@@ -1,0 +1,23 @@
+{
+    "wallets": [
+        {
+            "name": "wallet1",
+            "address": "0x1234567890",
+            "privateKey": "0x1234567890",
+            "rpc": "http://localhost:8545" 
+        },
+    ]
+}
+
+/*
+
+    WalletRepository: interaction avec wallets.json
+    CotnractsRepository: interaction avec contracts.json
+    Interact: 
+        - async createContract(name, abi, address, rpc)
+        - async getContractsInfo -> liste des contrats(name, liste fonctions, adresse)
+        - async getWalletsInfos -> liste des wallets(name, adresse, balance)
+        - async createWallet(name, pKey or mnemonic, rpc)
+        - async readContract(addresse contrat, nom fonction, parametres)
+        - async writeContract(addresse contrat, nom fonction, parametres, adresse wallet, gas limit, value)
+

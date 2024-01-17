@@ -1,6 +1,8 @@
 import { exec } from "child_process";
 import { workspace } from "vscode";
 import * as path from 'path';
+import * as os from 'os';
+import yaml from 'js-yaml';
 
 export type Contract = {
     name: string;
@@ -14,10 +16,24 @@ export type Script = {
     name: string;
 }
 
+async function getScriptFolder(): Promise<string> {
+    const foundryConfigContent = await workspace.fs.readFile(workspace.workspaceFolders[0].uri.with({ path: path.join(workspace.workspaceFolders[0].uri.path, 'foundry.toml') }));
+    const parsedFoundryConfig = yaml.load(foundryConfigContent.toString());
+
+    return parsedFoundryConfig.script ?? 'script';
+}
+
+async function getContractFolder(): Promise<string> {
+    const foundryConfigContent = await workspace.fs.readFile(workspace.workspaceFolders[0].uri.with({ path: path.join(workspace.workspaceFolders[0].uri.path, 'foundry.toml') }));
+    const parsedFoundryConfig = yaml.load(foundryConfigContent.toString());
+
+    return parsedFoundryConfig.contract ?? 'src';
+}
+
 async function getContracts(): Promise<Contract[]> {
     const contracts: Contract[] = [];
-    // TODO read from config file the contract path
-    const contractFiles = await workspace.findFiles('**/src/*.sol');
+    const contractFolder = await getContractFolder();
+    const contractFiles = await workspace.findFiles(`**/${contractFolder}/*.sol`);
     for (const contractFile of contractFiles) {
         const contractContent = await workspace.fs.readFile(contractFile);
         // TODO find a way to get the contract name
@@ -35,8 +51,8 @@ async function getContracts(): Promise<Contract[]> {
 
 async function getScripts(): Promise<Script[]> {
     const scripts: Script[] = [];
-    // TODO read from config file the script path
-    const scriptFiles = await workspace.findFiles('**/script/*.sol');
+    const scriptFolder = await getScriptFolder();
+    const scriptFiles = await workspace.findFiles(`**/${scriptFolder}/*.sol`);
     for (const scriptFile of scriptFiles) {
         // TODO find a way to get the script name
         // TODO handle multiple scripts inside a single file

@@ -86,7 +86,8 @@ const RAW_RUNTIME_STATE =
       [null, {\
         "packageLocation": "./",\
         "packageDependencies": [\
-          ["husky", "npm:8.0.3"]\
+          ["husky", "npm:8.0.3"],\
+          ["js-yaml", "npm:4.1.0"]\
         ],\
         "linkType": "SOFT"\
       }]\
@@ -491,6 +492,14 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["@types/node", [\
+      ["npm:20.10.1", {\
+        "packageLocation": "./.yarn/cache/@types-node-npm-20.10.1-55cf8269a8-703c3cc5bd.zip/node_modules/@types/node/",\
+        "packageDependencies": [\
+          ["@types/node", "npm:20.10.1"],\
+          ["undici-types", "npm:5.26.5"]\
+        ],\
+        "linkType": "HARD"\
+      }],\
       ["npm:20.2.5", {\
         "packageLocation": "./.yarn/cache/@types-node-npm-20.2.5-0014d2d9ce-37529473f0.zip/node_modules/@types/node/",\
         "packageDependencies": [\
@@ -3671,7 +3680,8 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./",\
         "packageDependencies": [\
           ["osmium", "workspace:."],\
-          ["husky", "npm:8.0.3"]\
+          ["husky", "npm:8.0.3"],\
+          ["js-yaml", "npm:4.1.0"]\
         ],\
         "linkType": "SOFT"\
       }]\
@@ -3689,7 +3699,8 @@ const RAW_RUNTIME_STATE =
       ["workspace:toolchains/solidity", {\
         "packageLocation": "./toolchains/solidity/",\
         "packageDependencies": [\
-          ["osmium-solidity", "workspace:toolchains/solidity"]\
+          ["osmium-solidity", "workspace:toolchains/solidity"],\
+          ["@types/node", "npm:20.10.1"]\
         ],\
         "linkType": "SOFT"\
       }]\

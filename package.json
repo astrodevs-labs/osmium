@@ -19,5 +19,9 @@
     "lint": "echo 'linting...'",
     "format": "echo 'formatting...'",
     "test": "echo 'testing...'"
+  },
+  "packageManager": "yarn@4.0.2",
+  "dependencies": {
+    "js-yaml": "^4.1.0"
   }
 }

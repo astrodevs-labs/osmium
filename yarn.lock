@@ -3065,6 +3065,7 @@ __metadata:
   resolution: "osmium@workspace:."
   dependencies:
     husky: "npm:^8.0.0"
+    js-yaml: "npm:^4.1.0"
   languageName: unknown
   linkType: soft
 

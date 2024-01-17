@@ -280,15 +280,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "foundry-deploy"
-version = "0.3.0"
-dependencies = [
- "osmium-libs-foundry-wrapper",
- "tokio",
- "tower-lsp",
-]
-
-[[package]]
 name = "futures"
 version = "0.3.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"

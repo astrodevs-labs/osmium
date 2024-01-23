@@ -2,7 +2,7 @@ import { exec } from "child_process";
 import { workspace } from "vscode";
 import * as path from 'path';
 import * as os from 'os';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 
 export type Contract = {
     name: string;
@@ -17,15 +17,15 @@ export type Script = {
 }
 
 async function getScriptFolder(): Promise<string> {
-    const foundryConfigContent = await workspace.fs.readFile(workspace.workspaceFolders[0].uri.with({ path: path.join(workspace.workspaceFolders[0].uri.path, 'foundry.toml') }));
-    const parsedFoundryConfig = yaml.load(foundryConfigContent.toString());
+    const foundryConfigContent = await workspace.fs.readFile(workspace.workspaceFolders![0].uri.with({ path: path.join(workspace.workspaceFolders![0].uri.path, 'foundry.toml') }));
+    const parsedFoundryConfig : any = yaml.load(foundryConfigContent.toString());
 
     return parsedFoundryConfig.script ?? 'script';
 }
 
 async function getContractFolder(): Promise<string> {
-    const foundryConfigContent = await workspace.fs.readFile(workspace.workspaceFolders[0].uri.with({ path: path.join(workspace.workspaceFolders[0].uri.path, 'foundry.toml') }));
-    const parsedFoundryConfig = yaml.load(foundryConfigContent.toString());
+    const foundryConfigContent = await workspace.fs.readFile(workspace.workspaceFolders![0].uri.with({ path: path.join(workspace.workspaceFolders![0].uri.path, 'foundry.toml') }));
+    const parsedFoundryConfig : any = yaml.load(foundryConfigContent.toString());
 
     return parsedFoundryConfig.contract ?? 'src';
 }

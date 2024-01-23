@@ -20,8 +20,5 @@
     "format": "echo 'formatting...'",
     "test": "echo 'testing...'"
   },
-  "packageManager": "yarn@4.0.2",
-  "dependencies": {
-    "js-yaml": "^4.1.0"
-  }
+  "packageManager": "yarn@4.0.2"
 }

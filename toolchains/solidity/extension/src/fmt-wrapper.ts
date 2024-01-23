@@ -84,7 +84,7 @@ function forgeFmt(
 
 function registerForgeFmtLinter(context: vscode.ExtensionContext) {
   const lintSolFile = vscode.commands.registerCommand(
-    "osmium.lint-sol-file",
+    "osmium.format-sol-file",
     function () {
       if (!isFmtInstalled()) {
         vscode.window.showErrorMessage(
@@ -149,7 +149,7 @@ function registerForgeFmtLinter(context: vscode.ExtensionContext) {
   );
 
   const lintSolWorkspace = vscode.commands.registerCommand(
-    "osmium.lint-sol-workspace",
+    "osmium.format-sol-workspace",
     function () {
       if (!isFmtInstalled()) {
         vscode.window.showErrorMessage(

@@ -31,12 +31,12 @@
     },
     "commands": [
       {
-        "command": "osmium.lint-sol-file",
-        "title": "Osmium: Lint Solidity File"
+        "command": "osmium.format-sol-file",
+        "title": "Osmium: Format Solidity File"
       },
       {
-        "command": "osmium.lint-sol-workspace",
-        "title": "Osmium: Lint Solidity Workspace"
+        "command": "osmium.format-sol-workspace",
+        "title": "Osmium: Format Solidity Workspace"
       }
     ],
     "languages": [

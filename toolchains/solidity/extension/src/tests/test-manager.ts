@@ -120,7 +120,7 @@ export class TestManager {
             } else {
               run.failed(
                 test,
-                new vscode.TestMessage(`Test failed\n\${this.extractResultLogs(functionResult).join("\n")}`),
+                new vscode.TestMessage(`Test failed\n\n${this.extractResultLogs(functionResult).join("\n")}`),
                 functionTime
               );
             }

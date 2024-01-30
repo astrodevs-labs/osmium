@@ -8,4 +8,6 @@ pub enum SlitherError {
     IoCommandError(#[from] std::io::Error),
     #[error("Error while parsing slither output: {0}")]
     ParsingFailed(#[from] serde_json::Error),
+    #[error("Error when trying to find the foundry.toml file")]
+    FoundryTomlNotFound,
 }

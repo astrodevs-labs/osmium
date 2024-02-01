@@ -3,6 +3,7 @@ mod slither;
 mod types;
 use std::sync::Arc;
 use std::thread::sleep;
+use std::time::Duration;
 use std::vec;
 
 use crate::error::SlitherError;
@@ -301,7 +302,6 @@ impl Backend {
     async fn check_slither_result(&self, uri: Url) {
         let token = CancellationToken::new();
         let clone = token.clone();
-        let clone2 = token.clone();
         self.data.lock().await.slither_processes.push(token);
         let sender_handle = self.data.lock().await.sender.clone();
         let client = self.client.clone();
@@ -339,11 +339,9 @@ impl Backend {
                                 .await;
                         }
                     }
-            }
+                }
             }
         });
-        sleep(std::time::Duration::from_secs(1));
-        clone2.cancel();
     }
 }
 

@@ -1,7 +1,7 @@
 use crate::error::SlitherError;
 use crate::types::SlitherResult;
-use std::{error::Error, process::Stdio};
-use tokio::process::{Command, Child};
+use std::{error::Error, future::Future, process::Stdio};
+use tokio::{io::{AsyncBufReadExt, AsyncReadExt}, process::{Command, Child}};
 use std::process::Command as StdCommand;
 use tower_lsp::lsp_types::Diagnostic;
 use glob::glob;
@@ -28,8 +28,57 @@ pub fn normalize_slither_path(path: &str) -> String {
     path.to_string()
 }
 
+struct SlitherProcess {
+    child: std::process::Child,
+}
+
+impl SlitherProcess {
+    pub fn create(uri: &str) -> Result<Self, std::io::Error> {
+        Ok(Self {
+            child:
+            StdCommand::new("slither")
+            .arg(normalize_slither_path(uri))
+            .arg("--exclude")
+            .arg("naming-convention")
+            .arg("--json")
+            .arg("-").spawn()?
+        })
+    }
+}
+
+impl Future for SlitherProcess {
+    type Output = Result<String, SlitherError>;
+
+    fn poll(mut self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> std::task::Poll<Self::Output> {
+        match self.child.try_wait() {
+            Ok(Some(status)) => {
+                if status.success() {
+                    std::task::Poll::Ready(Ok("".to_string()))
+                } else {
+                    std::task::Poll::Ready(Err(SlitherError::Unknown))
+                }
+            }
+            Ok(None) => std::task::Poll::Pending,
+            Err(e) => std::task::Poll::Ready(Err(SlitherError::IoCommandError(e))),
+        }
+    }
+} 
+
 pub async fn parse_slither_out(uri: &str) -> Result<Vec<Diagnostic>, SlitherError> {
     let mut results: Vec<Diagnostic> = Vec::new();
+    /*let proc = Box::pin(SlitherProcess::create(uri));
+
+    match proc.await {
+        Ok(out) => {
+            let json: SlitherResult =
+                serde_json::from_str(&out.replace("\\\"", "\""))?;
+            for detector in json.results.detectors {
+                results.append(&mut crate::types::diag_from_json(detector.clone()));
+            }
+            Ok(results)
+        }
+        Err(e) => Err(e),
+    }*/
     /*
     eprintln!("SLITHER STARTING");
     let output = StdCommand::new("slither")
@@ -63,19 +112,28 @@ pub async fn parse_slither_out(uri: &str) -> Result<Vec<Diagnostic>, SlitherErro
     .arg("naming-convention")
     .arg("--json")
     .arg("-")
-    .stdout(Stdio::piped()).spawn().unwrap();
+    .stdout(Stdio::piped())
+    .stderr(Stdio::piped()) // Redirect stderr to stdout
+    .stdin(Stdio::null()) // Provide an empty input
+    .spawn().unwrap();
+
     let out = output.stdout.take().unwrap();
-    let buf_reader = tokio::io::BufReader::new(out);
     eprintln!("SLITHER STARTING");
+
+    let mut buffer = tokio::io::BufReader::new(out);
+    let mut dst = String::new();
+    eprintln!("SLITHER WAITING");
     output.wait().await?;
     eprintln!("SLITHER FINISHED");
-    //    let out_str = String::from_utf8_lossy(&output.stdout).to_string();
-    //  eprintln!("SLITHER OUT: {}", out_str);
-    /*let json: SlitherResult =
-        serde_json::from_str(&out_str.replace("\\\"", "\""))?;
+    buffer.read_to_string(&mut dst).await.unwrap();
+
+    let json: SlitherResult =
+    serde_json::from_str(&dst).expect("Failed to parse slither output");
     for detector in json.results.detectors {
         results.append(&mut crate::types::diag_from_json(detector.clone()));
-    }*/
+    }
+    eprintln!("SLITHER out: {:?}", results);
+
     Ok(results)
 }
 

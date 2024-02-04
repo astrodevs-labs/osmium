@@ -1,4 +1,4 @@
-import { workspace, ExtensionContext } from 'vscode';
+import { workspace, ExtensionContext, window } from 'vscode';
 import {
 	LanguageClient,
 } from 'vscode-languageclient/node';
@@ -8,15 +8,16 @@ import { createSlitherClient } from './slither';
 import { createTestsPositionsClient } from './tests-positions';
 import registerForgeFmtLinter from "./fmt-wrapper";
 import { TestManager } from './tests/test-manager';
+import { SidePanelProvider } from './sidepanel-provider';
 
-let slitherClient: LanguageClient;
+/*let slitherClient: LanguageClient;
 let linterClient: LanguageClient;
 let foundryCompilerClient: LanguageClient;
 let testsPositionsClient: LanguageClient;
-let testManager: TestManager;
+let testManager: TestManager;*/
 
 export async function activate(context: ExtensionContext) {
-	linterClient = await createLinterClient(context);
+	/*linterClient = await createLinterClient(context);
 	foundryCompilerClient = createFoundryCompilerClient(context);
 	slitherClient = createSlitherClient(context);
 	testsPositionsClient = await createTestsPositionsClient(context);
@@ -25,7 +26,9 @@ export async function activate(context: ExtensionContext) {
 
 	context.subscriptions.push(linterClient, foundryCompilerClient, slitherClient, testsPositionsClient, testManager.testController);
 
-	registerForgeFmtLinter(context);
+	
+
+	registerForgeFmtLinter(context);*/
 
 	
 	const folders = workspace.workspaceFolders;
@@ -38,4 +41,7 @@ export async function activate(context: ExtensionContext) {
 		});
 	}
 
+	const provider = new SidePanelProvider(context.extensionUri);
+
+	context.subscriptions.push(window.registerWebviewViewProvider(SidePanelProvider.viewType, provider));
 }

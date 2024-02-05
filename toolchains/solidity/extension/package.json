@@ -87,7 +87,8 @@
   "scripts": {
     "extension:build": "yarn run compile",
     "vscode:prepublish": "yarn run package",
-    "compile": "webpack",
+    "compile": "yarn run build-front && webpack",
+    "build-front": "cd sidepanel && yarn run build",
     "watch": "webpack --watch",
     "package": "webpack --mode production --devtool hidden-source-map",
     "pretest": "yarn run compile && yarn run extension:lint",

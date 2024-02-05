@@ -1,6 +1,49 @@
 use serde::{Deserialize, Serialize};
 use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity as Severity, Position, Range};
+use std::vec;
+use tokio::sync::mpsc::{Receiver, Sender};
+use tokio_util::sync::CancellationToken;
+use tower_lsp::lsp_types::*;
 
+#[derive(Debug)]
+pub struct SlitherDiag {
+    pub diagnostics: Vec<Diagnostic>,
+    pub uri: Url,
+}
+
+impl SlitherDiag {
+    pub fn new(uri: Url, diagnostics: Vec<Diagnostic>) -> Self {
+        Self { uri, diagnostics }
+    }
+}
+
+#[derive(Debug)]
+pub struct SlitherData {
+    pub slither_processes: Vec<CancellationToken>,
+    pub receiver: Option<Receiver<SlitherDiag>>,
+    pub sender: Sender<SlitherDiag>,
+    pub libs_paths: Vec<String>,
+    pub src_paths: Vec<String>,
+    pub tests_paths: Vec<String>,
+}
+
+impl SlitherData {
+    pub fn new() -> Self {
+        let (sender, receiver) = tokio::sync::mpsc::channel::<SlitherDiag>(100);
+        Self {
+            libs_paths: vec![],
+            src_paths: vec![],
+            tests_paths: vec![],
+            slither_processes: vec![],
+            receiver: Some(receiver),
+            sender,
+        }
+    }
+}
+
+/////////////////////////
+// SLITHER JSON OUTPUT //
+/////////////////////////
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct SlitherResult {
     pub results: SlitherResults,
@@ -119,7 +162,3 @@ pub fn diag_from_json(json: SlitherDetector) -> Vec<Diagnostic> {
 
     results
 }
-
-////////////////////////////////////////////////////////////
-/////////////////// RELATED TYPES: /////////////////////////
-////////////////////////////////////////////////////////////

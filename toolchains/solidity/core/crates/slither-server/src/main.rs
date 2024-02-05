@@ -1,62 +1,28 @@
 mod error;
 mod slither;
 mod types;
-use std::sync::Arc;
-use std::thread::sleep;
-use std::time::Duration;
-use std::vec;
+mod utils;
 
-use crate::error::SlitherError;
-use crate::slither::*;
-use tokio::process::{Child, Command};
-use tokio::sync::mpsc::{Receiver, Sender};
+use crate::{error::SlitherError, slither::parse_slither_out, types::*};
+
+use std::sync::Arc;
+use std::vec;
 use tokio::sync::Mutex;
 use tokio_util::sync::CancellationToken;
 use tower_lsp::jsonrpc::Result;
 use tower_lsp::lsp_types::*;
 use tower_lsp::{Client, LanguageServer, LspService, Server};
-
-#[derive(Debug)]
-struct SlitherDiag {
-    diagnostics: Vec<Diagnostic>,
-    uri: Url,
-}
-
-impl SlitherDiag {
-    fn new(uri: Url, diagnostics: Vec<Diagnostic>) -> Self {
-        Self { uri, diagnostics }
-    }
-}
-
-#[derive(Debug)]
-struct SlitherData {
-    slither_processes: Vec<CancellationToken>,
-    receiver: Option<Receiver<SlitherDiag>>,
-    sender: Sender<SlitherDiag>,
-    libs_paths: Vec<String>,
-    src_paths: Vec<String>,
-    tests_paths: Vec<String>,
-}
+use utils::find_foundry_toml_config;
+use utils::is_slither_installed;
+use utils::is_solc_installed;
+use utils::normalize_slither_path;
+use utils::parse_foundry_toml;
 
 #[derive(Debug)]
 struct Backend {
     client: Client,
     data: Mutex<SlitherData>,
     join_handle: Arc<Mutex<Option<tokio::task::JoinHandle<()>>>>,
-}
-
-impl SlitherData {
-    fn new() -> Self {
-        let (sender, receiver) = tokio::sync::mpsc::channel::<SlitherDiag>(100);
-        Self {
-            libs_paths: vec![],
-            src_paths: vec![],
-            tests_paths: vec![],
-            slither_processes: vec![],
-            receiver: Some(receiver),
-            sender,
-        }
-    }
 }
 
 #[tower_lsp::async_trait]
@@ -88,11 +54,11 @@ impl LanguageServer for Backend {
         }
 
         self.client
-            .log_message(MessageType::INFO, "diag recv initializing ...")
+            .log_message(MessageType::INFO, "Initializing diagnostic receiver ...")
             .await;
+
         let mut receiver = self.data.lock().await.receiver.take().unwrap();
         let client = self.client.clone();
-
         self.join_handle
             .lock()
             .await
@@ -104,7 +70,7 @@ impl LanguageServer for Backend {
                 }
             }));
         self.client
-            .log_message(MessageType::INFO, "diag recv initialized!")
+            .log_message(MessageType::INFO, "Finished initializing diagnostic receiver!")
             .await;
 
         let folders = params.workspace_folders;
@@ -165,22 +131,21 @@ impl LanguageServer for Backend {
                 ),
             )
             .await;
-        if self.is_in_libs(file.text_document.uri.path()).await
-          //  || self.is_in_tests(file.text_document.uri.path()).await
-          //  || !self.is_in_src(file.text_document.uri.path()).await
-        {
-            self.client
-                .log_message(
-                    MessageType::INFO,
-                    format!(
-                        "File '{}' is not a source solidity code file, skipping analysis.",
-                        file.text_document.uri.path()
-                    ),
-                )
-                .await;
-            return;
-        }
-        self.check_slither_result(file.text_document.uri).await
+        self.analyze_file(file.text_document.uri).await
+
+    }
+
+    async fn did_open(&self, file: DidOpenTextDocumentParams) {
+        self.client
+            .log_message(
+                MessageType::INFO,
+                format!(
+                    "Opened file '{}' for analyzing.",
+                    file.text_document.uri.path()
+                ),
+            )
+            .await;
+        self.analyze_file(file.text_document.uri).await
     }
 }
 
@@ -191,6 +156,25 @@ impl Backend {
             data: Mutex::new(SlitherData::new()),
             join_handle: Arc::new(Mutex::new(None)),
         }
+    }
+
+    async fn analyze_file(&self, file: Url) {
+        if self.is_in_libs(file.path()).await
+        || self.is_in_tests(file.path()).await
+        || !self.is_in_src(file.path()).await
+      {
+          self.client
+              .log_message(
+                  MessageType::INFO,
+                  format!(
+                      "File '{}' is not a source solidity code file, skipping analysis.",
+                      file.path()
+                  ),
+              )
+              .await;
+          return;
+      }
+      self.launch_slither(file).await
     }
 
     async fn is_in_libs(&self, path: &str) -> bool {
@@ -243,46 +227,7 @@ impl Backend {
                     let foundry = std::fs::read_to_string(path.clone());
                     match foundry {
                         Ok(foundry) => {
-                            let foundry: toml::Value = foundry.parse().unwrap();
-                            let libs = foundry["profile"]["default"]["libs"].as_array();
-                            match libs {
-                                Some(libs) => {
-                                    for lib in libs {
-                                        state.libs_paths.push(lib.to_string());
-                                    }
-                                }
-                                None => {
-                                    state
-                                        .libs_paths
-                                        .push(foundry["profile"]["default"]["libs"].to_string());
-                                }
-                            }
-                            let src = foundry["profile"]["default"]["src"].as_array();
-                            match src {
-                                Some(src) => {
-                                    for src in src {
-                                        state.src_paths.push(src.to_string());
-                                    }
-                                }
-                                None => {
-                                    state
-                                        .src_paths
-                                        .push(foundry["profile"]["default"]["src"].to_string());
-                                }
-                            }
-                            let tests = foundry["profile"]["default"]["test"].as_array();
-                            match tests {
-                                Some(tests) => {
-                                    for test in tests {
-                                        state.tests_paths.push(test.to_string());
-                                    }
-                                }
-                                None => {
-                                    state
-                                        .tests_paths
-                                        .push(foundry["profile"]["default"]["test"].to_string());
-                                }
-                            }
+                            parse_foundry_toml(foundry, &mut state);
                         }
                         Err(e) => {
                             eprintln!(
@@ -292,14 +237,13 @@ impl Backend {
                         }
                     }
                 }
-
                 Err(_) => {}
             }
         }
         Ok(())
     }
 
-    async fn check_slither_result(&self, uri: Url) {
+    async fn launch_slither(&self, uri: Url) {
         let token = CancellationToken::new();
         let clone = token.clone();
         self.data.lock().await.slither_processes.push(token);

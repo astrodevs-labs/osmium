@@ -1,0 +1,20 @@
+.button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+  
+  .deploy-button {
+    background-color: #0E639C;
+    color: white;
+    padding: 0.5rem 0.5rem;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    opacity: 0.8;
+    transition: opacity 0.1s ease;
+  }
+  
+  .deploy-button:hover {
+    opacity: 1;
+  }

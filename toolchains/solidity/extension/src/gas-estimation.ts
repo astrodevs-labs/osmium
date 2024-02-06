@@ -8,6 +8,11 @@ type GasReport = {
   median?: bigint;
 }
 
+type Function = {
+  name: string,
+  line: number
+}
+
 type Report = Map<string, Map<string, GasReport>>;
 
 function isForgeInstalled(): boolean {
@@ -110,12 +115,63 @@ function getContractsInsideFile(content: string, path: string): string[] {
   return contracts;
 }
 
-export function gasReport(content: string, path: string) {
+function getFunctionsInsideContract(content: string, contractName: string): Function[] {
+  const functions: Function[] = [];
+  const lines = content.split("\n");
+
+  let start = false;
+  let bracketsCount = 0;
+  lines.forEach((line, index) => {
+    if (line.includes("contract")) {
+      const currentContractName = line.split(" ")[1];
+      if (contractName === currentContractName) {
+        start = true;
+      }
+      bracketsCount += (line.split("{").length - 1) - (line.split("}").length - 1);
+      if (bracketsCount == -1) {
+        return functions;
+      }
+      if (line.includes("function")) {
+        const functionName = line.split(" ")[1];
+        functions.push({
+          name: functionName,
+          line: index + 1
+        })
+      }
+    }
+  });
+
+  return functions;
+}
+
+function gasReport(content: string, path: string) {
   if (!isForgeInstalled()) {
     return;
   }
   const contracts = getContractsInsideFile(content, path);
   const report = getGasReport(contracts);
+  const functionsPerContract: Map<string, Function[]> = new Map();
+  contracts.map((contract) => {
+    const functions = getFunctionsInsideContract(content, contract.split(":")[1]);
+    functionsPerContract.set(contract, functions);
+  });
 
-  // TODO: display the report close to the functions definitions
+  for (const [contract, functions] of functionsPerContract) {
+    for (const func of functions) {
+      // TODO: display the report close to the functions definitions
+      const gas = report.get(contract)?.get(func.name)?.average;
+
+      
+    }
+  }
+}
+
+export default function registerGasEstimation() {
+  vscode.workspace.onDidOpenTextDocument((document) => {
+    gasReport(document.getText(), document.uri.path);
+  });
+
+  vscode.workspace.onDidSaveTextDocument((document) => {
+    gasReport(document.getText(), document.uri.path);
+  });
 }

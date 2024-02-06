@@ -26,6 +26,7 @@ export async function activate(context: ExtensionContext) {
 	context.subscriptions.push(linterClient, foundryCompilerClient, slitherClient, testsPositionsClient, testManager.testController);
 
 	registerForgeFmtLinter(context);
+	registerGasEstimation();
 
 	
 	const folders = workspace.workspaceFolders;

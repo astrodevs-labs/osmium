@@ -1,31 +1,36 @@
-import { useMessageHandler } from './hooks/useMessageHandler.ts';
 import { VSCodePanels, VSCodePanelTab, VSCodePanelView } from '@vscode/webview-ui-toolkit/react';
-import './App.css';
 import { DeployPage } from './pages/DeployPage/DeployPage.tsx';
 import { InteractPage } from './pages/InteractPage/InteractPage.tsx';
+import { useEffect, useState } from 'react';
+import './App.css';
 
 function App() {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  //const vscode = acquireVsCodeApi();
+  //const messageHandlers = [
+  //  {
+  //    type: 'answer',
+  //    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //    callback: (data: any) => {
+  //      console.log('answered', data);
+  //    },
+  //  },
+  //  {
+  //    type: 'click2',
+  //    callback: () => {
+  //      console.log('clicked2');
+  //    },
+  //  },
+  //];
+//
+  //useMessageHandler(messageHandlers);
 
-  const messageHandlers = [
-    {
-      type: 'answer',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      callback: (data: any) => {
-        console.log('answered', data);
-      },
-    },
-    {
-      type: 'click2',
-      callback: () => {
-        console.log('clicked2');
-      },
-    },
-  ];
+  const [vscode, setVscode] = useState();
 
-  useMessageHandler(messageHandlers);
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const tmp = acquireVsCodeApi();
+    setVscode(tmp);
+  }, []);
 
   return (
     <>
@@ -33,7 +38,7 @@ function App() {
         <VSCodePanelTab id="tab-interact">INTERACT</VSCodePanelTab>
         <VSCodePanelTab id="tab-deploy">DEPLOY</VSCodePanelTab>
         <VSCodePanelView id="view-interact">
-          <InteractPage />
+          <InteractPage vscode={vscode} />
         </VSCodePanelView>
         <VSCodePanelView id="view-deploy">
           <DeployPage />

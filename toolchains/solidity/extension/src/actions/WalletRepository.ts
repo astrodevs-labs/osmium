@@ -14,13 +14,17 @@ export class WalletRepository {
 
   constructor(workspacePath: string) {
     this._walletsPath = path.join(workspacePath, ".osmium", "wallets.json");
+    this.load();
+  }
+
+  public load(): void {
     if (fs.existsSync(this._walletsPath)) {
-        const walletData = fs.readFileSync(this._walletsPath, "utf8");
-        const walletJson = JSON.parse(walletData);
-        this._wallets = walletJson.wallets;
+      const walletData = fs.readFileSync(this._walletsPath, "utf8");
+      const walletJson = JSON.parse(walletData);
+      this._wallets = walletJson.wallets;
     } else {
-        fs.writeFileSync(this._walletsPath, JSON.stringify({ wallets: [] }));
-        this._wallets = [];
+      fs.writeFileSync(this._walletsPath, JSON.stringify({ wallets: [] }));
+      this._wallets = [];
     }
   }
 

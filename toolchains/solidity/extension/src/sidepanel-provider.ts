@@ -7,6 +7,7 @@ enum MessageType {
   WALLETS = "WALLETS",
   GET_CONTRACTS = "GET_CONTRACTS",
   CONTRACTS = "CONTRACTS",
+  INTERACT = "INTERACT",
 }
 
 type Message = {
@@ -32,6 +33,8 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
   private _contractRepository?: ContractRepository;
   private _walletRepository?: WalletRepository;
 
+  private _watcher?: vscode.FileSystemWatcher;
+
   constructor(private readonly _extensionUri: vscode.Uri) {}
 
   public resolveWebviewView(
@@ -48,6 +51,30 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
       this._walletRepository = new WalletRepository(
         vscode.workspace.workspaceFolders?.[0].uri.fsPath || "",
       );
+
+      const pattern = new vscode.RelativePattern(
+        vscode.workspace.workspaceFolders?.[0].uri.fsPath,
+        ".osmium/*.json",
+      );
+      this._watcher = vscode.workspace.createFileSystemWatcher(pattern);
+
+      this._watcher.onDidChange(async (uri) => {
+        if (this._view) {
+          if (uri.fsPath.endsWith("contracts.json")) {
+            this._contractRepository?.load();
+            await this._view.webview.postMessage({
+              type: MessageType.CONTRACTS,
+              contracts: this._contractRepository?.getContracts(),
+            });
+          } else {
+            this._walletRepository?.load();
+            await this._view.webview.postMessage({
+              type: MessageType.WALLETS,
+              wallets: this._walletRepository?.getWallets(),
+            });
+          }
+        }
+      });
     }
 
     webviewView.webview.options = {
@@ -75,6 +102,9 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
             type: MessageType.CONTRACTS,
             contracts: this._contractRepository.getContracts(),
           });
+          break;
+        case MessageType.INTERACT:
+          console.log(message.data);
           break;
       }
     });

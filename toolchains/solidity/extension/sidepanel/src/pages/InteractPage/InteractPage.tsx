@@ -1,20 +1,24 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import './InteractPage.css';
-import { InteractParamsContainer } from '../../components/InteractParams/InteractParams.tsx';
-import { InteractContracts } from '../../components/InteractContracts/InteractContracts.tsx';
+import { useInteractPage } from './InteractPage.logic.ts';
+import { VSCode } from '../../types';
+import { FormProvider } from 'react-hook-form';
 import { VSCodeButton, VSCodeDivider } from '@vscode/webview-ui-toolkit/react';
-import { InteractProvider } from '../../contexts/InteractContext.tsx';
+import { InteractContracts } from '../../components/InteractContracts/InteractContracts.tsx';
+import { InteractParams } from '../../components/InteractParams/InteractParams.tsx';
 
-export const InteractPage = (props: { vscode: any }) => {
+export const InteractPage = (props: { vscode: VSCode }) => {
+  const logic = useInteractPage(props.vscode);
+
   return (
-    <InteractProvider vscode={props.vscode}>
-      <div className="page-container">
-        <InteractContracts />
-        <VSCodeDivider className="divider" />
-        <InteractParamsContainer />
-        <VSCodeDivider className="divider" />
-        <VSCodeButton>Send transaction</VSCodeButton>
-      </div>
-    </InteractProvider>
+    <div className="page-container">
+      <FormProvider {...logic.form} >
+        <form onSubmit={logic.form.handleSubmit(logic.onSubmit)}>
+          <InteractContracts wallets={logic.wallets} contracts={logic.contracts} />
+          <VSCodeDivider className="divider" />
+          <InteractParams contracts={logic.contracts} />
+          <VSCodeButton className="submit-button" type="submit">Send transaction</VSCodeButton>
+        </form>
+      </FormProvider>
+    </div>
   );
 };

@@ -6,12 +6,12 @@ type GasReport = {
   min?: bigint;
   max?: bigint;
   median?: bigint;
-}
+};
 
 type Function = {
   name: string,
   line: number
-}
+};
 
 type Report = Map<string, Map<string, GasReport>>;
 
@@ -66,6 +66,7 @@ function getGasReport(contracts: string[]): Report {
 
   // Gas estimation from the contracts inspection
   contracts.forEach((contract) => {
+    // TODO find config path
     exec(`forge inspect ${contract} gasEstimates`, (error: any, _stdout: any, _stderr: any) => {
       if (error) {
         throw error;
@@ -102,13 +103,28 @@ function getGasReport(contracts: string[]): Report {
   return report;
 }
 
+function getXthWord(line: string, index: number): string {
+  const splittedLine = line.split(" ");
+
+  let count = 0;
+  for (const word of splittedLine) {
+    if (word !== "") {
+      if (index === count) {
+        return word;
+      }
+      count += 1;
+    }
+  }
+  return "";
+}
+
 function getContractsInsideFile(content: string, path: string): string[] {
   const contracts: string[] = [];
   const lines = content.split("\n");
 
   lines.forEach((line) => {
-    if (line.includes("contract")) {
-      const contractName = line.split(" ")[1];
+    if (getXthWord(line, 0) === "contract") {
+      const contractName = getXthWord(line, 1);
       contracts.push(`${path}:${contractName}`);
     }
   });
@@ -121,22 +137,27 @@ function getFunctionsInsideContract(content: string, contractName: string): Func
 
   let start = false;
   let bracketsCount = 0;
+  let currentContractName = "";
   lines.forEach((line, index) => {
-    if (line.includes("contract")) {
-      const currentContractName = line.split(" ")[1];
+    const firstWord = getXthWord(line, 0);
+    const secondWord = getXthWord(line, 1);
+    if (firstWord === "contract") {
+      currentContractName = secondWord;
       if (contractName === currentContractName) {
         start = true;
       }
+    }
+    if (start) {
       bracketsCount += (line.split("{").length - 1) - (line.split("}").length - 1);
-      if (bracketsCount == -1) {
+      if (bracketsCount === -1) {
         return functions;
       }
-      if (line.includes("function")) {
-        const functionName = line.split(" ")[1];
+      if (firstWord === "function") {
+        const functionName = secondWord.split("(")[0];
         functions.push({
           name: functionName,
           line: index + 1
-        })
+        });
       }
     }
   });
@@ -153,20 +174,18 @@ function gasReport(content: string, path: string) {
   const functionsPerContract: Map<string, Function[]> = new Map();
   contracts.map((contract) => {
     const functions = getFunctionsInsideContract(content, contract.split(":")[1]);
-    functionsPerContract.set(contract, functions);
+    functionsPerContract.set(contract.split(":")[0], functions);
   });
 
   for (const [contract, functions] of functionsPerContract) {
     for (const func of functions) {
       // TODO: display the report close to the functions definitions
       const gas = report.get(contract)?.get(func.name)?.average;
-
-      
     }
   }
 }
 
-export default function registerGasEstimation() {
+export function registerGasEstimation() {
   vscode.workspace.onDidOpenTextDocument((document) => {
     gasReport(document.getText(), document.uri.path);
   });

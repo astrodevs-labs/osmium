@@ -187,7 +187,9 @@ function gasReport(content: string, path: string) {
 
 export function registerGasEstimation() {
   vscode.workspace.onDidOpenTextDocument((document) => {
-    gasReport(document.getText(), document.uri.path);
+    // gas estimate only the main contracts
+    if (!document.fileName.includes("lib") && !document.fileName.includes("test"))
+      gasReport(document.getText(), document.uri.path);
   });
 
   vscode.workspace.onDidSaveTextDocument((document) => {

@@ -1,9 +1,8 @@
 use crate::error::SlitherError;
 use crate::SlitherData;
+use glob::glob;
 use std::error::Error;
 use std::process::Command as StdCommand;
-use glob::glob;
-
 
 pub fn is_slither_installed() -> bool {
     let output = StdCommand::new("slither").arg("--version").output();
@@ -84,12 +83,12 @@ pub fn find_foundry_toml_config(workspace: &str) -> Result<String, Box<dyn Error
     let mut foundry_toml_path = String::new();
     for entry in glob(&format!("{}/**/foundry.toml", workspace))? {
         match entry {
-                Ok(path) => {
-                    foundry_toml_path = path.display().to_string();
-                    break;
-                }
-                Err(e) => eprintln!("{:?}", e),
+            Ok(path) => {
+                foundry_toml_path = path.display().to_string();
+                break;
             }
+            Err(e) => eprintln!("{:?}", e),
+        }
     }
     if foundry_toml_path.is_empty() {
         return Err(Box::new(SlitherError::FoundryTomlNotFound));

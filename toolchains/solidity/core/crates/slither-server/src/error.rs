@@ -2,7 +2,7 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum SlitherError {
-    #[error("Error while runing slither")]
+    #[error("Error while runing slither: {0}")]
     Unknown(String),
     #[error("Error while runing the slither command: {0}")]
     IoCommandError(#[from] std::io::Error),

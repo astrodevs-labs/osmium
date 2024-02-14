@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
-use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity as Severity, Position, Range};
 use std::vec;
 use tokio::sync::mpsc::{Receiver, Sender};
 use tokio_util::sync::CancellationToken;
 use tower_lsp::lsp_types::*;
+use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity as Severity, Position, Range};
 
 #[derive(Debug)]
 pub struct SlitherDiag {

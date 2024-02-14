@@ -70,7 +70,10 @@ impl LanguageServer for Backend {
                 }
             }));
         self.client
-            .log_message(MessageType::INFO, "Finished initializing diagnostic receiver!")
+            .log_message(
+                MessageType::INFO,
+                "Finished initializing diagnostic receiver!",
+            )
             .await;
 
         let folders = params.workspace_folders;
@@ -132,7 +135,6 @@ impl LanguageServer for Backend {
             )
             .await;
         self.analyze_file(file.text_document.uri).await
-
     }
 
     async fn did_open(&self, file: DidOpenTextDocumentParams) {
@@ -160,21 +162,21 @@ impl Backend {
 
     async fn analyze_file(&self, file: Url) {
         if self.is_in_libs(file.path()).await
-        || self.is_in_tests(file.path()).await
-        || !self.is_in_src(file.path()).await
-      {
-          self.client
-              .log_message(
-                  MessageType::INFO,
-                  format!(
-                      "File '{}' is not a source solidity code file, skipping analysis.",
-                      file.path()
-                  ),
-              )
-              .await;
-          return;
-      }
-      self.launch_slither(file).await
+            || self.is_in_tests(file.path()).await
+            || !self.is_in_src(file.path()).await
+        {
+            self.client
+                .log_message(
+                    MessageType::INFO,
+                    format!(
+                        "File '{}' is not a source solidity code file, skipping analysis.",
+                        file.path()
+                    ),
+                )
+                .await;
+            return;
+        }
+        self.launch_slither(file).await
     }
 
     async fn is_in_libs(&self, path: &str) -> bool {
@@ -202,9 +204,6 @@ impl Backend {
     }
 
     async fn is_in_tests(&self, path: &str) -> bool {
-        if path.ends_with(".t.sol") {
-            return true;
-        }
         let state = self.data.lock().await;
         for test in state.tests_paths.iter() {
             let fsrc = format!("/{}/", test.replace("\"", ""));

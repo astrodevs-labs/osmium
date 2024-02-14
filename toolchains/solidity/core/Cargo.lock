@@ -955,7 +955,6 @@ version = "0.3.0"
 dependencies = [
  "colored",
  "glob",
- "once_cell",
  "os",
  "serde",
  "serde_derive",

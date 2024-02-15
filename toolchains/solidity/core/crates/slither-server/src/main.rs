@@ -182,7 +182,7 @@ impl Backend {
     async fn is_in_libs(&self, path: &str) -> bool {
         let state = self.data.lock().await;
         for lib in state.libs_paths.iter() {
-            let fsrc = format!("/{}/", lib.replace("\"", ""));
+            let fsrc = format!("/{}/", lib.replace('\"', ""));
             eprintln!("Check path: '{}' contains lib: '{}'", path, fsrc);
             if path.contains(&fsrc) {
                 return true;
@@ -194,7 +194,7 @@ impl Backend {
     async fn is_in_src(&self, path: &str) -> bool {
         let state = self.data.lock().await;
         for src in state.src_paths.iter() {
-            let fsrc = format!("/{}/", src.replace("\"", ""));
+            let fsrc = format!("/{}/", src.replace('\"', ""));
             eprintln!("Check path: '{}' contains src: '{}'", path, fsrc);
             if path.contains(&fsrc) {
                 return true;
@@ -206,7 +206,7 @@ impl Backend {
     async fn is_in_tests(&self, path: &str) -> bool {
         let state = self.data.lock().await;
         for test in state.tests_paths.iter() {
-            let fsrc = format!("/{}/", test.replace("\"", ""));
+            let fsrc = format!("/{}/", test.replace('\"', ""));
             eprintln!("Check path: '{}' contains test: '{}'", path, fsrc);
             if path.contains(&fsrc) {
                 return true;
@@ -221,8 +221,7 @@ impl Backend {
         for folder in workspaces {
             let folderpath = normalize_slither_path(folder.uri.path());
             let foundry_path = find_foundry_toml_config(&folderpath);
-            match foundry_path {
-                Ok(path) => {
+                if let Ok(path) = foundry_path {
                     let foundry = std::fs::read_to_string(path.clone());
                     match foundry {
                         Ok(foundry) => {
@@ -236,8 +235,6 @@ impl Backend {
                         }
                     }
                 }
-                Err(_) => {}
-            }
         }
         Ok(())
     }
@@ -253,7 +250,6 @@ impl Backend {
             tokio::select! {
                 _ = clone.cancelled() => {
                     eprintln!("SLITHER CANCELLED");
-                    return;
                 }
                 output = parse_slither_out(uri.path()) => {
                     match output {
@@ -293,6 +289,6 @@ async fn main() {
     let stdin = tokio::io::stdin();
     let stdout = tokio::io::stdout();
 
-    let (service, socket) = LspService::new(|client| Backend::new(client));
+    let (service, socket) = LspService::new(Backend::new);
     Server::new(stdin, stdout, socket).serve(service).await;
 }

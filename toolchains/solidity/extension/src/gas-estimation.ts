@@ -166,7 +166,7 @@ function getFunctionsInsideContract(content: string, contractName: string): Func
   return functions;
 }
 
-function gasReport(content: string, path: string) {
+function gasReport(content: string, path: string, editor: vscode.TextEditor, decorationType: vscode.TextEditorDecorationType) {
   if (!isForgeInstalled()) {
     return;
   }
@@ -183,22 +183,42 @@ function gasReport(content: string, path: string) {
     functionsPerContract.set(contract.split(":")[0], functions);
   });
 
+  let decorationsArray: vscode.DecorationOptions[] = []
   for (const [contract, functions] of functionsPerContract) {
     for (const func of functions) {
       // TODO: display the report close to the functions definitions
       const gas = report.get(contract)?.get(func.name)?.average;
+
+      if (!gas) {
+        continue;
+      }
+
+      let range = new vscode.Range(
+        new vscode.Position(func.line, 0),
+        new vscode.Position(func.line, content.split("\n")[func.line].length)
+      )
+
+      let decoration = { range, renderOptions: { after: { contentText: gas.toString() } }  }
+      decorationsArray.push(decoration)
     }
   }
+  editor.setDecorations(decorationType, decorationsArray)
 }
 
 export function registerGasEstimation() {
+  const decorationType = vscode.window.createTextEditorDecorationType({
+    after: {
+      opacity: "0.5"
+    }
+  });
+
   vscode.workspace.onDidOpenTextDocument((document) => {
     // gas estimate only the main contracts
     if (!document.fileName.includes("lib") && !document.fileName.includes("test"))
-      gasReport(document.getText(), document.uri.path);
+      gasReport(document.getText(), document.uri.path, vscode.window.activeTextEditor, decorationType);
   });
 
   vscode.workspace.onDidSaveTextDocument((document) => {
-    gasReport(document.getText(), document.uri.path);
+    gasReport(document.getText(), document.uri.path, vscode.window.activeTextEditor, decorationType);
   });
 }

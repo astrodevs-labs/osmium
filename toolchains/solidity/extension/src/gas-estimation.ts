@@ -22,6 +22,7 @@ function isForgeInstalled(): boolean {
         throw error;
       }
     });
+    console.log("Forge is installed");
     return true;
   } catch (error) {
     return false;
@@ -29,11 +30,11 @@ function isForgeInstalled(): boolean {
 }
 
 // Contracts needs to be formatted like this : ["contract1.sol:Contract1", "contract2.sol:Contract2"]
-function getGasReport(contracts: string[]): Report {
+function getGasReport(contracts: string[], cwd: string): Report {
   const report: Report = new Map();
 
   // Gas estimation from the tests
-  exec("forge test --gas-report", (error: any, _stdout: any, _stderr: any) => {
+  exec("forge test --gas-report", { cwd }, (error: any, _stdout: any, _stderr: any) => {
     if (error) {
       throw error;
     }
@@ -67,7 +68,7 @@ function getGasReport(contracts: string[]): Report {
   // Gas estimation from the contracts inspection
   contracts.forEach((contract) => {
     // TODO find config path
-    exec(`forge inspect ${contract} gasEstimates`, (error: any, _stdout: any, _stderr: any) => {
+    exec(`forge inspect ${contract} gasEstimates`, { cwd }, (error: any, _stdout: any, _stderr: any) => {
       if (error) {
         throw error;
       }
@@ -169,8 +170,13 @@ function gasReport(content: string, path: string) {
   if (!isForgeInstalled()) {
     return;
   }
+  const workspace = vscode.workspace.workspaceFolders?.[0];
+  const workspacePath = workspace?.uri.path;
+  if (!workspacePath) {
+    return;
+  }
   const contracts = getContractsInsideFile(content, path);
-  const report = getGasReport(contracts);
+  const report = getGasReport(contracts, workspacePath);
   const functionsPerContract: Map<string, Function[]> = new Map();
   contracts.map((contract) => {
     const functions = getFunctionsInsideContract(content, contract.split(":")[1]);

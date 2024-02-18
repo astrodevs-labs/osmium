@@ -37,6 +37,10 @@
       {
         "command": "osmium.format-sol-workspace",
         "title": "Osmium: Format Solidity Workspace"
+      },
+      {
+        "command": "osmium.gas-estimation",
+        "title": "Osmium: Gas Estimation"
       }
     ],
     "languages": [

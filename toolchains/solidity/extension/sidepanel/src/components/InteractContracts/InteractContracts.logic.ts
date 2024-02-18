@@ -3,7 +3,7 @@ import { Contract } from '../../../../src/actions/ContractRepository.ts';
 import { IFormInput } from '../../types';
 
 export const useInteractContracts = (contracts: Contract[]) => {
-  const { register, watch } = useFormContext<IFormInput>();
+  const { register, watch, formState: { errors } } = useFormContext<IFormInput>();
   const selectedContract = watch('contract');
 
   const functions = contracts.find((contract) => contract.address === selectedContract)?.abi.map((abi) => {
@@ -12,5 +12,5 @@ export const useInteractContracts = (contracts: Contract[]) => {
     }
   }) || [];
 
-  return { register, selectedContract, functions };
+  return { register, selectedContract, functions, errors };
 };

@@ -1,6 +1,7 @@
 import { Contract } from '../../../../src/actions/ContractRepository.ts';
 import { useFormContext } from 'react-hook-form';
 import { IFormInput } from '../../types';
+import { useEffect } from 'react';
 
 export const useInteractParams = (contracts: Contract[]) => {
   const form = useFormContext<IFormInput>();
@@ -14,6 +15,10 @@ export const useInteractParams = (contracts: Contract[]) => {
   }) || [];
   const func = functions.find((func) => func?.name === selectedFunction) || null;
   const inputs = func?.inputs || [];
+
+  useEffect(() => {
+    form.resetField('inputs');
+  }, [selectedFunction, selectedContractAddress]);
 
   return {
     inputs,

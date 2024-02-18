@@ -13,11 +13,14 @@ export const InteractParams = (props: { contracts: Contract[] }) => {
       {displayParams &&
         <div className="params-container">
           {logic.inputs.map((input, index) => {
-            return <VSCodeTextField className="text-field" {...logic.form.register(`inputs.${index}` as const, {
-              required: true,
-            })}>
-              {input.type} {input.name}
-            </VSCodeTextField>;
+            return <>
+              <VSCodeTextField className="text-field" {...logic.form.register(`inputs.${index}` as const, {
+                required: true,
+                valueAsNumber: input.type.includes('int'),
+              })}>
+                {input.type} {input.name}
+              </VSCodeTextField>
+            </>;
           })}
         </div>
       }

@@ -2,13 +2,16 @@ import * as vscode from "vscode";
 import { ContractRepository } from "./actions/ContractRepository";
 import { WalletRepository } from "./actions/WalletRepository";
 import { Script, getScripts } from "./actions/deploy";
+import { Interact } from "./actions/Interact";
+import { window } from "vscode";
 
 enum MessageType {
   GET_WALLETS = "GET_WALLETS",
   WALLETS = "WALLETS",
   GET_CONTRACTS = "GET_CONTRACTS",
   CONTRACTS = "CONTRACTS",
-  INTERACT = "INTERACT",
+  WRITE = "WRITE",
+  READ = "READ",
   GET_SCRIPTS = 'GET_SCRIPTS',
   SCRIPTS = 'SCRIPTS',
 }
@@ -35,6 +38,7 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
 
   private _contractRepository?: ContractRepository;
   private _walletRepository?: WalletRepository;
+  private _interact?: Interact;
   private _scripts?: Script [];
 
   private _watcher?: vscode.FileSystemWatcher;
@@ -55,6 +59,12 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
       this._walletRepository = new WalletRepository(
         vscode.workspace.workspaceFolders?.[0].uri.fsPath || "",
       );
+
+      this._interact = new Interact(
+        this._contractRepository,
+        this._walletRepository,
+      );
+
       this._scripts = await getScripts();
       const pattern = new vscode.RelativePattern(
         vscode.workspace.workspaceFolders?.[0].uri.fsPath,
@@ -82,16 +92,19 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
     }
 
     webviewView.webview.options = {
-      // Allow scripts in the webview
       enableScripts: true,
-
       localResourceRoots: [this._extensionUri],
     };
 
     webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
     webviewView.webview.onDidReceiveMessage(async (message: Message) => {
-      if (!this._view || !this._contractRepository || !this._walletRepository) {
+      if (
+        !this._view ||
+        !this._contractRepository ||
+        !this._walletRepository ||
+        !this._interact
+      ) {
         return;
       }
       switch (message.type) {
@@ -115,6 +128,26 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
             break;
         case MessageType.INTERACT:
           console.log(message.data);
+        case MessageType.WRITE:
+          console.log("WRITE", message.data);
+          const writeResponse = await this._interact.writeContract({
+            account: message.data.wallet,
+            address: message.data.contract,
+            abi: this._contractRepository.getContract(message.data.contract)!
+              .abi,
+            functionName: message.data.function,
+            params: message.data.inputs,
+          });
+          window.showInformationMessage(`Transaction hash: ${writeResponse}`);
+          break;
+        case MessageType.READ:
+          console.log("READ", message.data);
+          const readResponse = await this._interact.readContract({
+            contract: message.data.contract,
+            method: message.data.function,
+            params: message.data.inputs,
+          });
+          window.showInformationMessage(`Read response: ${readResponse}`);
           break;
       }
     });

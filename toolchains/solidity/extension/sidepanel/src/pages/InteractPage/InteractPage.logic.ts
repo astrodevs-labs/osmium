@@ -9,7 +9,23 @@ enum MessageType {
   WALLETS = 'WALLETS',
   GET_CONTRACTS = 'GET_CONTRACTS',
   CONTRACTS = 'CONTRACTS',
+  WRITE = 'WRITE',
+  READ = 'READ',
 }
+
+const getFunctionAction = (func: string, contract: string, contracts: Contract[]): '' | 'WRITE' | 'READ' => {
+  const selectedContract = contracts.find((c) => c.address === contract);
+  const functions = selectedContract?.abi.map((abi) => {
+    if (abi.type === 'function') {
+      return abi;
+    }
+  }) || [];
+  const selectedFunction = functions.find((f) => f?.name === func) || null;
+
+  if (!selectedFunction) return '';
+  if (selectedFunction.stateMutability === 'view') return 'READ';
+  return 'WRITE';
+};
 
 export const useInteractPage = (vscode: VSCode) => {
   const [wallets, setWallets] = useState<Wallet[]>([]);
@@ -26,7 +42,10 @@ export const useInteractPage = (vscode: VSCode) => {
   });
 
   const onSubmit: SubmitHandler<IFormInput> = (data) => {
-    console.log(data);
+    if (isNaN(data.gasLimit)) form.setError('gasLimit', { type: 'manual', message: 'Invalid number' });
+    if (isNaN(data.value)) form.setError('value', { type: 'manual', message: 'Invalid number' });
+
+    vscode.postMessage({ type: getFunctionAction(data.function, data.contract, contracts), data });
   };
 
   useEffect(() => {
@@ -41,12 +60,12 @@ export const useInteractPage = (vscode: VSCode) => {
     const listener = (event: WindowEventMap['message']) => {
       switch (event.data.type) {
         case MessageType.WALLETS: {
-          form.setValue('wallet', event.data.wallets ? event.data.wallets[0].address : '');
+          form.setValue('wallet', event.data.wallets && event.data.wallets.length ? event.data.wallets[0].address : '');
           setWallets(event.data.wallets);
           break;
         }
         case MessageType.CONTRACTS: {
-          form.setValue('contract', event.data.contracts ? event.data.contracts[0].address : '');
+          form.setValue('contract', event.data.contracts && event.data.contracts.length ? event.data.contracts[0].address : '');
           setContracts(event.data.contracts);
           break;
         }

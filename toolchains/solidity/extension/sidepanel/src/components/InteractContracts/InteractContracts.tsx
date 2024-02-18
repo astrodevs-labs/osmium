@@ -2,7 +2,7 @@ import './InteractContracts.css';
 import { Wallet } from '../../../../src/actions/WalletRepository.ts';
 import { Contract } from '../../../../src/actions/ContractRepository.ts';
 import { useInteractContracts } from './InteractContracts.logic.ts';
-import { VSCodeOption, VSCodeDropdown, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
+import { VSCodeDropdown, VSCodeOption, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
 
 export const InteractContracts = (props: { wallets: Wallet[], contracts: Contract[] }) => {
   const { wallets, contracts } = props;
@@ -43,6 +43,7 @@ export const InteractContracts = (props: { wallets: Wallet[], contracts: Contrac
           valueAsNumber: true,
         })}>Gas
           limit</VSCodeTextField>
+        {logic.errors.gasLimit && <span className="error-message">Invalid number</span>}
       </div>
       <div className="value-container">
         <label className="label">Value:</label>
@@ -51,12 +52,15 @@ export const InteractContracts = (props: { wallets: Wallet[], contracts: Contrac
             required: true,
             valueAsNumber: true,
           })} />
-          <VSCodeDropdown className="value-dropdown" id="dropdown" {...logic.register('valueUnit', { required: true })}>
+          <VSCodeDropdown className="value-dropdown" id="dropdown" {...logic.register('valueUnit', {
+            required: true,
+          })}>
             <VSCodeOption value="wei">Wei</VSCodeOption>
             <VSCodeOption value="gwei">Gwei</VSCodeOption>
             <VSCodeOption value="ether">Eth</VSCodeOption>
           </VSCodeDropdown>
         </div>
+        {logic.errors.value && <span className="error-message">Invalid number</span>}
       </div>
     </div>
   );

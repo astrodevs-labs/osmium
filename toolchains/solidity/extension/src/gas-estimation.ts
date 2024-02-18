@@ -269,12 +269,12 @@ async function showReport(editor: vscode.TextEditor, reports: ReportDecorators, 
   let report = reports.get(editor.document.uri.path);
     const reportSaved = reportsSaved.get(editor.document.uri.path);
 
-    if (!report || !reportSaved) {
+    if (!report && !reportSaved) {
     } else if (report && !reportSaved) {
       editor.setDecorations(decorationType, report);
     } else if (!report && reportSaved) {
       editor.setDecorations(decorationType, reportSaved);
-    } else {
+    } else if (report && reportSaved) {
       report = report.filter((reportElement) => {
         return !reportSaved.some((reportSavedElement) => {
           return reportElement.range.isEqual(reportSavedElement.range);

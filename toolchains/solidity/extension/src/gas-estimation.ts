@@ -13,6 +13,7 @@ type Function = {
   line: number
 };
 
+// the file path is the key, the value is a map of contract name and the value is a map of function name and the value is the gas report
 type Report = Map<string, Map<string, GasReport>>;
 
 type ReportDecorators = Map<string, vscode.DecorationOptions[]>;
@@ -26,15 +27,10 @@ function isForgeInstalled(): boolean {
   }
 }
 
+// compute the decorations to send based on forge test --gas-report
 async function gasReportTests(cwd: string): Promise<ReportDecorators> {
   const reports: Map<string, Report> = new Map();
   let decorations: ReportDecorators = new Map();
-
-  if (!isForgeInstalled()) {
-    console.log("Forge is not installed");
-    return decorations;
-  }
-
 
   // Gas estimation from the tests
   await new Promise<void>((resolve, reject) => exec("forge test --gas-report", { cwd }, async (error: any, _stdout: any, _stderr: any) => {
@@ -47,6 +43,7 @@ async function gasReportTests(cwd: string): Promise<ReportDecorators> {
         resolve();
       }
 
+    // pqrse the forge test --gas-report output to find contracts and functions
     let contractName = "";
     await Promise.all(_stdout.split("\n").map(async (line: string) => {
       const lineParts = line.split("|");
@@ -83,6 +80,7 @@ async function gasReportTests(cwd: string): Promise<ReportDecorators> {
     resolve();
   }));
 
+  // Go through the reports and create the decorations
   for (const [path, report] of reports) {
     let decorationsArray: vscode.DecorationOptions[] = [];
     const content = await vscode.workspace.fs.readFile(vscode.Uri.file(path));
@@ -130,6 +128,7 @@ async function getGasReport(contracts: string[], cwd: string): Promise<Report> {
       const internalFunctions = Object.keys(json.internal);
       const externalFunctions = Object.keys(json.external);
 
+      // Go through the internal and external functions and create the report
       internalFunctions.forEach((functionName) => {
         const cleanFunctionName = functionName.split("(")[0];
         const res: string = json.internal[functionName];
@@ -162,18 +161,7 @@ async function getGasReport(contracts: string[], cwd: string): Promise<Report> {
 }
 
 function getXthWord(line: string, index: number): string {
-  const splittedLine = line.split(" ");
-
-  let count = 0;
-  for (const word of splittedLine) {
-    if (word !== "") {
-      if (index === count) {
-        return word;
-      }
-      count += 1;
-    }
-  }
-  return "";
+  return line.split(" ").filter((str) => (!!str.length)).at(index) || "";
 }
 
 function getContractsInsideFile(content: string, path: string): string[] {
@@ -192,6 +180,7 @@ function getContractsInsideFile(content: string, path: string): string[] {
   return contracts;
 }
 
+// Get all the functions and abstract functions inside a contract with their line number
 function getFunctionsInsideContract(content: string, contractName: string): Function[] {
   const functions: Function[] = [];
   const lines = content.split("\n");
@@ -226,11 +215,8 @@ function getFunctionsInsideContract(content: string, contractName: string): Func
   return functions;
 }
 
+// compute the decorations to send based on forge inspection
 async function gasReport(content: string, path: string): Promise<vscode.DecorationOptions[]> {
-  if (!isForgeInstalled()) {
-    console.log("Forge is not installed");
-    return [];
-  }
   const workspace = vscode.workspace.workspaceFolders?.[0];
   const workspacePath = workspace?.uri.path;
   if (!workspacePath) {
@@ -265,6 +251,7 @@ async function gasReport(content: string, path: string): Promise<vscode.Decorati
   return decorationsArray;
 }
 
+// Send the decorations to the editor
 async function showReport(editor: vscode.TextEditor, reports: ReportDecorators, reportsSaved: ReportDecorators, decorationType: vscode.TextEditorDecorationType) {
   let report = reports.get(editor.document.uri.path);
     const reportSaved = reportsSaved.get(editor.document.uri.path);
@@ -286,6 +273,8 @@ async function showReport(editor: vscode.TextEditor, reports: ReportDecorators, 
 }
 
 export function registerGasEstimation() {
+  const forgeInstalled =  isForgeInstalled();
+
   const decorationType = vscode.window.createTextEditorDecorationType({
     after: {
       color: 'rgba(255, 255, 255, 0.5)'
@@ -295,9 +284,10 @@ export function registerGasEstimation() {
   const reports: ReportDecorators  = new Map();
   let reportsSaved: ReportDecorators  = new Map();
 
+  // Generate the report when the file is opened or saved
   vscode.workspace.onDidOpenTextDocument(async (document) => {
     // gas estimate only the main contracts
-    if (document.uri.path.includes("lib") || document.uri.path.includes("test") || document.uri.path.includes("script") || document.uri.path.includes(".git")) {
+    if (document.uri.path.includes("lib") || document.uri.path.includes("test") || document.uri.path.includes("script") || document.uri.path.includes(".git") || !forgeInstalled) {
       return;
     }
     const report = await gasReport(document.getText(), document.uri.path);
@@ -307,9 +297,9 @@ export function registerGasEstimation() {
       showReport(editor, reports, reportsSaved, decorationType);
     });
   });
-
   vscode.workspace.onDidSaveTextDocument(async (document) => {
-    if (document.uri.path.includes("lib") || document.uri.path.includes("test") || document.uri.path.includes("script") || document.uri.path.includes(".git")) {
+    // gas estimate only the main contracts
+    if (document.uri.path.includes("lib") || document.uri.path.includes("test") || document.uri.path.includes("script") || document.uri.path.includes(".git") || !forgeInstalled) {
       return;
     }
     const report = await gasReport(document.getText(), document.uri.path);
@@ -320,12 +310,12 @@ export function registerGasEstimation() {
     });
   });
 
+  // Show reports when the editor is changed
   vscode.window.onDidChangeVisibleTextEditors(async (editors) => {
     editors.forEach((editor) => {
       showReport(editor, reports, reportsSaved, decorationType);
     });
   });
-
   vscode.window.onDidChangeActiveTextEditor(async (editor) => {
     if (editor) {
       showReport(editor, reports, reportsSaved, decorationType);

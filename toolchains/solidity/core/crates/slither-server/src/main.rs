@@ -7,7 +7,7 @@ use crate::{error::SlitherError, slither::parse_slither_out, types::*};
 
 use std::sync::Arc;
 use std::vec;
-use tokio::sync::Mutex;
+use tokio::sync::{Mutex, MutexGuard};
 use tokio_util::sync::CancellationToken;
 use tower_lsp::jsonrpc::Result;
 use tower_lsp::lsp_types::*;
@@ -56,8 +56,12 @@ impl LanguageServer for Backend {
         self.client
             .log_message(MessageType::INFO, "Initializing diagnostic receiver ...")
             .await;
-
-        let mut receiver = self.data.lock().await.receiver.take().unwrap();
+        let mut state = self.data.lock().await;
+        state.workspace = match params.workspace_folders {
+            Some(workspaces) => normalize_slither_path(workspaces[0].uri.path()),
+            None => normalize_slither_path(params.root_uri.unwrap().path()),
+        };
+        let mut receiver = state.receiver.take().unwrap();
         let client = self.client.clone();
         self.join_handle
             .lock()
@@ -76,19 +80,13 @@ impl LanguageServer for Backend {
             )
             .await;
 
-        let folders = params.workspace_folders;
-        if let Some(folder) = folders {
-            eprintln!("Initializing filters ...");
-            match self.initialize_filters(folder).await {
-                Ok(_) => {
-                    eprintln!("Filters initialized!");
-                }
-                Err(e) => {
-                    eprintln!("Error while initializing filters: {:?}", e);
-                }
+        match self.initialize_filters(&mut state) {
+            Ok(_) => {
+                eprintln!("Filters initialized!");
             }
-        } else {
-            eprintln!("No workspace folders found!");
+            Err(e) => {
+                eprintln!("Error while initializing filters: {:?}", e);
+            }
         }
 
         Ok(InitializeResult {
@@ -183,7 +181,6 @@ impl Backend {
         let state = self.data.lock().await;
         for lib in state.libs_paths.iter() {
             let fsrc = format!("/{}/", lib.replace('\"', ""));
-            eprintln!("Check path: '{}' contains lib: '{}'", path, fsrc);
             if path.contains(&fsrc) {
                 return true;
             }
@@ -195,7 +192,6 @@ impl Backend {
         let state = self.data.lock().await;
         for src in state.src_paths.iter() {
             let fsrc = format!("/{}/", src.replace('\"', ""));
-            eprintln!("Check path: '{}' contains src: '{}'", path, fsrc);
             if path.contains(&fsrc) {
                 return true;
             }
@@ -207,7 +203,6 @@ impl Backend {
         let state = self.data.lock().await;
         for test in state.tests_paths.iter() {
             let fsrc = format!("/{}/", test.replace('\"', ""));
-            eprintln!("Check path: '{}' contains test: '{}'", path, fsrc);
             if path.contains(&fsrc) {
                 return true;
             }
@@ -215,43 +210,42 @@ impl Backend {
         false
     }
 
-    async fn initialize_filters(&self, workspaces: Vec<WorkspaceFolder>) -> Result<()> {
-        let mut state = self.data.lock().await;
+    fn initialize_filters(&self, state: &mut MutexGuard<SlitherData>) -> Result<()> {
         //register all work directories folder aliases using foundry.toml for each workspace folder
-        for folder in workspaces {
-            let folderpath = normalize_slither_path(folder.uri.path());
-            let foundry_path = find_foundry_toml_config(&folderpath);
-                if let Ok(path) = foundry_path {
-                    let foundry = std::fs::read_to_string(path.clone());
-                    match foundry {
-                        Ok(foundry) => {
-                            parse_foundry_toml(foundry, &mut state);
-                        }
-                        Err(e) => {
-                            eprintln!(
-                                "Error while reading foundry.toml file: {:?}, path: {}",
-                                e, path
-                            );
-                        }
-                    }
+        let foundry_path = find_foundry_toml_config(&state.workspace);
+        if let Ok(path) = foundry_path {
+            let foundry = std::fs::read_to_string(path.clone());
+            match foundry {
+                Ok(foundry) => {
+                    parse_foundry_toml(foundry, state);
                 }
+                Err(e) => {
+                    eprintln!(
+                        "Error while reading foundry.toml file: {:?}, path: {}",
+                        e, path
+                    );
+                }
+            }
         }
         Ok(())
     }
 
     async fn launch_slither(&self, uri: Url) {
+        let filepath = normalize_slither_path(uri.path());
+        let mut state = self.data.lock().await;
         let token = CancellationToken::new();
         let clone = token.clone();
-        self.data.lock().await.slither_processes.push(token);
-        let sender_handle = self.data.lock().await.sender.clone();
+        state.slither_processes.push(token);
+        let sender_handle = state.sender.clone();
         let client = self.client.clone();
+        let workspace = state.workspace.clone();
 
         tokio::spawn(async move {
             tokio::select! {
                 _ = clone.cancelled() => {
                     eprintln!("SLITHER CANCELLED");
                 }
-                output = parse_slither_out(uri.path()) => {
+                output = parse_slither_out(&filepath, &workspace) => {
                     match output {
                         Ok(res) => {
                             let _ = sender_handle.send(SlitherDiag::new(uri, res)).await;
@@ -262,7 +256,7 @@ impl Backend {
                                     MessageType::ERROR,
                                     format!(
                                         "File '{}' did generate an error while parsing the output: {:?}",
-                                        uri.path(),
+                                        filepath,
                                         e
                                     ),
                                 )
@@ -273,7 +267,7 @@ impl Backend {
                             client
                                 .log_message(
                                     MessageType::ERROR,
-                                    format!("File '{}' did generate an error: {:?}", uri.path(), e),
+                                    format!("File '{}' did generate an error: {:?}", filepath, e),
                                 )
                                 .await;
                         }

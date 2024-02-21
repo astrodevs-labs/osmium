@@ -25,6 +25,7 @@ pub struct SlitherData {
     pub libs_paths: Vec<String>,
     pub src_paths: Vec<String>,
     pub tests_paths: Vec<String>,
+    pub workspace: String,
 }
 
 impl SlitherData {
@@ -37,6 +38,7 @@ impl SlitherData {
             slither_processes: vec![],
             receiver: Some(receiver),
             sender,
+            workspace: String::new(),
         }
     }
 }

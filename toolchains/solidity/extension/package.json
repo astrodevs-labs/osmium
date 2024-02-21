@@ -20,11 +20,29 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "sidepanel",
+          "title": "Osmium",
+          "icon": "assets/logo.png"
+        }
+      ]
+    },
+    "views": {
+      "sidepanel": [
+        {
+          "type": "webview",
+          "id": "osmium.sidepanel",
+          "name": "Deploy/Interact"
+        }
+      ]
+    },
     "menus": {
       "explorer/context": [
         {
           "when": "resourceLangId == solidity",
-          "command": "osmium.lint-sol-file",
+          "command": "osmium.format-sol-file",
           "group": "7_modification"
         }
       ]
@@ -69,7 +87,8 @@
   "scripts": {
     "extension:build": "yarn run compile",
     "vscode:prepublish": "yarn run package",
-    "compile": "webpack",
+    "compile": "yarn run build-front && webpack",
+    "build-front": "cd sidepanel && yarn run build",
     "watch": "webpack --watch",
     "package": "webpack --mode production --devtool hidden-source-map",
     "pretest": "yarn run compile && yarn run extension:lint",
@@ -79,6 +98,8 @@
     "extension:publish": "yarn run package && vsce publish --no-dependencies"
   },
   "dependencies": {
+    "react-hook-form": "^7.50.1",
+    "viem": "^2.0.6",
     "vscode-languageclient": "^8.1.0",
     "vscode-languageserver": "^8.1.0",
     "vscode-languageserver-textdocument": "^1.0.8"

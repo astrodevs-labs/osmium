@@ -19,10 +19,11 @@ let testManager: TestManager;
 export async function activate(context: ExtensionContext) {
 	linterClient = await createLinterClient(context);
 	foundryCompilerClient = createFoundryCompilerClient(context);
-	slitherClient = createSlitherClient(context);
+	slitherClient = await createSlitherClient(context);
 	testsPositionsClient = await createTestsPositionsClient(context);
-	if (workspace.workspaceFolders?.length)
-		{testManager = new TestManager(testsPositionsClient, workspace.workspaceFolders[0].uri.fsPath);}
+	if (workspace.workspaceFolders?.length) {
+		testManager = new TestManager(testsPositionsClient, workspace.workspaceFolders[0].uri.fsPath);
+	}
 
 	context.subscriptions.push(linterClient, foundryCompilerClient, slitherClient, testsPositionsClient, testManager.testController);
 

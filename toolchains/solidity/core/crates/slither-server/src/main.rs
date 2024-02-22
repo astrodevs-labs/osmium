@@ -57,12 +57,9 @@ impl LanguageServer for Backend {
             .log_message(MessageType::INFO, "Initializing diagnostic receiver ...")
             .await;
         let mut state = self.data.lock().await;
-        state.workspace = match params.workspace_folders {
-            Some(workspaces) => normalize_slither_path(workspaces[0].uri.path()),
-            None => normalize_slither_path(params.root_uri.unwrap().path()),
-        };
         let mut receiver = state.receiver.take().unwrap();
         let client = self.client.clone();
+
         self.join_handle
             .lock()
             .await
@@ -80,15 +77,21 @@ impl LanguageServer for Backend {
             )
             .await;
 
-        match self.initialize_filters(&mut state) {
-            Ok(_) => {
-                eprintln!("Filters initialized!");
-            }
-            Err(e) => {
-                eprintln!("Error while initializing filters: {:?}", e);
-            }
-        }
+        self.client
+            .log_message(MessageType::INFO, "Initializing Workspace ...")
+            .await;
+        state.workspace = self
+            .fetch_workspace(params.workspace_folders, params.root_uri)
+            .await;
 
+        self.client
+            .log_message(MessageType::INFO, "Initializing filters ...")
+            .await;
+        self.initialize_filters(&mut state);
+
+        self.client
+            .log_message(MessageType::INFO, "Slither-Server initialized!")
+            .await;
         Ok(InitializeResult {
             server_info: None,
             capabilities: ServerCapabilities {
@@ -111,6 +114,29 @@ impl LanguageServer for Backend {
         self.client
             .log_message(MessageType::INFO, "osmium-slither initialized!")
             .await;
+    }
+
+    async fn did_change_workspace_folders(&self, params: DidChangeWorkspaceFoldersParams) {
+        let mut state = self.data.lock().await;
+        if params.event.added.is_empty()
+            && !params.event.removed.is_empty()
+            && state.workspace == "."
+        {
+            self.client
+                .log_message(
+                    MessageType::WARNING,
+                    "No workspace folder found, please open a folder!",
+                )
+                .await;
+            return;
+        }
+        let folders: Vec<WorkspaceFolder> = params
+            .event
+            .added
+            .iter()
+            .map(|folder| folder.to_owned())
+            .collect();
+        state.workspace = self.fetch_workspace(Some(folders), None).await;
     }
 
     async fn shutdown(&self) -> Result<()> {
@@ -210,7 +236,7 @@ impl Backend {
         false
     }
 
-    fn initialize_filters(&self, state: &mut MutexGuard<SlitherData>) -> Result<()> {
+    fn initialize_filters(&self, state: &mut MutexGuard<SlitherData>) {
         //register all work directories folder aliases using foundry.toml for each workspace folder
         let foundry_path = find_foundry_toml_config(&state.workspace);
         if let Ok(path) = foundry_path {
@@ -227,7 +253,6 @@ impl Backend {
                 }
             }
         }
-        Ok(())
     }
 
     async fn launch_slither(&self, uri: Url) {
@@ -275,6 +300,29 @@ impl Backend {
                 }
             }
         });
+    }
+
+    async fn fetch_workspace(
+        &self,
+        workspace_folders: Option<Vec<WorkspaceFolder>>,
+        root_uri: Option<Url>,
+    ) -> String {
+        let mut workspace = ".".to_string();
+        match workspace_folders {
+            Some(workspaces) => workspace = normalize_slither_path(workspaces[0].uri.path()),
+            None => match root_uri {
+                Some(uri) => workspace = normalize_slither_path(uri.path()),
+                None => {
+                    self.client
+                        .log_message(
+                            MessageType::WARNING,
+                            "No workspace folder found, please open a folder!",
+                        )
+                        .await;
+                }
+            },
+        }
+        workspace
     }
 }
 

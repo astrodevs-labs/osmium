@@ -287,7 +287,12 @@ export function registerGasEstimation() {
   // Generate the report when the file is opened or saved
   vscode.workspace.onDidOpenTextDocument(async (document) => {
     // gas estimate only the main contracts
-    if (document.uri.path.includes("lib") || document.uri.path.includes("test") || document.uri.path.includes("script") || document.uri.path.includes(".git") || !forgeInstalled) {
+    const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.path;
+    if (!workspacePath) {
+      return;
+    }
+    const cleanPath = document.uri.path.replace(workspacePath, "");
+    if (cleanPath.includes("lib") || cleanPath.includes("test") || cleanPath.includes("script") || cleanPath.includes(".git") || !forgeInstalled) {
       return;
     }
     const report = await gasReport(document.getText(), document.uri.path);
@@ -299,7 +304,12 @@ export function registerGasEstimation() {
   });
   vscode.workspace.onDidSaveTextDocument(async (document) => {
     // gas estimate only the main contracts
-    if (document.uri.path.includes("lib") || document.uri.path.includes("test") || document.uri.path.includes("script") || document.uri.path.includes(".git") || !forgeInstalled) {
+    const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.path;
+    if (!workspacePath) {
+      return;
+    }
+    const cleanPath = document.uri.path.replace(workspacePath, "");
+    if (cleanPath.includes("lib") || cleanPath.includes("test") || cleanPath.includes("script") || cleanPath.includes(".git") || !forgeInstalled) {
       return;
     }
     const report = await gasReport(document.getText(), document.uri.path);

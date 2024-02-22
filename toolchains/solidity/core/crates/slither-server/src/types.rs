@@ -22,9 +22,7 @@ pub struct SlitherData {
     pub slither_processes: Vec<CancellationToken>,
     pub receiver: Option<Receiver<SlitherDiag>>,
     pub sender: Sender<SlitherDiag>,
-    pub libs_paths: Vec<String>,
     pub src_paths: Vec<String>,
-    pub tests_paths: Vec<String>,
     pub workspace: String,
 }
 
@@ -32,15 +30,34 @@ impl SlitherData {
     pub fn new() -> Self {
         let (sender, receiver) = tokio::sync::mpsc::channel::<SlitherDiag>(100);
         Self {
-            libs_paths: vec![],
             src_paths: vec![],
-            tests_paths: vec![],
             slither_processes: vec![],
             receiver: Some(receiver),
             sender,
             workspace: String::new(),
         }
     }
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub enum FoundryArrOrStr {
+    Arr(Vec<String>),
+    Str(String),
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct FoundryProfile {
+    pub src: Option<FoundryArrOrStr>,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct FoundryProfiles {
+    pub default: Option<FoundryProfile>,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct FoundryToml {
+    pub profiles: Option<FoundryProfiles>,
 }
 
 /////////////////////////

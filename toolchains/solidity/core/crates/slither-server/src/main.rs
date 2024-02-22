@@ -185,10 +185,8 @@ impl Backend {
     }
 
     async fn analyze_file(&self, file: Url) {
-        if self.is_in_libs(file.path()).await
-            || self.is_in_tests(file.path()).await
-            || !self.is_in_src(file.path()).await
-        {
+        let normalized_path = normalize_slither_path(file.path());
+        if !self.is_in_src(&normalized_path).await {
             self.client
                 .log_message(
                     MessageType::INFO,
@@ -203,33 +201,11 @@ impl Backend {
         self.launch_slither(file).await
     }
 
-    async fn is_in_libs(&self, path: &str) -> bool {
-        let state = self.data.lock().await;
-        for lib in state.libs_paths.iter() {
-            let fsrc = format!("/{}/", lib.replace('\"', ""));
-            if path.contains(&fsrc) {
-                return true;
-            }
-        }
-        false
-    }
-
     async fn is_in_src(&self, path: &str) -> bool {
         let state = self.data.lock().await;
         for src in state.src_paths.iter() {
             let fsrc = format!("/{}/", src.replace('\"', ""));
-            if path.contains(&fsrc) {
-                return true;
-            }
-        }
-        false
-    }
-
-    async fn is_in_tests(&self, path: &str) -> bool {
-        let state = self.data.lock().await;
-        for test in state.tests_paths.iter() {
-            let fsrc = format!("/{}/", test.replace('\"', ""));
-            if path.contains(&fsrc) {
+            if path.strip_prefix(&state.workspace).unwrap().contains(&fsrc) {
                 return true;
             }
         }

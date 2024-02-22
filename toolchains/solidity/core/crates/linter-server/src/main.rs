@@ -76,16 +76,14 @@ impl LanguageServer for Backend {
         self.lint(params.text_document.uri, params.text_document.text);
     }
 
-    fn did_change(&self, params: DidChangeTextDocumentParams) {
+    fn did_save(&self, params: DidSaveTextDocumentParams) {
         self.connection.borrow_mut().log_message(
             MessageType::INFO,
             format!("file changed!: {:}", params.text_document.uri),
         );
-
-        self.lint(
-            params.text_document.uri,
-            params.content_changes[0].text.clone(),
-        );
+        if let Some(text) = params.text {
+            self.lint(params.text_document.uri, text);
+        }
     }
 
     fn did_change_watched_files(&self, params: DidChangeWatchedFilesParams) {

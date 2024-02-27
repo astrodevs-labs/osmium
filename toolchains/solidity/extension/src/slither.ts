@@ -9,7 +9,7 @@ import {
 } from 'vscode-languageclient/node';
 import { TextDecoder } from 'util';
 
-export function createSlitherClient(context: ExtensionContext): LanguageClient {
+export async function createSlitherClient(context: ExtensionContext): Promise<LanguageClient> {
     // The server is implemented in node
 	const serverBinary = context.asAbsolutePath(
 		path.join(
@@ -55,7 +55,7 @@ export function createSlitherClient(context: ExtensionContext): LanguageClient {
 	});
 
 	// Start the client. This will also launch the server
-	client.start();
+	await client.start();
 
     return client;
 }

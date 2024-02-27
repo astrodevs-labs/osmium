@@ -6,6 +6,7 @@ import { createLinterClient } from './linter';
 import { createFoundryCompilerClient } from './foundry-compiler';
 import { createSlitherClient } from './slither';
 import { createTestsPositionsClient } from './tests-positions';
+import { registerGasEstimation } from './gas-estimation';
 import registerForgeFmtLinter from "./fmt-wrapper";
 import { TestManager } from './tests/test-manager';
 
@@ -18,15 +19,16 @@ let testManager: TestManager;
 export async function activate(context: ExtensionContext) {
 	linterClient = await createLinterClient(context);
 	foundryCompilerClient = createFoundryCompilerClient(context);
-	slitherClient = createSlitherClient(context);
+	slitherClient = await createSlitherClient(context);
 	testsPositionsClient = await createTestsPositionsClient(context);
-	if (workspace.workspaceFolders?.length)
+	if (workspace.workspaceFolders?.length) {
 		testManager = new TestManager(testsPositionsClient, workspace.workspaceFolders[0].uri.fsPath);
+	}
 
 	context.subscriptions.push(linterClient, foundryCompilerClient, slitherClient, testsPositionsClient, testManager.testController);
 
 	registerForgeFmtLinter(context);
-
+	registerGasEstimation();
 	
 	const folders = workspace.workspaceFolders;
 	if (folders) {

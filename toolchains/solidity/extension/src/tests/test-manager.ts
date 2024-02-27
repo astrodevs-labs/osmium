@@ -120,7 +120,7 @@ export class TestManager {
             } else {
               run.failed(
                 test,
-                new vscode.TestMessage(`Test failed\n\${this.extractResultLogs(functionResult).join("\n")}`),
+                new vscode.TestMessage(`Test failed\n\n${this.extractResultLogs(functionResult).join("\n")}`),
                 functionTime
               );
             }
@@ -178,7 +178,6 @@ export class TestManager {
    * @returns A structure containing the positions of all tests in the file (see /toolchains/solidity/core/tests-positions-server/src/get-tests-positions.rs)
    */
   private async getTestsPositions(content: string): Promise<any> {
-    console.log("getTestsPositions");
     return this.client.sendRequest("osmium/getTestsPositions", {
       file_content: content, // eslint-disable-line @typescript-eslint/naming-convention
     });
@@ -190,7 +189,6 @@ export class TestManager {
    * @returns The TestItem for the file
    */
   private getOrCreateTestFileItem(uri: vscode.Uri) {
-    console.log("getOrCreateTestFileItem");
     const existing = this.testController.items.get(uri.toString());
     if (existing) {
       return existing;
@@ -300,7 +298,6 @@ export class TestManager {
               file.uri
             );
             contractItem.range = convertRange(contract.range);
-            console.log("Contract range", JSON.stringify(contractItem.range));
             this.testData.set(contractItem, ItemType.contractCase);
             file.children.add(contractItem);
 
@@ -311,7 +308,6 @@ export class TestManager {
                 file.uri
               );
               functionItem.range = convertRange(test.range);
-              console.log("Test range", JSON.stringify(functionItem.range));
               this.testData.set(functionItem, ItemType.testCase);
               contractItem.children.add(functionItem);
             });
@@ -335,6 +331,5 @@ function convertRange(lspRange: any): vscode.Range {
     new vscode.Position(lspRange.start.line - 1, lspRange.start.character),
     new vscode.Position(lspRange.end.line - 1, lspRange.end.character)
   );
-  console.log(range);
   return range;
 }

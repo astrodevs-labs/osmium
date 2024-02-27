@@ -1,6 +1,68 @@
 use serde::{Deserialize, Serialize};
+use std::vec;
+use tokio::sync::mpsc::{Receiver, Sender};
+use tokio_util::sync::CancellationToken;
+use tower_lsp::lsp_types::*;
 use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity as Severity, Position, Range};
 
+#[derive(Debug)]
+pub struct SlitherDiag {
+    pub diagnostics: Vec<Diagnostic>,
+    pub uri: Url,
+}
+
+impl SlitherDiag {
+    pub fn new(uri: Url, diagnostics: Vec<Diagnostic>) -> Self {
+        Self { uri, diagnostics }
+    }
+}
+
+#[derive(Debug)]
+pub struct SlitherData {
+    pub slither_processes: Vec<CancellationToken>,
+    pub receiver: Option<Receiver<SlitherDiag>>,
+    pub sender: Sender<SlitherDiag>,
+    pub src_paths: Vec<String>,
+    pub workspace: String,
+}
+
+impl SlitherData {
+    pub fn new() -> Self {
+        let (sender, receiver) = tokio::sync::mpsc::channel::<SlitherDiag>(100);
+        Self {
+            src_paths: vec![],
+            slither_processes: vec![],
+            receiver: Some(receiver),
+            sender,
+            workspace: String::new(),
+        }
+    }
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub enum FoundryArrOrStr {
+    Arr(Vec<String>),
+    Str(String),
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct FoundryProfile {
+    pub src: Option<FoundryArrOrStr>,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct FoundryProfiles {
+    pub default: Option<FoundryProfile>,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct FoundryToml {
+    pub profiles: Option<FoundryProfiles>,
+}
+
+/////////////////////////
+// SLITHER JSON OUTPUT //
+/////////////////////////
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct SlitherResult {
     pub results: SlitherResults,
@@ -119,7 +181,3 @@ pub fn diag_from_json(json: SlitherDetector) -> Vec<Diagnostic> {
 
     results
 }
-
-////////////////////////////////////////////////////////////
-/////////////////// RELATED TYPES: /////////////////////////
-////////////////////////////////////////////////////////////

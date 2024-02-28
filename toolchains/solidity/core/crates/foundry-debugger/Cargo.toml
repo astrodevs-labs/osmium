@@ -1,0 +1,15 @@
+[package]
+name = "foundry-debugger"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+exclude.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+dap = "0.4.1-alpha1"
+foundry-evm-core = { git = "https://github.com/foundry-rs/foundry.git"}

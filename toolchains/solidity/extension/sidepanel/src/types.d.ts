@@ -10,3 +10,18 @@ export interface IFormInput {
   valueUnit: 'wei' | 'gwei' | 'ether';
   inputs: any[];
 }
+
+export interface DFormScript {
+  wallet: string;
+  script: string;
+}
+
+export interface DFormContract {
+  wallet: string;
+  contract: string;
+  environment: string;
+  gasLimit: number;
+  value: number;
+  valueUnit: 'wei' | 'gwei' | 'ether';
+  inputs: any[];
+}

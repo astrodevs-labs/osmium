@@ -1,61 +1,62 @@
-import { VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
-import './DeployUsingScript.css';
+import {
+  VSCodeButton,
+  VSCodeDropdown,
+  VSCodeOption,
+  VSCodeDivider
+} from "@vscode/webview-ui-toolkit/react";
+import { Wallet } from "../../../../src/actions/WalletRepository.ts";
+import "./DeployUsingScript.css";
+import { Script } from "../../../../src/actions/deploy.ts";
+import { useDeployScript } from "./DeployScript.logic.ts";
+import { FormProvider, SubmitHandler } from "react-hook-form";
+import { DFormScript } from "../../types";
 
-const script = [
-  {
-    address: '0x0999003...3333',
-    balance: '0.12 ETH',
-  },
-  {
-    address: '0x0999003...3333',
-    balance: '0.12 ETH',
-  },
-  {
-    address: '0x0999003...3333',
-    balance: '0.12 ETH',
-  },
-];
+export const DeployUsingScript = (
+  { wallets, scripts }: { wallets: Wallet[]; scripts: Script[] },
+) => {
+  const logic = useDeployScript();
 
-const accounts = [
-  {
-    address: '0x0999003...3333',
-    balance: '0.12 ETH',
-  },
-  {
-    address: '0x0999003...3333',
-    balance: '0.12 ETH',
-  },
-  {
-    address: '0x0999003...3333',
-    balance: '0.12 ETH',
-  },
-];
-
-export const DeployUsingScript = () => {
+  const onSubmit: SubmitHandler<DFormScript> = (data) => {
+    console.log(data);
+  };
 
   return (
-    <div>
-      <div> DEPLOY USING SCRIPT </div>
-      <div className="dropdown-container">
-        <label htmlFor="dropdown" className='label'>Select account:</label>
-        <VSCodeDropdown id="dropdown">
-          {
-            accounts.map((account) => (
-              <VSCodeOption>{account.address} ({account.balance})</VSCodeOption>
-            ))
-          }
-        </VSCodeDropdown>
-      </div>
-      <div className="dropdown-container">
-        <label htmlFor="dropdown" className='label'>Select script:</label>
-        <VSCodeDropdown id="dropdown">
-          {
-            script.map((script) => (
-              <VSCodeOption>{script.address} ({script.balance})</VSCodeOption>
-            ))
-          }
-        </VSCodeDropdown>
-      </div>
-    </div>
+    <FormProvider {...logic.form}>
+      <form onSubmit={logic.form?.handleSubmit(onSubmit)}>
+        <div>
+          <div>DEPLOY USING SCRIPT</div>
+          <div className="dropdown-container">
+            <label htmlFor="dropdown-wallets" className="label">
+              Select account:
+            </label>
+            <VSCodeDropdown
+              id="dropdown-wallets"
+              {...logic.form?.register("wallet", {
+                required: true,
+              })}
+            >
+              {wallets?.map((wallet) => (
+                <VSCodeOption value={wallet.address}>
+                  {wallet.name} - {wallet.address}
+                </VSCodeOption>
+              ))}
+            </VSCodeDropdown>
+          </div>
+          <div className="dropdown-container">
+            <label htmlFor="dropdown" className="label">Select script:</label>
+            <VSCodeDropdown id="dropdown">
+              {scripts?.map((scripts) => (
+                <VSCodeOption>{scripts.path} ({scripts.name})</VSCodeOption>
+              ))}
+            </VSCodeDropdown>
+          </div>
+        </div>
+        <VSCodeDivider className='divider'/>
+        <VSCodeButton className="submit-button" type="submit">
+          Deploy with script
+        </VSCodeButton>
+        <VSCodeDivider className='divider'/>
+      </form>
+    </FormProvider>
   );
 };

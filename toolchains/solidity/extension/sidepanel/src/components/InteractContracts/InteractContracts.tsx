@@ -21,7 +21,7 @@ export const InteractContracts = (props: { wallets: Wallet[], contracts: Contrac
         </VSCodeDropdown>
       </div>
       <div className="dropdown-container">
-        <label htmlFor="dropdown-contracts" className="label">Select account:</label>
+        <label htmlFor="dropdown-contracts" className="label">Select contract:</label>
         <VSCodeDropdown id="dropdown-contracts" {...logic.register('contract', { required: true })}>
           {contracts.map((contract) => (
             <VSCodeOption value={contract.address}>{contract.name} - {contract.address}</VSCodeOption>

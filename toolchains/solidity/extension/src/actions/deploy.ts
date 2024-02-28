@@ -1,7 +1,7 @@
 import { exec } from "child_process";
-import * as yaml from 'js-yaml';
 import * as path from 'path';
 import { workspace } from "vscode";
+import * as toml from "toml";
 
 export type Contract = {
     name: string;
@@ -17,21 +17,21 @@ export type Script = {
 
 async function getScriptFolder(): Promise<string> {
     const foundryConfigContent = await workspace.fs.readFile(workspace.workspaceFolders![0].uri.with({ path: path.join(workspace.workspaceFolders![0].uri.path, 'foundry.toml') }));
-    const parsedFoundryConfig : any = yaml.load(foundryConfigContent.toString());
+    const parsedFoundryConfig : any = toml.parse(foundryConfigContent.toString());
 
     return parsedFoundryConfig.script ?? 'script';
 }
 
 async function getContractFolder(): Promise<string> {
     const foundryConfigContent = await workspace.fs.readFile(workspace.workspaceFolders![0].uri.with({ path: path.join(workspace.workspaceFolders![0].uri.path, 'foundry.toml') }));
-    const parsedFoundryConfig : any = yaml.load(foundryConfigContent.toString());
+    const parsedFoundryConfig : any = toml.parse(foundryConfigContent.toString());
 
     return parsedFoundryConfig.contract ?? 'src';
 }
 
 async function getOutFolder(): Promise<string> {
     const foundryConfigContent = await workspace.fs.readFile(workspace.workspaceFolders![0].uri.with({ path: path.join(workspace.workspaceFolders![0].uri.path, 'foundry.toml') }));
-    const parsedFoundryConfig : any = yaml.load(foundryConfigContent.toString());
+    const parsedFoundryConfig : any = toml.parse(foundryConfigContent.toString());
 
     return parsedFoundryConfig.out ?? 'out';
 }
@@ -44,7 +44,7 @@ async function getAbiFile(contractName: string, outFolder: string): Promise<stri
     return abiFileContent;
 }
 
-async function getContracts(): Promise<Contract[]> {
+export async function getContracts(): Promise<Contract[]> {
     const contracts: Contract[] = [];
     const contractFolder = await getContractFolder();
     const contractFiles = await workspace.findFiles(`**/${contractFolder}/*.sol`);
@@ -68,7 +68,7 @@ async function getContracts(): Promise<Contract[]> {
     return contracts;
 }
 
-async function getScripts(): Promise<Script[]> {
+export async function getScripts(): Promise<Script[]> {
     const scripts: Script[] = [];
     const scriptFolder = await getScriptFolder();
     const scriptFiles = await workspace.findFiles(`**/${scriptFolder}/*.sol`);
@@ -93,7 +93,7 @@ async function getScripts(): Promise<Script[]> {
     return scripts;
 }
 
-async function deployContract(network: number, contract: Contract, verify: boolean, cstrArgs: string): Promise<void> {
+export async function deployContract(network: number, contract: Contract, verify: boolean, cstrArgs: string): Promise<void> {
     const verifyStr = verify ? '--verify' : '';
     exec(`forge create ${contract.path}:${contract.name} -c ${network} ${verifyStr} --contructor-args ${cstrArgs}`, (error, _stdout, _stderr) => {
         if (error) {
@@ -102,7 +102,7 @@ async function deployContract(network: number, contract: Contract, verify: boole
     });
 }
 
-async function deployScript(network: number, script: Script, verify: boolean): Promise<void> {
+export async function deployScript(network: number, script: Script, verify: boolean): Promise<void> {
     const verifyStr = verify ? '--verify' : '';
     exec(`forge script ${script.path}:${script.name} -c ${network} ${verifyStr}`, (error, _stdout, _stderr) => {
         if (error) {
@@ -111,7 +111,7 @@ async function deployScript(network: number, script: Script, verify: boolean): P
     });
 }
 
-async function verifyContract(network: number, contract: Contract): Promise<void> {
+export async function verifyContract(network: number, contract: Contract): Promise<void> {
     // TODO load the contructor args path from out
     exec(`forge verify-contract ${contract.path} ${contract.address} -c ${network}`, (error, _stdout, _stderr) => {
         if (error) {

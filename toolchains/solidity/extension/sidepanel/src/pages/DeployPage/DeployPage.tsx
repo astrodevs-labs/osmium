@@ -3,13 +3,14 @@ import { DeployParamsContainer } from '../../components/DeployParamsContainer/De
 import { DeployUsingScript } from '../../components/DeployUsingScript/DeployUsingScript.tsx';
 import { DeployUsingContract } from '../../components/DeployUsingContract/DeployUsingContract.tsx';
 import { VSCodeDivider,  VSCodeButton} from '@vscode/webview-ui-toolkit/react/index';
+import { useDeployPageScript } from './DeployPage.logic.ts';
+import { VSCode } from '../../types';
 
-export const DeployPage = () => {
+export const DeployPage = (props: { vscode: VSCode }) => {
+  const logicScript = useDeployPageScript(props.vscode);
+
   return (<div className="page-container">
-    <DeployUsingScript />
-    <VSCodeDivider className='divider'/>
-    <VSCodeButton>Deploy with script</VSCodeButton>
-    <VSCodeDivider className='divider'/>
+    <DeployUsingScript wallets={logicScript.wallets} scripts={logicScript.scripts} />
     <DeployUsingContract />
     <VSCodeDivider className='divider'/>
     <DeployParamsContainer />

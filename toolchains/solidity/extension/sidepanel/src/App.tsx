@@ -22,7 +22,7 @@ export const App = () => {
         <InteractPage vscode={vscode} />
       </VSCodePanelView>
       <VSCodePanelView id="view-deploy">
-        <DeployPage />
+        <DeployPage vscode={vscode} />
       </VSCodePanelView>
     </VSCodePanels>
   );

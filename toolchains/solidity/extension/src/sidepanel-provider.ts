@@ -104,7 +104,8 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
         !this._view ||
         !this._contractRepository ||
         !this._walletRepository ||
-        !this._interact
+        !this._interact ||
+        !this._scripts
       ) {
         return;
       }

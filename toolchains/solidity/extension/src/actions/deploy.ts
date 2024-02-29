@@ -16,32 +16,48 @@ export type Script = {
 }
 
 async function getScriptFolder(): Promise<string> {
-    const foundryConfigContent = await workspace.fs.readFile(workspace.workspaceFolders![0].uri.with({ path: path.join(workspace.workspaceFolders![0].uri.path, 'foundry.toml') }));
-    const parsedFoundryConfig : any = toml.parse(foundryConfigContent.toString());
-
-    return parsedFoundryConfig.script ?? 'script';
+    try {
+        const foundryConfigContent = await workspace.fs.readFile(workspace.workspaceFolders![0].uri.with({ path: path.join(workspace.workspaceFolders![0].uri.path, 'foundry.toml') }));
+        const parsedFoundryConfig : any = toml.parse(foundryConfigContent.toString());
+        return parsedFoundryConfig.script ?? 'script';
+    } catch (error) {
+        console.error("Error reading foundry.toml file:", error);
+        return "not found";
+    }
 }
 
 async function getContractFolder(): Promise<string> {
-    const foundryConfigContent = await workspace.fs.readFile(workspace.workspaceFolders![0].uri.with({ path: path.join(workspace.workspaceFolders![0].uri.path, 'foundry.toml') }));
-    const parsedFoundryConfig : any = toml.parse(foundryConfigContent.toString());
-
-    return parsedFoundryConfig.contract ?? 'src';
+    try {
+        const foundryConfigContent = await workspace.fs.readFile(workspace.workspaceFolders![0].uri.with({ path: path.join(workspace.workspaceFolders![0].uri.path, 'foundry.toml') }));
+        const parsedFoundryConfig : any = toml.parse(foundryConfigContent.toString());
+        return parsedFoundryConfig.contract ?? 'src';
+    } catch (error) {
+        console.error("Error reading foundry.toml file:", error);
+        return "not found";
+    }
 }
 
 async function getOutFolder(): Promise<string> {
-    const foundryConfigContent = await workspace.fs.readFile(workspace.workspaceFolders![0].uri.with({ path: path.join(workspace.workspaceFolders![0].uri.path, 'foundry.toml') }));
-    const parsedFoundryConfig : any = toml.parse(foundryConfigContent.toString());
-
-    return parsedFoundryConfig.out ?? 'out';
+    try {
+        const foundryConfigContent = await workspace.fs.readFile(workspace.workspaceFolders![0].uri.with({ path: path.join(workspace.workspaceFolders![0].uri.path, 'foundry.toml') }));
+        const parsedFoundryConfig : any = toml.parse(foundryConfigContent.toString());
+        return parsedFoundryConfig.out ?? 'out';
+    } catch (error) {
+        console.error("Error reading foundry.toml file:", error);
+        return "not found";
+    }
 }
 
 async function getAbiFile(contractName: string, outFolder: string): Promise<string> {
-    const abiFilePath = path.join(outFolder, contractName, `${contractName}.json`);
-    const abiFileBuffer = await workspace.fs.readFile(workspace.workspaceFolders![0].uri.with({ path: abiFilePath }));
-    const abiFileContent = Buffer.from(abiFileBuffer).toString('utf-8');
-    
-    return abiFileContent;
+    try {
+        const abiFilePath = path.join(outFolder, contractName, `${contractName}.json`);
+        const abiFileBuffer = await workspace.fs.readFile(workspace.workspaceFolders![0].uri.with({ path: abiFilePath }));
+        const abiFileContent = Buffer.from(abiFileBuffer).toString('utf-8');
+        return abiFileContent;
+    } catch (error) {
+        console.error("Error reading abi file:", error);
+        return "not found";
+    }
 }
 
 export async function getContracts(): Promise<Contract[]> {
@@ -71,25 +87,29 @@ export async function getContracts(): Promise<Contract[]> {
 export async function getScripts(): Promise<Script[]> {
     const scripts: Script[] = [];
     const scriptFolder = await getScriptFolder();
-    const scriptFiles = await workspace.findFiles(`**/${scriptFolder}/*.sol`);
+    const scriptFiles = await workspace.findFiles(`**/${scriptFolder}/*.s.sol`);
     const outFolder = await getOutFolder();
+    console.log("outFolder: ", outFolder);
     for (const scriptFile of scriptFiles) {
         const scriptContentBuffer = await workspace.fs.readFile(scriptFile);
         const scriptContent = Buffer.from(scriptContentBuffer).toString('utf-8');
-        const contractNameRegex = /contract\s+(\w+)\s*\{/g;
-        let scriptNameMatch;
-        while ((scriptNameMatch = contractNameRegex.exec(scriptContent)) !== null) {
+        const contractNameRegex = /contract\s+(\w+)\s+is\s+Script/g;
+        let scriptNameMatch = contractNameRegex.exec(scriptContent);
+        while (scriptNameMatch !== null) {
             const scriptName = scriptNameMatch[1];
             const abi = await getAbiFile(scriptName, outFolder);
+            console.log("abi: ", abi);
             const script = {
-                name: path.basename(scriptFile.path, '.sol'),
+                name: path.basename(scriptFile.path, '.s.sol'),
                 path: scriptFile.path,
                 abi: JSON.parse(abi).abi,
             };
+            console.log("final infos of script: ", script);
             scripts.push(script);
         }
 
     }
+    console.log("before return: ", scripts);
     return scripts;
 }
 

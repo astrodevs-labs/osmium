@@ -37,13 +37,13 @@ export const useDeployPageScript = (vscode: VSCode) => {
     const listener = (event: WindowEventMap['message']) => {
       switch (event.data.type) {
         case MessageType.WALLETS: {
-          form.setValue('wallet', event.data.wallets ? event.data.wallets[0].address : '');
+          form.setValue('wallet', event.data.wallets && event.data.wallets.length ? event.data.wallets[0].address : '');
           setWallets(event.data.wallets);
           break;
         }
         case MessageType.SCRIPTS: {
-          form.setValue('script', event.data.script ? event.data.script[0].name : '');
-          setScripts(event.data.script);
+          form.setValue('script', event.data.scripts && event.data.scripts.length ? event.data.scripts[0].name : '');
+          setScripts(event.data.scripts);
           break;
         }
         default: {

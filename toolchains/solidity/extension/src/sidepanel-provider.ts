@@ -128,8 +128,6 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
               scripts: this._scripts,
             });
             break;
-        case MessageType.INTERACT:
-          console.log(message.data);
         case MessageType.WRITE:
           const writeResponse = await this._interact.writeContract({
             account: message.data.wallet,

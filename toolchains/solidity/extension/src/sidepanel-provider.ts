@@ -3,7 +3,6 @@ import { ContractRepository } from "./actions/ContractRepository";
 import { WalletRepository } from "./actions/WalletRepository";
 import { Script, getScripts } from "./actions/deploy";
 import { Interact } from "./actions/Interact";
-import { window } from "vscode";
 
 enum MessageType {
   GET_WALLETS = "GET_WALLETS",
@@ -13,8 +12,8 @@ enum MessageType {
   WRITE = "WRITE",
   WRITE_RESPONSE = "WRITE_RESPONSE",
   READ = "READ",
-  GET_SCRIPTS = 'GET_SCRIPTS',
-  SCRIPTS = 'SCRIPTS',
+  GET_SCRIPTS = "GET_SCRIPTS",
+  SCRIPTS = "SCRIPTS",
   READ_RESPONSE = "READ_RESPONSE",
 }
 
@@ -41,7 +40,7 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
   private _contractRepository?: ContractRepository;
   private _walletRepository?: WalletRepository;
   private _interact?: Interact;
-  private _scripts?: Script [];
+  private _scripts?: Script[];
 
   private _watcher?: vscode.FileSystemWatcher;
 
@@ -122,12 +121,12 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
             contracts: this._contractRepository.getContracts(),
           });
           break;
-          case MessageType.GET_SCRIPTS:
-            await this._view.webview.postMessage({
-              type: MessageType.SCRIPTS,
-              scripts: this._scripts,
-            });
-            break;
+        case MessageType.GET_SCRIPTS:
+          await this._view.webview.postMessage({
+            type: MessageType.SCRIPTS,
+            scripts: this._scripts,
+          });
+          break;
         case MessageType.WRITE:
           const writeResponse = await this._interact.writeContract({
             account: message.data.wallet,

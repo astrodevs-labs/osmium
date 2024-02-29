@@ -17,11 +17,13 @@ export const InteractPage = (props: { vscode: VSCode }) => {
           <VSCodeDivider className="divider" />
           <InteractParams contracts={logic.contracts} />
           <VSCodeButton className="submit-button" type="submit">Send transaction</VSCodeButton>
-          {logic.result && <div>
-            <VSCodeDivider className="divider" />
-            <p>{logic.result.responseType === ResponseType.READ ? 'Read response:' : 'Transaction hash:'}</p>
-            <p>{logic.result.data + ''}</p>
-          </div>}
+          {logic.result &&
+            <div>
+              <VSCodeDivider className="divider" />
+              <p>{logic.result.responseType === ResponseType.READ ? 'Read response:' : 'Transaction hash:'}</p>
+              <p>{logic.result.data + ''}</p>
+            </div>
+          }
         </form>
       </FormProvider>
     </div>

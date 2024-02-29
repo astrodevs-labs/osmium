@@ -99,6 +99,7 @@
   },
   "dependencies": {
     "react-hook-form": "^7.50.1",
+    "toml": "^3.0.0",
     "viem": "^2.0.6",
     "vscode-languageclient": "^8.1.0",
     "vscode-languageserver": "^8.1.0",

@@ -2,7 +2,7 @@ import './InteractContracts.css';
 import { Wallet } from '../../../../src/actions/WalletRepository.ts';
 import { Contract } from '../../../../src/actions/ContractRepository.ts';
 import { useInteractContracts } from './InteractContracts.logic.ts';
-import { VSCodeDropdown, VSCodeOption, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
+import { VSCodeButton, VSCodeDropdown, VSCodeOption, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
 
 export const InteractContracts = (props: { wallets: Wallet[], contracts: Contract[] }) => {
   const { wallets, contracts } = props;
@@ -12,21 +12,30 @@ export const InteractContracts = (props: { wallets: Wallet[], contracts: Contrac
     <div>
       <div className="dropdown-container">
         <label htmlFor="dropdown-wallets" className="label">Select account:</label>
-        <VSCodeDropdown id="dropdown-wallets" {...logic.register('wallet', {
-          required: true,
-        })}>
-          {wallets.map((wallet) => (
-            <VSCodeOption value={wallet.address}>{wallet.name} - {wallet.address}</VSCodeOption>
-          ))}
-        </VSCodeDropdown>
+        <div className="wallet-container">
+          <VSCodeDropdown id="dropdown-wallets" className="dropdown-wallets" {...logic.register('wallet', {
+            required: true,
+          })}>
+            {wallets.map((wallet) => (
+              <VSCodeOption value={wallet.address}>{wallet.name} - {wallet.address}</VSCodeOption>
+            ))}
+          </VSCodeDropdown>
+          <VSCodeButton className="add-wallet-button" onClick={() => {
+          }}>Add</VSCodeButton>
+        </div>
       </div>
       <div className="dropdown-container">
         <label htmlFor="dropdown-contracts" className="label">Select contract:</label>
-        <VSCodeDropdown id="dropdown-contracts" {...logic.register('contract', { required: true })}>
-          {contracts.map((contract) => (
-            <VSCodeOption value={contract.address}>{contract.name} - {contract.address}</VSCodeOption>
-          ))}
-        </VSCodeDropdown>
+        <div className="contract-container">
+          <VSCodeDropdown id="dropdown-contracts"
+                          className="dropdown-contracts"  {...logic.register('contract', { required: true })}>
+            {contracts.map((contract) => (
+              <VSCodeOption value={contract.address}>{contract.name} - {contract.address}</VSCodeOption>
+            ))}
+          </VSCodeDropdown>
+          <VSCodeButton className="add-contract-button" onClick={() => {
+          }}>Add</VSCodeButton>
+        </div>
       </div>
       <div className="dropdown-container">
         <label htmlFor="dropdown-functions" className="label">Select function:</label>

@@ -26,10 +26,25 @@
     width: 30%;
 }
 
+.dropdown-wallets, .dropdown-contracts {
+    width: 80%;
+    margin-right: 0.5rem;
+}
+
+.add-wallet-button, .add-contract-button {
+    width: 20%;
+    height: calc(var(--input-height) * 1px);;
+}
+
 .value-field-container {
     display: flex;
     flex-direction: row;
     margin-top: 0.2rem;
+}
+
+.wallet-container, .contract-container {
+    display: flex;
+    flex-direction: row;
 }
 
 .error-message {

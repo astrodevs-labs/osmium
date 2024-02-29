@@ -10,6 +10,7 @@ import {
 import { privateKeyToAccount } from "viem/accounts";
 import { ContractRepository } from "./ContractRepository";
 import { WalletRepository } from "./WalletRepository";
+import * as chains from "viem/chains";
 
 interface ReadContractOptions {
   contract: `0x${string}`;
@@ -24,6 +25,16 @@ interface WriteContractOptions {
   functionName: string;
   params?: any[];
 }
+
+const getChain = (id: number) => {
+  for (const chain of Object.values(chains)) {
+    if ("id" in chain) {
+      if (chain.id === id) {
+        return chain;
+      }
+    }
+  }
+};
 
 export class Interact {
   private contractRepository: ContractRepository;
@@ -51,16 +62,14 @@ export class Interact {
       address: contractInfos.address,
       abi: contractInfos.abi,
       client: createPublicClient({
-        chain: contractInfos.chain,
+        chain: getChain(contractInfos.chainId),
         transport: contractInfos.rpc.startsWith("ws")
           ? webSocket(contractInfos.rpc)
           : http(contractInfos.rpc),
       }),
     });
 
-    console.log("parameters", params);
-
-    return await viemContract.read[method]([params]);
+    return await viemContract.read[method](<any>params);
   }
 
   public async writeContract({
@@ -80,7 +89,7 @@ export class Interact {
     }
 
     const walletClient = createWalletClient({
-      chain: contract.chain,
+      chain: getChain(contract.chainId),
       transport: walletInfos.rpc.startsWith("ws")
         ? webSocket(walletInfos.rpc)
         : http(walletInfos.rpc),
@@ -93,8 +102,6 @@ export class Interact {
       client: walletClient,
     });
 
-    console.log("parameters", params);
-
-    return await viemContract.write[functionName]([params]);
+    return await viemContract.write[functionName](<any>params);
   }
 }

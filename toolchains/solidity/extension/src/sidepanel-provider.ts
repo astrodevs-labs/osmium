@@ -11,9 +11,11 @@ enum MessageType {
   GET_CONTRACTS = "GET_CONTRACTS",
   CONTRACTS = "CONTRACTS",
   WRITE = "WRITE",
+  WRITE_RESPONSE = "WRITE_RESPONSE",
   READ = "READ",
   GET_SCRIPTS = 'GET_SCRIPTS',
   SCRIPTS = 'SCRIPTS',
+  READ_RESPONSE = "READ_RESPONSE",
 }
 
 type Message = {
@@ -129,7 +131,6 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
         case MessageType.INTERACT:
           console.log(message.data);
         case MessageType.WRITE:
-          console.log("WRITE", message.data);
           const writeResponse = await this._interact.writeContract({
             account: message.data.wallet,
             address: message.data.contract,
@@ -138,16 +139,21 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
             functionName: message.data.function,
             params: message.data.inputs,
           });
-          window.showInformationMessage(`Transaction hash: ${writeResponse}`);
+          await this._view.webview.postMessage({
+            type: MessageType.WRITE_RESPONSE,
+            response: writeResponse,
+          });
           break;
         case MessageType.READ:
-          console.log("READ", message.data);
           const readResponse = await this._interact.readContract({
             contract: message.data.contract,
             method: message.data.function,
             params: message.data.inputs,
           });
-          window.showInformationMessage(`Read response: ${readResponse}`);
+          await this._view.webview.postMessage({
+            type: MessageType.READ_RESPONSE,
+            response: readResponse,
+          });
           break;
       }
     });

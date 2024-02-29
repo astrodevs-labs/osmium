@@ -1,12 +1,12 @@
 import * as path from "path";
 import * as fs from "fs";
-import { Chain, Abi } from "viem";
+import { Abi } from "viem";
 
 export interface Contract {
   name: string;
   address: `0x${string}`;
   abi: Abi;
-  chain: Chain;
+  chainId: number;
   rpc:
     | `ws://${string}`
     | `wss://${string}`

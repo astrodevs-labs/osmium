@@ -1,5 +1,5 @@
 import './InteractPage.css';
-import { useInteractPage } from './InteractPage.logic.ts';
+import { ResponseType, useInteractPage } from './InteractPage.logic.ts';
 import { VSCode } from '../../types';
 import { FormProvider } from 'react-hook-form';
 import { VSCodeButton, VSCodeDivider } from '@vscode/webview-ui-toolkit/react';
@@ -17,6 +17,11 @@ export const InteractPage = (props: { vscode: VSCode }) => {
           <VSCodeDivider className="divider" />
           <InteractParams contracts={logic.contracts} />
           <VSCodeButton className="submit-button" type="submit">Send transaction</VSCodeButton>
+          {logic.result && <div>
+            <VSCodeDivider className="divider" />
+            <p>{logic.result.responseType === ResponseType.READ ? 'Read response:' : 'Transaction hash:'}</p>
+            <p>{logic.result.data + ''}</p>
+          </div>}
         </form>
       </FormProvider>
     </div>

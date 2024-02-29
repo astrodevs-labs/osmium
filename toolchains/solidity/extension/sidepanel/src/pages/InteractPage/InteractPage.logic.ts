@@ -10,7 +10,14 @@ enum MessageType {
   GET_CONTRACTS = 'GET_CONTRACTS',
   CONTRACTS = 'CONTRACTS',
   WRITE = 'WRITE',
+  WRITE_RESPONSE = 'WRITE_RESPONSE',
   READ = 'READ',
+  READ_RESPONSE = 'READ_RESPONSE',
+}
+
+export enum ResponseType {
+  READ,
+  WRITE,
 }
 
 const getFunctionAction = (func: string, contract: string, contracts: Contract[]): '' | 'WRITE' | 'READ' => {
@@ -40,6 +47,7 @@ export const useInteractPage = (vscode: VSCode) => {
       gasLimit: 300000,
     },
   });
+  const [response, setResponse] = useState<{ responseType: ResponseType, data: unknown }>();
 
   const onSubmit: SubmitHandler<IFormInput> = (data) => {
     if (isNaN(data.gasLimit)) form.setError('gasLimit', { type: 'manual', message: 'Invalid number' });
@@ -69,6 +77,12 @@ export const useInteractPage = (vscode: VSCode) => {
           setContracts(event.data.contracts);
           break;
         }
+        case MessageType.WRITE_RESPONSE:
+          setResponse({ responseType: ResponseType.WRITE, data: event.data.response });
+          break;
+        case MessageType.READ_RESPONSE:
+          setResponse({ responseType: ResponseType.READ, data: event.data.response });
+          break;
         default: {
           throw Error('Unknown command: ' + event.type);
         }
@@ -84,5 +98,6 @@ export const useInteractPage = (vscode: VSCode) => {
     wallets,
     contracts,
     onSubmit,
+    result: response,
   };
 };

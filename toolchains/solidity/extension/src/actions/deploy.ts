@@ -63,20 +63,20 @@ async function getAbiFile(workspacePath: string, scriptFile: string, outFolder: 
 export async function getContracts(): Promise<Contract[]> {
     const contracts: Contract[] = [];
     const contractFolder = await getContractFolder();
-    const contractFiles = await workspace.findFiles(`**/${contractFolder}/*.sol`);
+    const contractFiles = await workspace.findFiles(`**/${contractFolder}/*.s.sol`);
     const outFolder = await getOutFolder();
-    const workspacePath = workspace.workspaceFolders![0].uri.path;
+    const workspacePath = contractFiles[0].path.split('/').slice(0, -2).join('/');
     for (const contractFile of contractFiles) {
         const contractContentBuffer = await workspace.fs.readFile(contractFile);
         const contractContent = Buffer.from(contractContentBuffer).toString('utf-8');
-        const contractNameRegex = /contract\s+(\w+)\s*\{/g;
-        let contractNameMatch;
-        while ((contractNameMatch = contractNameRegex.exec(contractContent)) !== null) {
-            const contractName = contractNameMatch[1];
+        const contractNameRegex =   /contract\s+(\w+)\s+is\s+Script/g;
+        let contractNameMatch = contractNameRegex.exec(contractContent);
+        if (contractNameMatch !== null) {
+            const contractName = path.basename(contractFile.path, '.s.sol');
             const abi = await getAbiFile(workspacePath, contractName, outFolder);
             const contract = {
-                name: contractName,
-                path: contractFile.path,
+                name: path.basename(contractFile.path),
+                path: contractNameMatch[1],
                 abi: JSON.parse(abi).abi,
             };
             contracts.push(contract);

@@ -48,9 +48,9 @@ async function getOutFolder(): Promise<string> {
     }
 }
 
-async function getAbiFile(contractName: string, outFolder: string): Promise<string> {
+async function getAbiFile(workspacePath: string, scriptFile: string, outFolder: string): Promise<string> {
     try {
-        const abiFilePath = path.join(outFolder, contractName, `${contractName}.json`);
+        const abiFilePath = path.join(workspacePath, outFolder, scriptFile + '.sol', `${scriptFile}.json`);
         const abiFileBuffer = await workspace.fs.readFile(workspace.workspaceFolders![0].uri.with({ path: abiFilePath }));
         const abiFileContent = Buffer.from(abiFileBuffer).toString('utf-8');
         return abiFileContent;
@@ -65,6 +65,7 @@ export async function getContracts(): Promise<Contract[]> {
     const contractFolder = await getContractFolder();
     const contractFiles = await workspace.findFiles(`**/${contractFolder}/*.sol`);
     const outFolder = await getOutFolder();
+    const workspacePath = workspace.workspaceFolders![0].uri.path;
     for (const contractFile of contractFiles) {
         const contractContentBuffer = await workspace.fs.readFile(contractFile);
         const contractContent = Buffer.from(contractContentBuffer).toString('utf-8');
@@ -72,7 +73,7 @@ export async function getContracts(): Promise<Contract[]> {
         let contractNameMatch;
         while ((contractNameMatch = contractNameRegex.exec(contractContent)) !== null) {
             const contractName = contractNameMatch[1];
-            const abi = await getAbiFile(contractName, outFolder);
+            const abi = await getAbiFile(workspacePath, contractName, outFolder);
             const contract = {
                 name: contractName,
                 path: contractFile.path,
@@ -89,27 +90,23 @@ export async function getScripts(): Promise<Script[]> {
     const scriptFolder = await getScriptFolder();
     const scriptFiles = await workspace.findFiles(`**/${scriptFolder}/*.s.sol`);
     const outFolder = await getOutFolder();
-    console.log("outFolder: ", outFolder);
+    const workspacePath = scriptFiles[0].path.split('/').slice(0, -2).join('/');
     for (const scriptFile of scriptFiles) {
         const scriptContentBuffer = await workspace.fs.readFile(scriptFile);
         const scriptContent = Buffer.from(scriptContentBuffer).toString('utf-8');
         const contractNameRegex = /contract\s+(\w+)\s+is\s+Script/g;
         let scriptNameMatch = contractNameRegex.exec(scriptContent);
-        while (scriptNameMatch !== null) {
-            const scriptName = scriptNameMatch[1];
-            const abi = await getAbiFile(scriptName, outFolder);
-            console.log("abi: ", abi);
+        if (scriptNameMatch !== null) {
+            const fileName = path.basename(scriptFile.path, '.s.sol');
+            const abi = await getAbiFile(workspacePath, fileName, outFolder);
             const script = {
-                name: path.basename(scriptFile.path, '.s.sol'),
-                path: scriptFile.path,
+                name: path.basename(scriptFile.path),
+                path: scriptNameMatch[1],
                 abi: JSON.parse(abi).abi,
             };
-            console.log("final infos of script: ", script);
             scripts.push(script);
         }
-
     }
-    console.log("before return: ", scripts);
     return scripts;
 }
 

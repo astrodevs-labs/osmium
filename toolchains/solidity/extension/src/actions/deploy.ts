@@ -1,7 +1,7 @@
 import { exec } from "child_process";
 import * as path from 'path';
-import { workspace } from "vscode";
 import * as toml from "toml";
+import { workspace } from "vscode";
 
 export type Contract = {
     name: string;
@@ -49,14 +49,13 @@ async function getOutFolder(): Promise<string> {
 }
 
 async function getAbiFile(workspacePath: string, scriptFile: string, outFolder: string): Promise<string> {
+    const abiFilePath = path.join(workspacePath, outFolder, scriptFile + '.sol', `${scriptFile}.json`);
     try {
-        const abiFilePath = path.join(workspacePath, outFolder, scriptFile + '.sol', `${scriptFile}.json`);
         const abiFileBuffer = await workspace.fs.readFile(workspace.workspaceFolders![0].uri.with({ path: abiFilePath }));
         const abiFileContent = Buffer.from(abiFileBuffer).toString('utf-8');
         return abiFileContent;
     } catch (error) {
-        console.error("Error reading abi file:", error);
-        return "not found";
+        return "{}";
     }
 }
 
@@ -95,8 +94,8 @@ export async function getScripts(): Promise<Script[]> {
         const scriptContentBuffer = await workspace.fs.readFile(scriptFile);
         const scriptContent = Buffer.from(scriptContentBuffer).toString('utf-8');
         const contractNameRegex = /contract\s+(\w+)\s+is\s+Script/g;
-        let scriptNameMatch = contractNameRegex.exec(scriptContent);
-        if (scriptNameMatch !== null) {
+        let scriptNameMatch = contractNameRegex.exec(scriptContent) || [];
+        while (scriptNameMatch.length !== 0) {
             const fileName = path.basename(scriptFile.path, '.s.sol');
             const abi = await getAbiFile(workspacePath, fileName, outFolder);
             const script = {
@@ -105,6 +104,7 @@ export async function getScripts(): Promise<Script[]> {
                 abi: JSON.parse(abi).abi,
             };
             scripts.push(script);
+            scriptNameMatch = contractNameRegex.exec(scriptContent) || [];
         }
     }
     return scripts;

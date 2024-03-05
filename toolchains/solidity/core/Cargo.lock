@@ -2078,6 +2078,7 @@ dependencies = [
  "foundry-evm-core",
  "serde",
  "serde_json",
+ "thiserror",
 ]
 
 [[package]]

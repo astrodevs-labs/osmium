@@ -62,16 +62,27 @@ async function getAbiFile(workspacePath: string, scriptFile: string, outFolder: 
 export async function getContracts(): Promise<Contract[]> {
     const contracts: Contract[] = [];
     const contractFolder = await getContractFolder();
-    const contractFiles = await workspace.findFiles(`**/${contractFolder}/*.s.sol`);
+    const contractFiles = await workspace.findFiles(`**/${contractFolder}/*.sol`);
+
+    const filteredContractFiles = contractFiles.filter(file => {
+        const parts = file.path.split('/');
+        let srcIndex = parts.indexOf(contractFolder);
+        let forgeStdIndex = parts.indexOf('forge-std');
+        if (forgeStdIndex > -1 && srcIndex > forgeStdIndex) {
+            return false;
+        }
+        return true;
+    });
+
     const outFolder = await getOutFolder();
     const workspacePath = contractFiles[0].path.split('/').slice(0, -2).join('/');
-    for (const contractFile of contractFiles) {
+    for (const contractFile of filteredContractFiles) {
         const contractContentBuffer = await workspace.fs.readFile(contractFile);
         const contractContent = Buffer.from(contractContentBuffer).toString('utf-8');
-        const contractNameRegex =   /contract\s+(\w+)\s+is\s+Script/g;
-        let contractNameMatch = contractNameRegex.exec(contractContent);
-        if (contractNameMatch !== null) {
-            const contractName = path.basename(contractFile.path, '.s.sol');
+        const contractNameRegex =   /contract\s+(\w+)/g;
+        let contractNameMatch = contractNameRegex.exec(contractContent) || [];
+        while (contractNameMatch.length !== 0) {
+            const contractName = path.basename(contractFile.path, '.sol');
             const abi = await getAbiFile(workspacePath, contractName, outFolder);
             const contract = {
                 name: path.basename(contractFile.path),
@@ -79,6 +90,7 @@ export async function getContracts(): Promise<Contract[]> {
                 abi: JSON.parse(abi).abi,
             };
             contracts.push(contract);
+            contractNameMatch = contractNameRegex.exec(contractContent) || [];
         }
     }
     return contracts;

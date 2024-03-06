@@ -45,10 +45,14 @@ export const DeployUsingContract = (
             </VSCodeDropdown>
           </div>
           <div className="dropdown-container">
-            <label htmlFor="dropdown" className='label'>Environment:</label>
-            <VSCodeDropdown id="dropdown">
-              <VSCodeOption>Remix VM</VSCodeOption>
-            </VSCodeDropdown>
+            <label htmlFor="dropdown-environment" className='label'>Environment:</label>
+              <div className="environment-container">
+                <VSCodeDropdown id="dropdown-environment" className='dropdown-environment'>
+                  <VSCodeOption>Remix VM</VSCodeOption>
+                </VSCodeDropdown>
+                <VSCodeButton className="add-wallet-button" onClick={() => {
+                }}>Add</VSCodeButton>
+              </div>
           </div>
           <div className="gas-limit-container">
             <VSCodeTextField className='gas-limit-textfield' value='300000' type="text">Gas limit</VSCodeTextField>

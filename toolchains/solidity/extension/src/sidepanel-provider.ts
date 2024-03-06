@@ -2,13 +2,16 @@ import * as vscode from "vscode";
 import { ContractRepository } from "./actions/ContractRepository";
 import { WalletRepository } from "./actions/WalletRepository";
 import { Script, getScripts } from "./actions/deploy";
+import { Contract, getContracts } from "./actions/deploy";
 import { Interact } from "./actions/Interact";
 
 enum MessageType {
   GET_WALLETS = "GET_WALLETS",
   WALLETS = "WALLETS",
-  GET_CONTRACTS = "GET_CONTRACTS",
-  CONTRACTS = "CONTRACTS",
+  GET_INTERACT_CONTRACTS = "GET_INTERACT_CONTRACTS",
+  INTERACT_CONTRACTS = "INTERACT_CONTRACTS",
+  GET_DEPLOY_CONTRACTS = "GET_DEPLOY_CONTRACTS",
+  DEPLOY_CONTRACTS = "DEPLOY_CONTRACTS",
   WRITE = "WRITE",
   WRITE_RESPONSE = "WRITE_RESPONSE",
   READ = "READ",
@@ -41,6 +44,7 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
   private _walletRepository?: WalletRepository;
   private _interact?: Interact;
   private _scripts?: Script[];
+  private _contracts?: Contract[];
 
   private _watcher?: vscode.FileSystemWatcher;
 
@@ -67,6 +71,7 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
       );
 
       this._scripts = await getScripts();
+      this._contracts = await getContracts();
       const pattern = new vscode.RelativePattern(
         vscode.workspace.workspaceFolders?.[0].uri.fsPath,
         ".osmium/*.json",
@@ -78,7 +83,7 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
           if (uri.fsPath.endsWith("contracts.json")) {
             this._contractRepository?.load();
             await this._view.webview.postMessage({
-              type: MessageType.CONTRACTS,
+              type: MessageType.INTERACT_CONTRACTS,
               contracts: this._contractRepository?.getContracts(),
             });
           } else {
@@ -105,7 +110,8 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
         !this._contractRepository ||
         !this._walletRepository ||
         !this._interact ||
-        !this._scripts
+        !this._scripts ||
+        !this._contracts
       ) {
         return;
       }
@@ -116,9 +122,9 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
             wallets: this._walletRepository.getWallets(),
           });
           break;
-        case MessageType.GET_CONTRACTS:
+        case MessageType.GET_INTERACT_CONTRACTS:
           await this._view.webview.postMessage({
-            type: MessageType.CONTRACTS,
+            type: MessageType.INTERACT_CONTRACTS,
             contracts: this._contractRepository.getContracts(),
           });
           break;
@@ -128,6 +134,12 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
             scripts: this._scripts,
           });
           break;
+          case MessageType.GET_DEPLOY_CONTRACTS:
+            await this._view.webview.postMessage({
+              type: MessageType.DEPLOY_CONTRACTS,
+              contracts: this._contracts,
+            });
+            break;
         case MessageType.WRITE:
           const writeResponse = await this._interact.writeContract({
             account: message.data.wallet,

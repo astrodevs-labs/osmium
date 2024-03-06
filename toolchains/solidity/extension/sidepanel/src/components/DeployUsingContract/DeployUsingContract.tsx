@@ -1,62 +1,75 @@
-import { VSCodeDropdown, VSCodeOption, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
+import { VSCodeDropdown, VSCodeOption, VSCodeTextField, VSCodeButton, VSCodeDivider } from '@vscode/webview-ui-toolkit/react';
 import './DeployUsingContract.css';
+import { Wallet } from "../../../../src/actions/WalletRepository.ts";
+import { Contract } from "../../../../src/actions/deploy.ts";
+import { useDeployContract } from "./DeployContract.logic.ts";
+import { FormProvider, SubmitHandler } from "react-hook-form";
+import { DFormContract } from "../../types";
+export const DeployUsingContract = (
+  { wallets, contracts }: { wallets: Wallet[]; contracts: Contract[] },
+) => {
+  const logic = useDeployContract();
 
-const accounts = [
-  {
-    address: '0x0999003...3333',
-    balance: '0.12 ETH',
-  },
-  {
-    address: '0x0999003...3333',
-    balance: '0.12 ETH',
-  },
-  {
-    address: '0x0999003...3333',
-    balance: '0.12 ETH',
-  },
-];
-
-export const DeployUsingContract = () => {
+  const onSubmit: SubmitHandler<DFormContract> = (data) => {
+    console.log(data);
+  };
 
   return (
-    <div>
-      <div> DEPLOY USING CONTRACT </div>
-      <div className="dropdown-container">
-        <label htmlFor="dropdown" className='label'>Select account:</label>
-        <VSCodeDropdown id="dropdown">
-          {
-            accounts.map((account) => (
-              <VSCodeOption>{account.address} ({account.balance})</VSCodeOption>
-            ))
-          }
-        </VSCodeDropdown>
-      </div>
-      <div className="dropdown-container">
-      <label htmlFor="dropdown" className='label'>File:</label>
-        <VSCodeDropdown id="dropdown">
-          <VSCodeOption>My token - ERC20.sol</VSCodeOption>
-        </VSCodeDropdown>
-      </div>
-      <div className="dropdown-container">
-        <label htmlFor="dropdown" className='label'>Environment:</label>
-        <VSCodeDropdown id="dropdown">
-          <VSCodeOption>Remix VM</VSCodeOption>
-        </VSCodeDropdown>
-      </div>
-      <div className="gas-limit-container">
-        <VSCodeTextField className='gas-limit-textfield' value='300000' type="text">Gas limit</VSCodeTextField>
-      </div>
-      <div className="value-container">
-        <label className='label'>Value:</label>
-        <div className='value-field-container'>
-          <VSCodeTextField className='value-textfield' value='0' type="text"/>
-          <VSCodeDropdown className='value-dropdown' id="dropdown">
-            <VSCodeOption>Wei</VSCodeOption>
-            <VSCodeOption>Gwei</VSCodeOption>
-            <VSCodeOption>ETH</VSCodeOption>
-          </VSCodeDropdown>
+    <FormProvider {...logic.form}>
+      <form onSubmit={logic.form?.handleSubmit(onSubmit)}>
+        <div>
+          <div> DEPLOY USING CONTRACT </div>
+          <div className="dropdown-container">
+            <label htmlFor="dropdown-wallets" className="label">
+              Select account:
+            </label>
+            <VSCodeDropdown
+              id="dropdown-wallets"
+              {...logic.form?.register("wallet", {
+                required: true,
+              })}
+            >
+              {wallets?.map((wallet) => (
+                <VSCodeOption value={wallet.address}>
+                  {wallet.name} - {wallet.address}
+                </VSCodeOption>
+              ))}
+            </VSCodeDropdown>
+          </div>
+          <div className="dropdown-container">
+          <label htmlFor="dropdown" className='label'>Select contract:</label>
+          <VSCodeDropdown id="dropdown">
+              {contracts?.map((contracts) => (
+                <VSCodeOption>{contracts.path} ({contracts.name})</VSCodeOption>
+              ))}
+            </VSCodeDropdown>
+          </div>
+          <div className="dropdown-container">
+            <label htmlFor="dropdown" className='label'>Environment:</label>
+            <VSCodeDropdown id="dropdown">
+              <VSCodeOption>Remix VM</VSCodeOption>
+            </VSCodeDropdown>
+          </div>
+          <div className="gas-limit-container">
+            <VSCodeTextField className='gas-limit-textfield' value='300000' type="text">Gas limit</VSCodeTextField>
+          </div>
+          <div className="value-container">
+            <label className='label'>Value:</label>
+            <div className='value-field-container'>
+              <VSCodeTextField className='value-textfield' value='0' type="text"/>
+              <VSCodeDropdown className='value-dropdown' id="dropdown">
+                <VSCodeOption>Wei</VSCodeOption>
+                <VSCodeOption>Gwei</VSCodeOption>
+                <VSCodeOption>ETH</VSCodeOption>
+              </VSCodeDropdown>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+        <VSCodeDivider className='divider'/>
+        <VSCodeButton className="submit-button" type="submit"> 
+          Deploy with contract
+        </VSCodeButton>
+        </form>
+    </FormProvider>
   );
 };

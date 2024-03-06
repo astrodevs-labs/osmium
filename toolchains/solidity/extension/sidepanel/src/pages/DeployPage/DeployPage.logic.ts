@@ -1,14 +1,22 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { DFormScript, VSCode } from '../../types';
+import { DFormScript, VSCode, DFormContract } from '../../types';
 import { useEffect, useState } from 'react';
 import { Wallet } from '../../../../src/actions/WalletRepository.ts';
 import { Script } from '../../../../src/actions/deploy.ts';
+import { Contract } from '../../../../src/actions/deploy.ts';
 
-enum MessageType {
+enum MessageTypeScript {
   GET_WALLETS = 'GET_WALLETS',
   WALLETS = 'WALLETS',
   GET_SCRIPTS = 'GET_SCRIPTS',
   SCRIPTS = 'SCRIPTS',
+}
+
+enum MessageTypeContract {
+  GET_WALLETS = 'GET_WALLETS',
+  WALLETS = 'WALLETS',
+  GET_DEPLOY_CONTRACTS = 'GET_DEPLOY_CONTRACTS',
+  DEPLOY_CONTRACTS = 'DEPLOY_CONTRACTS',
 }
 
 export const useDeployPageScript = (vscode: VSCode) => {
@@ -29,19 +37,19 @@ export const useDeployPageScript = (vscode: VSCode) => {
     if (!vscode) {
       return;
     }
-    vscode.postMessage({ type: MessageType.GET_WALLETS });
-    vscode.postMessage({ type: MessageType.GET_SCRIPTS });
+    vscode.postMessage({ type: MessageTypeScript.GET_WALLETS });
+    vscode.postMessage({ type: MessageTypeScript.GET_SCRIPTS });
   }, [vscode]);
 
   useEffect(() => {
     const listener = (event: WindowEventMap['message']) => {
       switch (event.data.type) {
-        case MessageType.WALLETS: {
+        case MessageTypeScript.WALLETS: {
           form.setValue('wallet', event.data.wallets && event.data.wallets.length ? event.data.wallets[0].address : '');
           setWallets(event.data.wallets);
           break;
         }
-        case MessageType.SCRIPTS: {
+        case MessageTypeScript.SCRIPTS: {
           form.setValue('script', event.data.scripts && event.data.scripts.length ? event.data.scripts[0].name : '');
           setScripts(event.data.scripts);
           break;
@@ -60,6 +68,63 @@ export const useDeployPageScript = (vscode: VSCode) => {
     vscode,
     wallets,
     scripts,
+    onSubmit,
+  };
+};
+
+export const useDeployPageContract = (vscode: VSCode) => {
+  const [wallets, setWallets] = useState<Wallet[]>([]);
+  const [contracts, setContracts] = useState<Contract[]>([]);
+  const form = useForm<DFormContract>({
+    defaultValues: {
+      wallet: '',
+      contract: '',
+      environment: 'Remix VM',
+      value: 0,
+      valueUnit: 'wei',
+      gasLimit: 300000,
+    },
+  });
+
+  const onSubmit: SubmitHandler<DFormScript> = (data) => {
+    console.log(data);
+  };
+
+  useEffect(() => {
+    if (!vscode) {
+      return;
+    }
+    vscode.postMessage({ type: MessageTypeContract.GET_WALLETS });
+    vscode.postMessage({ type: MessageTypeContract.GET_DEPLOY_CONTRACTS });
+  }, [vscode]);
+
+  useEffect(() => {
+    const listener = (event: WindowEventMap['message']) => {
+      switch (event.data.type) {
+        case MessageTypeContract.WALLETS: {
+          form.setValue('wallet', event.data.wallets && event.data.wallets.length ? event.data.wallets[0].address : '');
+          setWallets(event.data.wallets);
+          break;
+        }
+        case MessageTypeContract.DEPLOY_CONTRACTS: {
+          form.setValue('contract', event.data.contracts && event.data.contracts.length ? event.data.contracts[0].name : '');
+          setContracts(event.data.contracts);
+          break;
+        }
+        default: {
+          throw Error('Unknown command: ' + event.type);
+        }
+      }
+    };
+    window.addEventListener('message', listener);
+    return () => window.removeEventListener('message', listener);
+  }, []);
+
+  return {
+    form,
+    vscode,
+    wallets,
+    contracts,
     onSubmit,
   };
 };

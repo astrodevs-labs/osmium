@@ -7,8 +7,8 @@ import { Contract } from '../../../../src/actions/ContractRepository.ts';
 enum MessageType {
   GET_WALLETS = 'GET_WALLETS',
   WALLETS = 'WALLETS',
-  GET_CONTRACTS = 'GET_CONTRACTS',
-  CONTRACTS = 'CONTRACTS',
+  GET_INTERACT_CONTRACTS = 'GET_INTERACT_CONTRACTS',
+  INTERACT_CONTRACTS = 'INTERACT_CONTRACTS',
   WRITE = 'WRITE',
   WRITE_RESPONSE = 'WRITE_RESPONSE',
   READ = 'READ',
@@ -61,7 +61,7 @@ export const useInteractPage = (vscode: VSCode) => {
       return;
     }
     vscode.postMessage({ type: MessageType.GET_WALLETS });
-    vscode.postMessage({ type: MessageType.GET_CONTRACTS });
+    vscode.postMessage({ type: MessageType.GET_INTERACT_CONTRACTS });
   }, [vscode]);
 
   useEffect(() => {
@@ -72,7 +72,7 @@ export const useInteractPage = (vscode: VSCode) => {
           setWallets(event.data.wallets);
           break;
         }
-        case MessageType.CONTRACTS: {
+        case MessageType.INTERACT_CONTRACTS: {
           form.setValue('contract', event.data.contracts && event.data.contracts.length ? event.data.contracts[0].address : '');
           setContracts(event.data.contracts);
           break;

@@ -33,7 +33,7 @@ async function gasReportTests(cwd: string): Promise<ReportDecorators> {
   let decorations: ReportDecorators = new Map();
 
   // Gas estimation from the tests
-  await new Promise<void>((resolve, reject) => exec("forge test --gas-report", { cwd }, async (error: any, _stdout: any, _stderr: any) => {
+  await new Promise<void>((resolve, reject) => exec("forge test --gas-report --isolate", { cwd }, async (error: any, _stdout: any, _stderr: any) => {
     if (error) {
       console.log("error", error);
       reject(error);

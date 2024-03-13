@@ -16,7 +16,7 @@ export const InteractContracts = (props: { wallets: Wallet[], contracts: Contrac
           <VSCodeDropdown id="dropdown-wallets" className="dropdown-wallets" {...logic.register('wallet', {
             required: true,
           })}>
-            {wallets.map((wallet) => (
+            {wallets?.map((wallet) => (
               <VSCodeOption value={wallet.address}>{wallet.name} - {wallet.address}</VSCodeOption>
             ))}
           </VSCodeDropdown>
@@ -29,7 +29,7 @@ export const InteractContracts = (props: { wallets: Wallet[], contracts: Contrac
         <div className="contract-container">
           <VSCodeDropdown id="dropdown-contracts"
                           className="dropdown-contracts"  {...logic.register('contract', { required: true })}>
-            {contracts.map((contract) => (
+            {contracts?.map((contract) => (
               <VSCodeOption value={contract.address}>{contract.name} - {contract.address}</VSCodeOption>
             ))}
           </VSCodeDropdown>
@@ -40,7 +40,7 @@ export const InteractContracts = (props: { wallets: Wallet[], contracts: Contrac
       <div className="dropdown-container">
         <label htmlFor="dropdown-functions" className="label">Select function:</label>
         <VSCodeDropdown id="dropdown-functions" {...logic.register('function', { required: true })}>
-          {logic.functions.map((func) => {
+          {logic.functions?.map((func) => {
             if (!func) return null;
             return <VSCodeOption value={func}>{func}</VSCodeOption>;
           })}

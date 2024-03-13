@@ -11,13 +11,17 @@ export interface Wallet {
 export class WalletRepository {
   private _wallets: Wallet[] = [];
   private _walletsPath: string;
+  private _osmiumPath: string
 
   constructor(workspacePath: string) {
-    this._walletsPath = path.join(workspacePath, ".osmium", "wallets.json");
+    this._osmiumPath = path.join(workspacePath, ".osmium");
+    this._walletsPath = path.join(this._osmiumPath, "wallets.json");
     this.load();
   }
 
   public load(): void {
+    if (!fs.existsSync(this._osmiumPath))
+      fs.mkdirSync(this._osmiumPath);
     if (fs.existsSync(this._walletsPath)) {
       const walletData = fs.readFileSync(this._walletsPath, "utf8");
       const walletJson = JSON.parse(walletData);

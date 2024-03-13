@@ -12,7 +12,6 @@ export interface Contract {
     | `wss://${string}`
     | `http://${string}`
     | `https://${string}`;
-  usedWallet: `0x${string}`;
 }
 
 export type Contracts = Contract[];
@@ -20,9 +19,11 @@ export type Contracts = Contract[];
 export class ContractRepository {
   private _contracts: Contracts = [];
   private _contractsPath: string;
+  private _osmiumPath: string
 
   constructor(workspacePath: string) {
-    this._contractsPath = path.join(workspacePath, ".osmium", "contracts.json");
+    this._osmiumPath = path.join(workspacePath, ".osmium");
+    this._contractsPath = path.join(this._osmiumPath, "contracts.json");
     this.load();
   }
 
@@ -32,6 +33,8 @@ export class ContractRepository {
   }
 
   public load(): void {
+    if (!fs.existsSync(this._osmiumPath))
+      fs.mkdirSync(this._osmiumPath);
     if (!fs.existsSync(this._contractsPath)) {
       this._contracts = [];
       fs.writeFileSync(

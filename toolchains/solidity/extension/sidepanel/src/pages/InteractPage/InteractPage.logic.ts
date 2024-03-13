@@ -21,13 +21,13 @@ export enum ResponseType {
 }
 
 const getFunctionAction = (func: string, contract: string, contracts: Contract[]): '' | 'WRITE' | 'READ' => {
-  const selectedContract = contracts.find((c) => c.address === contract);
-  const functions = selectedContract?.abi.map((abi) => {
+  const selectedContract = contracts?.find((c) => c.address === contract);
+  const functions = selectedContract?.abi?.map((abi) => {
     if (abi.type === 'function') {
       return abi;
     }
   }) || [];
-  const selectedFunction = functions.find((f) => f?.name === func) || null;
+  const selectedFunction = functions?.find((f) => f?.name === func) || null;
 
   if (!selectedFunction) return '';
   if (selectedFunction.stateMutability === 'view') return 'READ';

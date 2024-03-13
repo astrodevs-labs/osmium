@@ -6,7 +6,7 @@ export const useInteractContracts = (contracts: Contract[]) => {
   const { register, watch, formState: { errors } } = useFormContext<IFormInput>();
   const selectedContract = watch('contract');
 
-  const functions = contracts.find((contract) => contract.address === selectedContract)?.abi.map((abi) => {
+  const functions = contracts?.find((contract) => contract.address === selectedContract)?.abi?.map((abi) => {
     if (abi.type === 'function') {
       return abi.name;
     }

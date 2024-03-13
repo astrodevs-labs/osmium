@@ -24,17 +24,9 @@ interface WriteContractOptions {
   abi: Abi;
   functionName: string;
   params?: any[];
+  gasLimit?: bigint;
+  value?: bigint;
 }
-
-const getChain = (id: number) => {
-  for (const chain of Object.values(chains)) {
-    if ("id" in chain) {
-      if (chain.id === id) {
-        return chain;
-      }
-    }
-  }
-};
 
 export class Interact {
   private contractRepository: ContractRepository;
@@ -77,6 +69,8 @@ export class Interact {
     abi,
     functionName,
     params,
+    gasLimit,
+    value,
   }: WriteContractOptions): Promise<any> {
     const walletInfos = this.walletRepository.getWallet(account);
     if (!walletInfos) {
@@ -118,6 +112,15 @@ export class Interact {
       address,
       abi,
       client: walletClient,
+    });
+
+    await walletClient.writeContract({
+      address,
+      abi,
+      functionName,
+      args: params,
+      gas: gasLimit,
+      value,
     });
 
     return await viemContract.write[functionName](<any>params);

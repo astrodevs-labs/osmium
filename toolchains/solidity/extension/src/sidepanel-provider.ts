@@ -5,7 +5,7 @@ import { Script, getScripts } from "./actions/deploy";
 import { Contract, getContracts } from "./actions/deploy";
 import { Interact } from "./actions/Interact";
 import {window} from "vscode";
-import {Address} from "viem";
+import {Address, parseEther, parseUnits} from "viem";
 
 enum MessageType {
   GET_WALLETS = "GET_WALLETS",
@@ -150,6 +150,14 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
             });
             break;
         case MessageType.WRITE:
+          let value = BigInt(message.data.value);
+
+          if (message.data.valueUnit === "ether") {
+            value = value * BigInt(10) ** BigInt(18);
+          } else if (message.data.valueUnit === "gwei") {
+            value = value * BigInt(10) ** BigInt(9);
+          }
+
           const writeResponse = await this._interact.writeContract({
             account: message.data.wallet,
             address: message.data.contract,
@@ -157,6 +165,8 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
               .abi,
             functionName: message.data.function,
             params: message.data.inputs,
+            gasLimit: message.data.gasLimit > 0 ? message.data.gasLimit : undefined,
+            value: value > 0 ? value : undefined,
           });
           await this._view.webview.postMessage({
             type: MessageType.WRITE_RESPONSE,
@@ -175,13 +185,13 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
           });
           break;
         case MessageType.EDIT_WALLETS:
-          const walletAction = await window.showQuickPick([InputAction.ADD, InputAction.REMOVE], {title: "Edit Wallets"});
+          const walletAction = await window.showQuickPick([InputAction.ADD, InputAction.REMOVE], {title: "Edit Wallets", ignoreFocusOut: true });
 
           if (walletAction === InputAction.ADD) {
-            const walletName = await window.showInputBox({prompt: "Enter wallet name"});
-            const walletAddress = await window.showInputBox({prompt: "Enter wallet address"});
-            const walletPk = await window.showInputBox({prompt: "Enter wallet private key"});
-            const walletRpc = await window.showInputBox({prompt: "Enter wallet rpc"});
+            const walletName = await window.showInputBox({prompt: "Enter name", ignoreFocusOut: true });
+            const walletAddress = await window.showInputBox({prompt: "Enter address", ignoreFocusOut: true });
+            const walletPk = await window.showInputBox({prompt: "Enter private key", ignoreFocusOut: true });
+            const walletRpc = await window.showInputBox({prompt: "Enter rpc", ignoreFocusOut: true });
 
             if (!walletName || !walletAddress || !walletPk || !walletRpc) return;
             if (!walletAddress.startsWith("0x") || !walletPk.startsWith("0x")) return;
@@ -196,21 +206,20 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
           }
 
           if (walletAction === InputAction.REMOVE) {
-            const walletAddress = await window.showInputBox({prompt: "Enter wallet address"});
+            const walletAddress = await window.showInputBox({prompt: "Enter address", ignoreFocusOut: true });
             if (!walletAddress) return;
             await this._walletRepository.deleteWallet(<Address>walletAddress);
           }
-
           break;
         case MessageType.EDIT_CONTRACTS:
-          const contractAction = await window.showQuickPick([InputAction.ADD, InputAction.REMOVE], {title: "Edit Wallets"});
+          const contractAction = await window.showQuickPick([InputAction.ADD, InputAction.REMOVE], {title: "Edit Wallets", ignoreFocusOut: true });
 
           if (contractAction === InputAction.ADD) {
-            const contractName = await window.showInputBox({prompt: "Enter name"});
-            const contractAddress = await window.showInputBox({prompt: "Enter address"});
-            const contractAbi = await window.showInputBox({prompt: "Enter abi"});
-            const contractRpc = await window.showInputBox({prompt: "Enter rpc"});
-            const contractChainId = await window.showInputBox({prompt: "Enter chain id"});
+            const contractName = await window.showInputBox({prompt: "Enter name", ignoreFocusOut: true });
+            const contractAddress = await window.showInputBox({prompt: "Enter address", ignoreFocusOut: true });
+            const contractAbi = await window.showInputBox({prompt: "Enter abi", ignoreFocusOut: true });
+            const contractRpc = await window.showInputBox({prompt: "Enter rpc", ignoreFocusOut: true });
+            const contractChainId = await window.showInputBox({prompt: "Enter chain id", ignoreFocusOut: true });
 
             if (!contractName || !contractAddress || !contractAbi || !contractRpc || !contractChainId) return;
             if (!contractAddress.startsWith("0x")) return;
@@ -228,9 +237,8 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
           if (contractAction === InputAction.REMOVE) {
             const contractAddress = await window.showInputBox({prompt: "Enter address"});
             if (!contractAddress) return;
-            await this._contractRepository.deleteContract(<Address>contractAddress);
+            this._contractRepository.deleteContract(<Address>contractAddress);
           }
-
           break;
       }
     });

@@ -2,7 +2,7 @@
 import {
   Abi,
   createPublicClient,
-  createWalletClient,
+  createWalletClient, defineChain,
   getContract,
   http,
   webSocket,
@@ -62,7 +62,6 @@ export class Interact {
       address: contractInfos.address,
       abi: contractInfos.abi,
       client: createPublicClient({
-        chain: getChain(contractInfos.chainId),
         transport: contractInfos.rpc.startsWith("ws")
           ? webSocket(contractInfos.rpc)
           : http(contractInfos.rpc),
@@ -88,11 +87,30 @@ export class Interact {
       throw new Error(`contract ${address} not found`);
     }
 
+    const rpc = contract.rpc.startsWith("ws") ? {
+      default: {
+        webSocket: [contract.rpc],
+      },
+    } : {
+      default: {
+        http: [contract.rpc],
+      },
+    };
+
     const walletClient = createWalletClient({
-      chain: getChain(contract.chainId),
-      transport: walletInfos.rpc.startsWith("ws")
-        ? webSocket(walletInfos.rpc)
-        : http(walletInfos.rpc),
+      chain: defineChain({
+        name: "custom",
+        id: contract.chainId,
+        nativeCurrency: {
+          name: "Ethereum",
+          symbol: "ETH",
+          decimals: 18,
+        },
+        rpcUrls: <any>rpc,
+      }),
+      transport: contract.rpc.startsWith("ws")
+        ? webSocket(contract.rpc)
+        : http(contract.rpc),
       account: privateKeyToAccount(walletInfos.privateKey),
     });
 

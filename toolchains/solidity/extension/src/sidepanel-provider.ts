@@ -4,6 +4,8 @@ import { WalletRepository } from "./actions/WalletRepository";
 import { Script, getScripts } from "./actions/deploy";
 import { Contract, getContracts } from "./actions/deploy";
 import { Interact } from "./actions/Interact";
+import {window} from "vscode";
+import {Address} from "viem";
 
 enum MessageType {
   GET_WALLETS = "GET_WALLETS",
@@ -18,12 +20,19 @@ enum MessageType {
   GET_SCRIPTS = "GET_SCRIPTS",
   SCRIPTS = "SCRIPTS",
   READ_RESPONSE = "READ_RESPONSE",
+  EDIT_WALLETS = 'EDIT_WALLETS',
+  EDIT_CONTRACTS = 'EDIT_CONTRACTS',
 }
 
 type Message = {
   type: MessageType;
   data: any;
 };
+
+enum InputAction {
+    ADD = "Add",
+    REMOVE = "Remove",
+}
 
 function getNonce(): string {
   let text: string = "";
@@ -164,6 +173,64 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
             type: MessageType.READ_RESPONSE,
             response: readResponse,
           });
+          break;
+        case MessageType.EDIT_WALLETS:
+          const walletAction = await window.showQuickPick([InputAction.ADD, InputAction.REMOVE], {title: "Edit Wallets"});
+
+          if (walletAction === InputAction.ADD) {
+            const walletName = await window.showInputBox({prompt: "Enter wallet name"});
+            const walletAddress = await window.showInputBox({prompt: "Enter wallet address"});
+            const walletPk = await window.showInputBox({prompt: "Enter wallet private key"});
+            const walletRpc = await window.showInputBox({prompt: "Enter wallet rpc"});
+
+            if (!walletName || !walletAddress || !walletPk || !walletRpc) return;
+            if (!walletAddress.startsWith("0x") || !walletPk.startsWith("0x")) return;
+            if (!walletRpc.startsWith("http") && !walletRpc.startsWith("ws")) return;
+
+            await this._walletRepository.createWallet({
+              name: walletName,
+              address: <Address>walletAddress,
+              privateKey: <Address>walletPk,
+              rpc: walletRpc,
+            });
+          }
+
+          if (walletAction === InputAction.REMOVE) {
+            const walletAddress = await window.showInputBox({prompt: "Enter wallet address"});
+            if (!walletAddress) return;
+            await this._walletRepository.deleteWallet(<Address>walletAddress);
+          }
+
+          break;
+        case MessageType.EDIT_CONTRACTS:
+          const contractAction = await window.showQuickPick([InputAction.ADD, InputAction.REMOVE], {title: "Edit Wallets"});
+
+          if (contractAction === InputAction.ADD) {
+            const contractName = await window.showInputBox({prompt: "Enter name"});
+            const contractAddress = await window.showInputBox({prompt: "Enter address"});
+            const contractAbi = await window.showInputBox({prompt: "Enter abi"});
+            const contractRpc = await window.showInputBox({prompt: "Enter rpc"});
+            const contractChainId = await window.showInputBox({prompt: "Enter chain id"});
+
+            if (!contractName || !contractAddress || !contractAbi || !contractRpc || !contractChainId) return;
+            if (!contractAddress.startsWith("0x")) return;
+            if (!contractRpc.startsWith("http") && !contractRpc.startsWith("ws")) return;
+
+            this._contractRepository.createContract({
+              address: <Address>contractAddress,
+              abi: JSON.parse(contractAbi),
+              chainId: parseInt(contractChainId),
+              name: contractName,
+              rpc: <any>contractRpc,
+            });
+          }
+
+          if (contractAction === InputAction.REMOVE) {
+            const contractAddress = await window.showInputBox({prompt: "Enter address"});
+            if (!contractAddress) return;
+            await this._contractRepository.deleteContract(<Address>contractAddress);
+          }
+
           break;
       }
     });

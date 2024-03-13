@@ -3,10 +3,11 @@ import { Wallet } from '../../../../src/actions/WalletRepository.ts';
 import { Contract } from '../../../../src/actions/ContractRepository.ts';
 import { useInteractContracts } from './InteractContracts.logic.ts';
 import { VSCodeButton, VSCodeDropdown, VSCodeOption, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
+import {VSCode} from "../../types";
 
-export const InteractContracts = (props: { wallets: Wallet[], contracts: Contract[] }) => {
-  const { wallets, contracts } = props;
-  const logic = useInteractContracts(contracts);
+export const InteractContracts = (props: { wallets: Wallet[], contracts: Contract[], vscode: VSCode }) => {
+  const { wallets, contracts, vscode } = props;
+  const logic = useInteractContracts(contracts, vscode);
 
   return (
     <div>
@@ -20,8 +21,7 @@ export const InteractContracts = (props: { wallets: Wallet[], contracts: Contrac
               <VSCodeOption value={wallet.address}>{wallet.name} - {wallet.address}</VSCodeOption>
             ))}
           </VSCodeDropdown>
-          <VSCodeButton className="add-wallet-button" onClick={() => {
-          }}>Add</VSCodeButton>
+          <VSCodeButton className="add-wallet-button" onClick={logic.editWallet}>Edit</VSCodeButton>
         </div>
       </div>
       <div className="dropdown-container">
@@ -33,8 +33,7 @@ export const InteractContracts = (props: { wallets: Wallet[], contracts: Contrac
               <VSCodeOption value={contract.address}>{contract.name} - {contract.address}</VSCodeOption>
             ))}
           </VSCodeDropdown>
-          <VSCodeButton className="add-contract-button" onClick={() => {
-          }}>Add</VSCodeButton>
+          <VSCodeButton className="add-contract-button" onClick={logic.editContract}>Edit</VSCodeButton>
         </div>
       </div>
       <div className="dropdown-container">

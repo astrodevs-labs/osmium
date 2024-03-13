@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Wallet } from '../../../../src/actions/WalletRepository.ts';
 import { Contract } from '../../../../src/actions/ContractRepository.ts';
 
-enum MessageType {
+export enum MessageType {
   GET_WALLETS = 'GET_WALLETS',
   WALLETS = 'WALLETS',
   GET_INTERACT_CONTRACTS = 'GET_INTERACT_CONTRACTS',
@@ -13,6 +13,8 @@ enum MessageType {
   WRITE_RESPONSE = 'WRITE_RESPONSE',
   READ = 'READ',
   READ_RESPONSE = 'READ_RESPONSE',
+  EDIT_WALLETS = 'EDIT_WALLETS',
+  EDIT_CONTRACTS = 'EDIT_CONTRACTS',
 }
 
 export enum ResponseType {

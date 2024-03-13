@@ -1,6 +1,6 @@
 import * as path from "path";
 import * as fs from "fs";
-import { Abi } from "viem";
+import {Abi, Address} from "viem";
 
 export interface Contract {
   name: string;
@@ -58,6 +58,11 @@ export class ContractRepository {
 
   public createContract(contract: Contract): void {
     this._contracts.push(contract);
+    this._save();
+  }
+
+  public deleteContract(address: Address): void {
+    this._contracts = this._contracts.filter((c) => c.address !== address);
     this._save();
   }
 }

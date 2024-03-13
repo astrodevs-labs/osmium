@@ -1,8 +1,9 @@
 import { useFormContext } from 'react-hook-form';
 import { Contract } from '../../../../src/actions/ContractRepository.ts';
-import { IFormInput } from '../../types';
+import {IFormInput, VSCode} from '../../types';
+import {MessageType} from "../../pages/InteractPage/InteractPage.logic.ts";
 
-export const useInteractContracts = (contracts: Contract[]) => {
+export const useInteractContracts = (contracts: Contract[], vscode: VSCode) => {
   const { register, watch, formState: { errors } } = useFormContext<IFormInput>();
   const selectedContract = watch('contract');
 
@@ -12,5 +13,13 @@ export const useInteractContracts = (contracts: Contract[]) => {
     }
   }) || [];
 
-  return { register, selectedContract, functions, errors };
+  const editWallet = () => {
+    vscode.postMessage({ type: MessageType.EDIT_WALLETS });
+  }
+
+  const editContract = () => {
+    vscode.postMessage({ type: MessageType.EDIT_CONTRACTS });
+  }
+
+  return { register, selectedContract, functions, errors, editWallet, editContract };
 };

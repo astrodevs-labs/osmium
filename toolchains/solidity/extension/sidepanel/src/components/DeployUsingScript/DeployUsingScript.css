@@ -16,7 +16,12 @@
     margin-right: 0.5rem;
 }
 
-.contract-container {
+.contract-container, .wallet-container {
     display: flex;
     flex-direction: row;
+}
+
+.add-wallet-button {
+    width: 20%;
+    height: calc(var(--input-height) * 1px);;
 }

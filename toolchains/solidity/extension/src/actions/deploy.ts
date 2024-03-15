@@ -4,7 +4,7 @@ import * as toml from "toml";
 import {workspace} from "vscode";
 import {Abi} from "viem";
 
-export type Contract = {
+export type Contracts = {
     name: string;
     path: string;
     abi: Abi;
@@ -60,12 +60,11 @@ async function getAbiFile(workspacePath: string, scriptFile: string, outFolder: 
     }
 }
 
-export async function getContracts(): Promise<Contract[]> {
+export async function getContracts(): Promise<Contracts[]> {
     try {
-        const contracts: Contract[] = [];
+        const contracts: Contracts[] = [];
         const contractFolder = await getContractFolder();
         const contractFiles = await workspace.findFiles(`**/${contractFolder}/*.sol`);
-
         const filteredContractFiles = contractFiles.filter(file => {
             const parts = file.path.split('/');
             let srcIndex = parts.indexOf(contractFolder);
@@ -87,8 +86,8 @@ export async function getContracts(): Promise<Contract[]> {
                 const contractName = path.basename(contractFile.path, '.sol');
                 const abi = await getAbiFile(workspacePath, contractName, outFolder);
                 const contract = {
-                    name: path.basename(contractFile.path),
-                    path: contractNameMatch[1],
+                    name: contractNameMatch[1],
+                    path: path.basename(contractFile.path),
                     abi: JSON.parse(abi).abi,
                 };
                 contracts.push(contract);
@@ -118,8 +117,8 @@ export async function getScripts(): Promise<Script[]> {
                 const fileName = path.basename(scriptFile.path, '.s.sol');
                 const abi = await getAbiFile(workspacePath, fileName, outFolder);
                 const script = {
-                    name: path.basename(scriptFile.path),
-                    path: scriptNameMatch[1],
+                    name: scriptNameMatch[1],
+                    path: path.basename(scriptFile.path),
                     abi: JSON.parse(abi).abi,
                 };
                 scripts.push(script);
@@ -133,7 +132,7 @@ export async function getScripts(): Promise<Script[]> {
     }
 }
 
-export async function deployContract(network: number, contract: Contract, verify: boolean, cstrArgs: string): Promise<void> {
+export async function deployContract(network: number, contract: Contracts, verify: boolean, cstrArgs: string): Promise<void> {
     const verifyStr = verify ? '--verify' : '';
     exec(`forge create ${contract.path}:${contract.name} -c ${network} ${verifyStr} --contructor-args ${cstrArgs}`, (error, _stdout, _stderr) => {
         if (error) {
@@ -151,7 +150,7 @@ export async function deployScript(network: number, script: Script, verify: bool
     });
 }
 
-export async function verifyContract(network: number, contract: Contract): Promise<void> {
+export async function verifyContract(network: number, contract: Contracts): Promise<void> {
     // TODO load the contructor args path from out
     exec(`forge verify-contract ${contract.path} ${contract.address} -c ${network}`, (error, _stdout, _stderr) => {
         if (error) {

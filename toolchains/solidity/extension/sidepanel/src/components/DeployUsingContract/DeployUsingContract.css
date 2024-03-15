@@ -48,7 +48,7 @@
     margin-right: 0.5rem;
 }
 
-.environment-container, .contract-container {
+.environment-container, .contract-container, .wallet-container {
     display: flex;
     flex-direction: row;
 }

@@ -1,42 +1,50 @@
 import { VSCodeDropdown, VSCodeOption, VSCodeTextField, VSCodeButton, VSCodeDivider } from '@vscode/webview-ui-toolkit/react';
 import './DeployUsingContract.css';
 import { Wallet } from "../../../../src/actions/WalletRepository.ts";
-import { Contract } from "../../../../src/actions/deploy.ts";
+import { Contracts } from "../../../../src/actions/deploy.ts";
 import { useDeployContract } from "./DeployContract.logic.ts";
+import { Contract } from '../../../../src/actions/ContractRepository.ts';
 // import { DeployContractsParams } from "../DeployContractsParams/DeployContractsParams.tsx";
+import {VSCode} from "../../types";
+import { useInteractContracts } from '../InteractContracts/InteractContracts.logic.ts';
+
 export const DeployUsingContract = (
-  { wallets, contracts }: { wallets: Wallet[]; contracts: Contract[] },
+  { wallets, deployContracts, vscode, editContracts }: { wallets: Wallet[], deployContracts: Contracts[], vscode: VSCode, editContracts: Contract[]},
 ) => {
   const logic = useDeployContract();
+  const edit = useInteractContracts(editContracts, vscode);
 
   return (
     <div>
       <div>
         <div> DEPLOY USING CONTRACT </div>
-        <div className="dropdown-container">
+        <div className="dropdown-contaner">
           <label htmlFor="dropdown-wallets" className="label">
             Select account:
           </label>
-          <VSCodeDropdown
-            id="dropdown-wallets"
-            {...logic.form?.register("wallet", {
-              required: true,
-            })}
-          >
-            {wallets?.map((wallet) => (
-              <VSCodeOption value={wallet.address}>
-                {wallet.name} - {wallet.address}
-              </VSCodeOption>
-            ))}
-          </VSCodeDropdown>
+          <div className="wallet-container">
+            <VSCodeDropdown
+              id="dropdown-wallets" className='dropdown-wallets'
+              {...logic.form?.register("wallet", {
+                required: true,
+              })}
+            >
+              {wallets?.map((wallet) => (
+                <VSCodeOption value={wallet.address}>
+                  {wallet.name} - {wallet.address}
+                </VSCodeOption>
+              ))}
+            </VSCodeDropdown>
+            <VSCodeButton className="add-wallet-button" onClick={edit.editWallet}>Edit</VSCodeButton>
+          </div>
         </div>
         <div className="dropdown-container">
         <label htmlFor="dropdown" className='label'>Select contract:</label>
         <VSCodeDropdown id="dropdown"
           {...logic.form?.register('contract', { required: true })}
         >
-            {contracts?.map((contracts) => (
-              <VSCodeOption>{contracts.path} ({contracts.name})</VSCodeOption>
+            {deployContracts?.map((deployContracts) => (
+              <VSCodeOption value={deployContracts.path}> {deployContracts.name} ({deployContracts.path})</VSCodeOption>
             ))}
           </VSCodeDropdown>
         </div>
@@ -79,7 +87,7 @@ export const DeployUsingContract = (
         </div>
       </div>
       <VSCodeDivider className='divider'/>
-      {/* <DeployContractsParams contracts={contracts} /> */}
+      {/* <DeployContractsParams contracts={deployContracts} /> */}
       <VSCodeButton className="submit-button" type="submit"> 
         Deploy with contract
       </VSCodeButton>

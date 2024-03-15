@@ -3,7 +3,7 @@ import { DFormScript, VSCode, DFormContract } from '../../types';
 import { useEffect, useState } from 'react';
 import { Wallet } from '../../../../src/actions/WalletRepository.ts';
 import { Script } from '../../../../src/actions/deploy.ts';
-import { Contract } from '../../../../src/actions/deploy.ts';
+import { Contracts } from '../../../../src/actions/deploy.ts';
 
 enum MessageTypeScript {
   GET_WALLETS = 'GET_WALLETS',
@@ -74,7 +74,7 @@ export const useDeployPageScript = (vscode: VSCode) => {
 
 export const useDeployPageContract = (vscode: VSCode) => {
   const [wallets, setWallets] = useState<Wallet[]>([]);
-  const [contracts, setContracts] = useState<Contract[]>([]);
+  const [contracts, setContracts] = useState<Contracts[]>([]);
   const form = useForm<DFormContract>({
     defaultValues: {
       wallet: '',
@@ -107,7 +107,7 @@ export const useDeployPageContract = (vscode: VSCode) => {
           break;
         }
         case MessageTypeContract.DEPLOY_CONTRACTS: {
-          form.setValue('contract', event.data.contracts && event.data.contracts.length ? event.data.contracts[0].name : '');
+          form.setValue('contract', event.data.contracts && event.data.contracts.length ? event.data.contracts[0].path : '');
           setContracts(event.data.contracts);
           break;
         }

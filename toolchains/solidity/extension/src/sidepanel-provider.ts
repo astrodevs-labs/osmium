@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { ContractRepository } from "./actions/ContractRepository";
 import { WalletRepository } from "./actions/WalletRepository";
 import { Script, getScripts } from "./actions/deploy";
-import { Contract, getContracts } from "./actions/deploy";
+import { Contracts, getContracts } from "./actions/deploy";
 import { Interact } from "./actions/Interact";
 import {window} from "vscode";
 import {Address, parseEther, parseUnits} from "viem";
@@ -53,7 +53,7 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
   private _walletRepository?: WalletRepository;
   private _interact?: Interact;
   private _scripts?: Script[];
-  private _contracts?: Contract[];
+  private _contracts?: Contracts[];
 
   private _watcher?: vscode.FileSystemWatcher;
 

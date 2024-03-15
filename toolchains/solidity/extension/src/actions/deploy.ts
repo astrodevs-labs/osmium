@@ -2,11 +2,12 @@ import {exec} from "child_process";
 import * as path from 'path';
 import * as toml from "toml";
 import {workspace} from "vscode";
+import {Abi} from "viem";
 
 export type Contract = {
     name: string;
     path: string;
-    abi: any[];
+    abi: Abi;
     address?: string;
 }
 

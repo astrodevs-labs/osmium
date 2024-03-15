@@ -86,7 +86,7 @@ export const useDeployPageContract = (vscode: VSCode) => {
     },
   });
 
-  const onSubmit: SubmitHandler<DFormScript> = (data) => {
+  const onSubmit: SubmitHandler<DFormContract> = (data) => {
     console.log(data);
   };
 

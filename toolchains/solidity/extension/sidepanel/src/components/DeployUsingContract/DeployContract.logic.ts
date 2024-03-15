@@ -3,6 +3,6 @@ import { DFormContract } from '../../types';
 
 export const useDeployContract = () => {
   const form = useFormContext<DFormContract>();
-
-  return { form };
+  const { formState: { errors } } = form;
+  return { form, errors};
 };

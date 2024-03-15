@@ -4,6 +4,10 @@
     margin-top: 0.5rem;
 } 
 
+.submit-button {
+    min-width: 100%;
+}
+
 .label, .gas-limit-container {
     margin-bottom: 0.2rem;
 }
@@ -38,7 +42,6 @@
     width: 20%;
     height: calc(var(--input-height) * 1px);;
 }
-
 
 .dropdown-environment, .dropdown-contracts {
     width: 80%;

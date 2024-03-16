@@ -4,7 +4,7 @@ import { Wallet } from "../../../../src/actions/WalletRepository.ts";
 import { Contracts } from "../../../../src/actions/deploy.ts";
 import { useDeployContract } from "./DeployContract.logic.ts";
 import { Contract } from '../../../../src/actions/ContractRepository.ts';
-// import { DeployContractsParams } from "../DeployContractsParams/DeployContractsParams.tsx";
+import { DeployContractsParams } from "../DeployContractsParams/DeployContractsParams.tsx";
 import {VSCode} from "../../types";
 import { useInteractContracts } from '../InteractContracts/InteractContracts.logic.ts';
 
@@ -87,7 +87,7 @@ export const DeployUsingContract = (
         </div>
       </div>
       <VSCodeDivider className='divider'/>
-      {/* <DeployContractsParams contracts={deployContracts} /> */}
+      <DeployContractsParams contracts={deployContracts} />
       <VSCodeButton className="submit-button" type="submit"> 
         Deploy with contract
       </VSCodeButton>

@@ -1,13 +1,12 @@
-import './InteractParams.css';
-import { Contract } from '../../../../src/actions/ContractRepository.ts';
-import { useInteractParams } from './InteractParams.logic.ts';
+import './DeployContracts.css';
+import { Contracts } from '../../../../src/actions/deploy.ts';
+import { useDeployContractsParams } from './DeployContractsParams.logic.ts';
 import { VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
 
-export const InteractParams = (props: { contracts: Contract[] }) => {
-  const logic = useInteractParams(props.contracts);
+export const DeployContractsParams = (props: { contracts: Contracts[] }) => {
+  const logic = useDeployContractsParams(props.contracts);
 
   const displayParams = logic.inputs && logic.inputs.length > 0;
-
   return (
     <>
       {displayParams &&

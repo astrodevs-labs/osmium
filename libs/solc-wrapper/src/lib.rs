@@ -33,7 +33,7 @@ pub fn get_ast_for_file(base_path: String) -> Result<Vec<SolcAstFile>, SolcWrapp
     let solc = command::ForgeCommand::default();
 
     eprintln!("Base path: {}", base_path.clone());
-    let args = vec![String::from("build"), String::from("--build-info"), /*String::from("--no-cache")*/];
+    let args = vec![String::from("build"), String::from("--build-info"), String::from("--no-cache")];
     let solc = solc.args(args);
 
     let init_time = SystemTime::now();

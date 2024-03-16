@@ -19,4 +19,7 @@ extension = { version = "0.1.0", path = "crates/extension", default-features = f
 solidhunter = { version = "0.2.1", path = "crates/solidhunter", default-features = false }
 linter-cli = { version = "0.2.0", path = "crates/linter-cli", default-features = false }
 linter-server = { version = "0.1.0", path = "crates/linter-server", default-features = false }
+slither-server = { version = "0.1.0", path = "crates/slither-server", default-features = false }
+tests-positions-server = { version = "0.1.0", path = "crates/tests-positions-server", default-features = false }
+references-server = { version = "0.1.0", path = "crates/references-server", default-features = false }
 foundry-compiler-server = { version = "0.1.0", path = "crates/foundry-compiler-server", default-features = false }

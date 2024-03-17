@@ -16,6 +16,11 @@ export type Script = {
     name: string;
 }
 
+export type Environment = {
+    name: string;
+    rpc: string;
+}
+
 async function getScriptFolder(): Promise<string> {
     try {
         const foundryConfigContent = await workspace.fs.readFile(workspace.workspaceFolders![0].uri.with({path: path.join(workspace.workspaceFolders![0].uri.path, 'foundry.toml')}));

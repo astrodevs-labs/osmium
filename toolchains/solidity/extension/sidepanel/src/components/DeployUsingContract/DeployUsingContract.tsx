@@ -11,7 +11,7 @@ import { useInteractContracts } from '../InteractContracts/InteractContracts.log
 export const DeployUsingContract = (
   { wallets, deployContracts, vscode, editContracts }: { wallets: Wallet[], deployContracts: Contracts[], vscode: VSCode, editContracts: Contract[]},
 ) => {
-  const logic = useDeployContract();
+  const logic = useDeployContract(vscode);
   const edit = useInteractContracts(editContracts, vscode);
 
   return (
@@ -56,8 +56,7 @@ export const DeployUsingContract = (
               >
                 <VSCodeOption>Remix VM</VSCodeOption>
               </VSCodeDropdown>
-              <VSCodeButton className="add-wallet-button" onClick={() => {
-              }}>Add</VSCodeButton>
+              <VSCodeButton className="add-wallet-button" onClick={logic.editEnvironment}>Edit</VSCodeButton>
             </div>
         </div>
         <div className="gas-limit-container">

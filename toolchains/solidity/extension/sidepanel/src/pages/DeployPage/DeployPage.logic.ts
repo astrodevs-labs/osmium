@@ -5,18 +5,19 @@ import { Wallet } from '../../../../src/actions/WalletRepository.ts';
 import { Script } from '../../../../src/actions/deploy.ts';
 import { Contracts } from '../../../../src/actions/deploy.ts';
 
-enum MessageTypeScript {
+export enum MessageTypeScript {
   GET_WALLETS = 'GET_WALLETS',
   WALLETS = 'WALLETS',
   GET_SCRIPTS = 'GET_SCRIPTS',
   SCRIPTS = 'SCRIPTS',
 }
 
-enum MessageTypeContract {
+export enum MessageTypeContract {
   GET_WALLETS = 'GET_WALLETS',
   WALLETS = 'WALLETS',
   GET_DEPLOY_CONTRACTS = 'GET_DEPLOY_CONTRACTS',
   DEPLOY_CONTRACTS = 'DEPLOY_CONTRACTS',
+  EDIT_ENVIRONMENT = 'EDIT_ENVIRONMENT',
 }
 
 export const useDeployPageScript = (vscode: VSCode) => {

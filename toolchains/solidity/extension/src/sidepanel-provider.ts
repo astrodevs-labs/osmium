@@ -1,11 +1,12 @@
 import * as vscode from "vscode";
 import { ContractRepository } from "./actions/ContractRepository";
 import { WalletRepository } from "./actions/WalletRepository";
+import { EnvironmentRepository } from './actions/EnvironmentRepository';
 import { Script, getScripts } from "./actions/deploy";
 import { Contracts, getContracts } from "./actions/deploy";
 import { Interact } from "./actions/Interact";
 import {window} from "vscode";
-import {Address, parseEther, parseUnits} from "viem";
+import {Address} from "viem";
 
 enum MessageType {
   GET_WALLETS = "GET_WALLETS",
@@ -22,6 +23,7 @@ enum MessageType {
   READ_RESPONSE = "READ_RESPONSE",
   EDIT_WALLETS = 'EDIT_WALLETS',
   EDIT_CONTRACTS = 'EDIT_CONTRACTS',
+  EDIT_ENVIRONMENT = 'EDIT_ENVIRONMENT',
 }
 
 type Message = {
@@ -51,6 +53,7 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
 
   private _contractRepository?: ContractRepository;
   private _walletRepository?: WalletRepository;
+  private _environmentRepository?: EnvironmentRepository;
   private _interact?: Interact;
   private _scripts?: Script[];
   private _contracts?: Contracts[];
@@ -71,6 +74,9 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
         vscode.workspace.workspaceFolders?.[0].uri.fsPath || "",
       );
       this._walletRepository = new WalletRepository(
+        vscode.workspace.workspaceFolders?.[0].uri.fsPath || "",
+      );
+      this._environmentRepository = new EnvironmentRepository(
         vscode.workspace.workspaceFolders?.[0].uri.fsPath || "",
       );
 
@@ -118,6 +124,7 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
         !this._view ||
         !this._contractRepository ||
         !this._walletRepository ||
+        !this._environmentRepository ||
         !this._interact ||
         !this._scripts ||
         !this._contracts
@@ -232,12 +239,36 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
               name: contractName,
               rpc: <any>contractRpc,
             });
+          
           }
 
           if (contractAction === InputAction.REMOVE) {
             const contractAddress = await window.showInputBox({prompt: "Enter address"});
             if (!contractAddress) return;
             this._contractRepository.deleteContract(<Address>contractAddress);
+          }
+          break;
+        // start
+        case MessageType.EDIT_ENVIRONMENT:
+          const environmentAction = await window.showQuickPick([InputAction.ADD, InputAction.REMOVE], {title: "Edit environment", ignoreFocusOut: true });
+
+          if (environmentAction === InputAction.ADD) {
+            const environmentName = await window.showInputBox({prompt: "Enter name", ignoreFocusOut: true });
+            const environmentRpc = await window.showInputBox({prompt: "Enter rpc", ignoreFocusOut: true });
+
+            if (!environmentName || !environmentRpc) return;
+            if (!environmentRpc.startsWith("http") && !environmentRpc.startsWith("ws")) return;
+
+            await this._environmentRepository.createEnvironment({
+              name: environmentName,
+              rpc: environmentRpc,
+            });
+          }
+
+          if (environmentAction === InputAction.REMOVE) {
+            const environmentName = await window.showInputBox({prompt: "Enter name", ignoreFocusOut: true });
+            if (!environmentName) return;
+            await this._environmentRepository.deleteEnvironment(environmentName);
           }
           break;
       }

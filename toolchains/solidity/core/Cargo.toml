@@ -20,3 +20,19 @@ solidhunter = { version = "0.2.1", path = "crates/solidhunter", default-features
 linter-cli = { version = "0.2.0", path = "crates/linter-cli", default-features = false }
 linter-server = { version = "0.1.0", path = "crates/linter-server", default-features = false }
 foundry-compiler-server = { version = "0.1.0", path = "crates/foundry-compiler-server", default-features = false }
+foundry-debugger = { version = "0.1.0", path = "crates/foundry-debugger", default-features = false }
+
+[patch.crates-io]
+ethers = { git = "https://github.com/gakonst/ethers-rs", rev = "73e5de211c32a1f5777eb5194205bdb31f6a3502" }
+ethers-core = { git = "https://github.com/gakonst/ethers-rs", rev = "73e5de211c32a1f5777eb5194205bdb31f6a3502" }
+ethers-contract = { git = "https://github.com/gakonst/ethers-rs", rev = "73e5de211c32a1f5777eb5194205bdb31f6a3502" }
+ethers-contract-abigen = { git = "https://github.com/gakonst/ethers-rs", rev = "73e5de211c32a1f5777eb5194205bdb31f6a3502" }
+ethers-providers = { git = "https://github.com/gakonst/ethers-rs", rev = "73e5de211c32a1f5777eb5194205bdb31f6a3502" }
+ethers-signers = { git = "https://github.com/gakonst/ethers-rs", rev = "73e5de211c32a1f5777eb5194205bdb31f6a3502" }
+ethers-middleware = { git = "https://github.com/gakonst/ethers-rs", rev = "73e5de211c32a1f5777eb5194205bdb31f6a3502" }
+ethers-solc = { git = "https://github.com/gakonst/ethers-rs", rev = "73e5de211c32a1f5777eb5194205bdb31f6a3502" }
+
+revm = { git = "https://github.com/bluealloy/revm", branch = "reth_freeze" }
+revm-primitives = { git = "https://github.com/bluealloy/revm", branch = "reth_freeze" }
+revm-interpreter = { git = "https://github.com/bluealloy/revm", branch = "reth_freeze" }
+revm-precompile = { git = "https://github.com/bluealloy/revm", branch = "reth_freeze" }

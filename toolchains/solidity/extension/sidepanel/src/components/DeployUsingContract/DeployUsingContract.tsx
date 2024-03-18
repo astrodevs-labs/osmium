@@ -18,7 +18,7 @@ export const DeployUsingContract = (
     <div>
       <div>
         <div> DEPLOY USING CONTRACT </div>
-        <div className="dropdown-contaner">
+        <div className="dropdown-container">
           <label htmlFor="dropdown-wallets" className="label">
             Select account:
           </label>

@@ -1,9 +1,8 @@
-import { SubmitHandler, useForm } from 'react-hook-form';
-import { DFormScript, VSCode, DFormContract } from '../../types';
 import { useEffect, useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { Wallet } from '../../../../src/actions/WalletRepository.ts';
-import { Script } from '../../../../src/actions/deploy.ts';
-import { Contracts } from '../../../../src/actions/deploy.ts';
+import { Contracts, Environment, Script } from '../../../../src/actions/deploy.ts';
+import { DFormContract, DFormScript, VSCode } from '../../types';
 
 export enum MessageTypeScript {
   GET_WALLETS = 'GET_WALLETS',
@@ -18,6 +17,8 @@ export enum MessageTypeContract {
   GET_DEPLOY_CONTRACTS = 'GET_DEPLOY_CONTRACTS',
   DEPLOY_CONTRACTS = 'DEPLOY_CONTRACTS',
   EDIT_ENVIRONMENT = 'EDIT_ENVIRONMENT',
+  GET_ENVIRONMENTS = 'GET_ENVIRONMENTS',
+  ENVIRONMENTS = 'ENVIRONMENTS',
 }
 
 export const useDeployPageScript = (vscode: VSCode) => {
@@ -27,6 +28,7 @@ export const useDeployPageScript = (vscode: VSCode) => {
     defaultValues: {
       wallet: '',
       script: '',
+      environment: '',
     },
   });
 
@@ -40,6 +42,7 @@ export const useDeployPageScript = (vscode: VSCode) => {
     }
     vscode.postMessage({ type: MessageTypeScript.GET_WALLETS });
     vscode.postMessage({ type: MessageTypeScript.GET_SCRIPTS });
+    vscode.postMessage({ type: MessageTypeContract.GET_ENVIRONMENTS });
   }, [vscode]);
 
   useEffect(() => {
@@ -75,12 +78,13 @@ export const useDeployPageScript = (vscode: VSCode) => {
 
 export const useDeployPageContract = (vscode: VSCode) => {
   const [wallets, setWallets] = useState<Wallet[]>([]);
-  const [contracts, setContracts] = useState<Contracts[]>([]);
+  const [contracts, setContracts] = useState<Contracts[]>([]);  const [environments, setEnvironments] = useState<Environment[]>([]);
+
   const form = useForm<DFormContract>({
     defaultValues: {
       wallet: '',
       contract: '',
-      environment: 'Remix VM',
+      environment: '',
       value: 0,
       valueUnit: 'wei',
       gasLimit: 300000,
@@ -112,6 +116,11 @@ export const useDeployPageContract = (vscode: VSCode) => {
           setContracts(event.data.contracts);
           break;
         }
+        case MessageTypeContract.ENVIRONMENTS: {
+          form.setValue('environment', event.data.environments && event.data.environments.length ? event.data.environments[0].name : '');
+          setEnvironments(event.data.environments);
+          break;
+        }
         default: {
           throw Error('Unknown command: ' + event.type);
         }
@@ -127,5 +136,6 @@ export const useDeployPageContract = (vscode: VSCode) => {
     wallets,
     contracts,
     onSubmit,
+    environments
   };
 };

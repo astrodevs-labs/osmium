@@ -1,8 +1,8 @@
-import {exec} from "child_process";
+import { exec } from "child_process";
 import * as path from 'path';
 import * as toml from "toml";
-import {workspace} from "vscode";
-import {Abi} from "viem";
+import { Abi } from "viem";
+import { workspace } from "vscode";
 
 export type Contracts = {
     name: string;
@@ -135,6 +135,21 @@ export async function getScripts(): Promise<Script[]> {
         console.error("Error getting scripts", e);
         return [];
     }
+}
+
+export async function getEnvironments(): Promise<Environment[]> {
+    const environments : Environment[] = [];
+    const environmentFilePath = path.join(workspace.workspaceFolders![0].uri.path, '.osmium/environment.json');
+    try {
+        const environmentFileContent = await workspace.fs.readFile(workspace.workspaceFolders![0].uri.with({ path: environmentFilePath }));
+        const environmentJson = JSON.parse(environmentFileContent.toString());
+        if (Array.isArray(environmentJson.environment)) {
+            environments.push(...environmentJson.environment);
+        }
+    } catch (error) {
+        console.error("Error reading environment.json file:", error);
+    }
+    return environments;
 }
 
 export async function deployContract(network: number, contract: Contracts, verify: boolean, cstrArgs: string): Promise<void> {

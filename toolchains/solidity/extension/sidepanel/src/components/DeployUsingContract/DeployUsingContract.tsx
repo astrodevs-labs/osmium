@@ -1,15 +1,15 @@
-import { VSCodeDropdown, VSCodeOption, VSCodeTextField, VSCodeButton, VSCodeDivider } from '@vscode/webview-ui-toolkit/react';
-import './DeployUsingContract.css';
-import { Wallet } from "../../../../src/actions/WalletRepository.ts";
-import { Contracts } from "../../../../src/actions/deploy.ts";
-import { useDeployContract } from "./DeployContract.logic.ts";
+import { VSCodeButton, VSCodeDivider, VSCodeDropdown, VSCodeOption, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
 import { Contract } from '../../../../src/actions/ContractRepository.ts';
+import { Wallet } from "../../../../src/actions/WalletRepository.ts";
+import { Contracts, Environment } from "../../../../src/actions/deploy.ts";
+import { VSCode } from "../../types";
 import { DeployContractsParams } from "../DeployContractsParams/DeployContractsParams.tsx";
-import {VSCode} from "../../types";
 import { useInteractContracts } from '../InteractContracts/InteractContracts.logic.ts';
+import { useDeployContract } from "./DeployContract.logic.ts";
+import './DeployUsingContract.css';
 
 export const DeployUsingContract = (
-  { wallets, deployContracts, vscode, editContracts }: { wallets: Wallet[], deployContracts: Contracts[], vscode: VSCode, editContracts: Contract[]},
+  { wallets, deployContracts, vscode, editContracts, environments }: { wallets: Wallet[], deployContracts: Contracts[], vscode: VSCode, editContracts: Contract[], environments: Environment[]},
 ) => {
   const logic = useDeployContract(vscode);
   const edit = useInteractContracts(editContracts, vscode);
@@ -54,7 +54,11 @@ export const DeployUsingContract = (
               <VSCodeDropdown id="dropdown-environment" className='dropdown-environment'
               {...logic.form?.register('environment', { required: true })}
               >
-                <VSCodeOption>Remix VM</VSCodeOption>
+              {
+                environments.map((environment) => (
+                  <VSCodeOption>{environment.name} ({environment.rpc})</VSCodeOption>
+                ))
+              }
               </VSCodeDropdown>
               <VSCodeButton className="add-wallet-button" onClick={logic.editEnvironment}>Edit</VSCodeButton>
             </div>

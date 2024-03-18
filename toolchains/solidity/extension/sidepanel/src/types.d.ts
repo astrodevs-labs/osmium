@@ -14,6 +14,7 @@ export interface IFormInput {
 export interface DFormScript {
   wallet: string;
   script: string;
+  environment: string;
 }
 
 export interface DFormContract {

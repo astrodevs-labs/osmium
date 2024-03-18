@@ -1,12 +1,11 @@
+import { Address } from "viem";
 import * as vscode from "vscode";
+import { window } from "vscode";
 import { ContractRepository } from "./actions/ContractRepository";
-import { WalletRepository } from "./actions/WalletRepository";
 import { EnvironmentRepository } from './actions/EnvironmentRepository';
-import { Script, getScripts } from "./actions/deploy";
-import { Contracts, getContracts } from "./actions/deploy";
 import { Interact } from "./actions/Interact";
-import {window} from "vscode";
-import {Address} from "viem";
+import { WalletRepository } from "./actions/WalletRepository";
+import { Contracts, Environment, Script, getContracts, getEnvironments, getScripts } from "./actions/deploy";
 
 enum MessageType {
   GET_WALLETS = "GET_WALLETS",
@@ -20,6 +19,8 @@ enum MessageType {
   READ = "READ",
   GET_SCRIPTS = "GET_SCRIPTS",
   SCRIPTS = "SCRIPTS",
+  GET_ENVIRONMENTS = "GET_ENVIRONMENTS",
+  ENVIRONMENTS = "ENVIRONMENTS",
   READ_RESPONSE = "READ_RESPONSE",
   EDIT_WALLETS = 'EDIT_WALLETS',
   EDIT_CONTRACTS = 'EDIT_CONTRACTS',
@@ -57,6 +58,7 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
   private _interact?: Interact;
   private _scripts?: Script[];
   private _contracts?: Contracts[];
+  private _environments?: Environment[];
 
   private _watcher?: vscode.FileSystemWatcher;
 
@@ -87,6 +89,7 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
 
       this._scripts = await getScripts();
       this._contracts = await getContracts();
+      this._environments = await getEnvironments();
       const pattern = new vscode.RelativePattern(
         vscode.workspace.workspaceFolders?.[0].uri.fsPath,
         ".osmium/*.json",
@@ -127,7 +130,8 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
         !this._environmentRepository ||
         !this._interact ||
         !this._scripts ||
-        !this._contracts
+        !this._contracts ||
+        !this._environments
       ) {
         return;
       }
@@ -156,6 +160,12 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
               contracts: this._contracts,
             });
             break;
+        case MessageType.GET_ENVIRONMENTS:
+          await this._view.webview.postMessage({
+            type: MessageType.ENVIRONMENTS,
+            environments: this._environments,
+          });
+          break;
         case MessageType.WRITE:
           let value = BigInt(message.data.value);
 

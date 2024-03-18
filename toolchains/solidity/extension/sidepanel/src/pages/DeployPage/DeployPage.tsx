@@ -1,10 +1,10 @@
-import "./DeployPage.css";
-import { DeployUsingScript } from '../../components/DeployUsingScript/DeployUsingScript.tsx';
-import { DeployUsingContract } from '../../components/DeployUsingContract/DeployUsingContract.tsx';
-import { useDeployPageScript, useDeployPageContract } from './DeployPage.logic.ts';
-import { VSCode } from '../../types';
 import { FormProvider } from "react-hook-form";
+import { DeployUsingContract } from '../../components/DeployUsingContract/DeployUsingContract.tsx';
+import { DeployUsingScript } from '../../components/DeployUsingScript/DeployUsingScript.tsx';
+import { VSCode } from '../../types';
 import { useInteractPage } from '../InteractPage/InteractPage.logic.ts';
+import "./DeployPage.css";
+import { useDeployPageContract, useDeployPageScript } from './DeployPage.logic.ts';
 
 export const DeployPage = (props: { vscode: VSCode }) => {
   const logicScript = useDeployPageScript(props.vscode);
@@ -20,8 +20,14 @@ export const DeployPage = (props: { vscode: VSCode }) => {
     </FormProvider>
     <FormProvider {...logicContract.form}>
       <form onSubmit={logicContract.form.handleSubmit(logicContract.onSubmit)}>
-        <DeployUsingContract wallets={logicContract.wallets} deployContracts={logicContract.contracts} vscode={props.vscode} editContracts={edit.contracts}/>
+        <DeployUsingContract wallets={logicContract.wallets} deployContracts={logicContract.contracts} vscode={props.vscode} editContracts={edit.contracts} environments={logicContract.environments}/>
       </form>
     </FormProvider>
+  {/* return (<div className="page-container">
+    <DeployUsingScript wallets={logicScript.wallets} scripts={logicScript.scripts} />
+    <DeployUsingContract environments={logicScript.environments} />
+    <VSCodeDivider className='divider'/>
+    <VSCodeDivider className='divider'/>
+    <VSCodeButton>Deploy with contract</VSCodeButton> */}
   </div>);
 };

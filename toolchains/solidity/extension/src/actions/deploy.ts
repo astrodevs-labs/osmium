@@ -138,18 +138,19 @@ export async function getScripts(): Promise<Script[]> {
 }
 
 export async function getEnvironments(): Promise<Environment[]> {
-    const environments : Environment[] = [];
-    const environmentFilePath = path.join(workspace.workspaceFolders![0].uri.path, '.osmium/environment.json');
+    const environment : Environment[] = [];
+    const environmentFilePath = path.join(workspace.workspaceFolders![0].uri.path, '.osmium/environments.json');
     try {
         const environmentFileContent = await workspace.fs.readFile(workspace.workspaceFolders![0].uri.with({ path: environmentFilePath }));
         const environmentJson = JSON.parse(environmentFileContent.toString());
-        if (Array.isArray(environmentJson.environment)) {
-            environments.push(...environmentJson.environment);
+        console.log(environmentJson);
+        if (Array.isArray(environmentJson.environments)) {
+            environment.push(...environmentJson.environments);
         }
     } catch (error) {
         console.error("Error reading environment.json file:", error);
     }
-    return environments;
+    return environment;
 }
 
 export async function deployContract(network: number, contract: Contracts, verify: boolean, cstrArgs: string): Promise<void> {

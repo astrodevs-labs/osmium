@@ -2071,7 +2071,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "foundry-debugger"
+name = "foundry-dap-server"
 version = "0.3.0"
 dependencies = [
  "dap",

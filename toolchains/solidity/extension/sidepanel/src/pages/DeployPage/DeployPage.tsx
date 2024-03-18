@@ -23,11 +23,5 @@ export const DeployPage = (props: { vscode: VSCode }) => {
         <DeployUsingContract wallets={logicContract.wallets} deployContracts={logicContract.contracts} vscode={props.vscode} editContracts={edit.contracts} environments={logicContract.environments}/>
       </form>
     </FormProvider>
-  {/* return (<div className="page-container">
-    <DeployUsingScript wallets={logicScript.wallets} scripts={logicScript.scripts} />
-    <DeployUsingContract environments={logicScript.environments} />
-    <VSCodeDivider className='divider'/>
-    <VSCodeDivider className='divider'/>
-    <VSCodeButton>Deploy with contract</VSCodeButton> */}
   </div>);
 };

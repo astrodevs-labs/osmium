@@ -28,7 +28,6 @@ export const useDeployPageScript = (vscode: VSCode) => {
     defaultValues: {
       wallet: '',
       script: '',
-      environment: '',
     },
   });
 
@@ -42,7 +41,6 @@ export const useDeployPageScript = (vscode: VSCode) => {
     }
     vscode.postMessage({ type: MessageTypeScript.GET_WALLETS });
     vscode.postMessage({ type: MessageTypeScript.GET_SCRIPTS });
-    vscode.postMessage({ type: MessageTypeContract.GET_ENVIRONMENTS });
   }, [vscode]);
 
   useEffect(() => {
@@ -78,7 +76,8 @@ export const useDeployPageScript = (vscode: VSCode) => {
 
 export const useDeployPageContract = (vscode: VSCode) => {
   const [wallets, setWallets] = useState<Wallet[]>([]);
-  const [contracts, setContracts] = useState<Contracts[]>([]);  const [environments, setEnvironments] = useState<Environment[]>([]);
+  const [contracts, setContracts] = useState<Contracts[]>([]);
+  const [environments, setEnvironments] = useState<Environment[]>([]);
 
   const form = useForm<DFormContract>({
     defaultValues: {
@@ -101,6 +100,7 @@ export const useDeployPageContract = (vscode: VSCode) => {
     }
     vscode.postMessage({ type: MessageTypeContract.GET_WALLETS });
     vscode.postMessage({ type: MessageTypeContract.GET_DEPLOY_CONTRACTS });
+    vscode.postMessage({ type: MessageTypeContract.GET_ENVIRONMENTS });
   }, [vscode]);
 
   useEffect(() => {

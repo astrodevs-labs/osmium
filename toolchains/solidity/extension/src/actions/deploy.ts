@@ -1,7 +1,7 @@
 import { exec } from "child_process";
 import * as path from 'path';
 import * as toml from "toml";
-import { Abi } from "viem";
+import { Abi, encodeAbiParameters } from "viem";
 import { workspace } from "vscode";
 
 export type Contracts = {
@@ -19,6 +19,19 @@ export type Script = {
 export type Environment = {
     name: string;
     rpc: string;
+}
+
+export type DeployScriptArgs = {
+    rpcUrl: string;
+    script: Script;
+    verify: boolean;
+}
+
+export type DeployContractArgs = {
+    rpcUrl: string;
+    contract: Contracts;
+    verify: boolean;
+    cstrArgs: string[];
 }
 
 async function getScriptFolder(): Promise<string> {
@@ -153,27 +166,18 @@ export async function getEnvironments(): Promise<Environment[]> {
     return environment;
 }
 
-export async function deployContract(network: number, contract: Contracts, verify: boolean, cstrArgs: string): Promise<void> {
+export async function deployContract(rpcUrl: string, contract: Contracts, verify: boolean, cstrArgs: string[]): Promise<void> {
     const verifyStr = verify ? '--verify' : '';
-    exec(`forge create ${contract.path}:${contract.name} -c ${network} ${verifyStr} --contructor-args ${cstrArgs}`, (error, _stdout, _stderr) => {
+    exec(`forge create ${contract.path}:${contract.name} --rpc-url ${rpcUrl} ${verifyStr} --contructor-args ${cstrArgs.join(' ')}`, (error, _stdout, _stderr) => {
         if (error) {
             throw error;
         }
     });
 }
 
-export async function deployScript(network: number, script: Script, verify: boolean): Promise<void> {
+export async function deployScript(rpcUrl: string, script: Script, verify: boolean): Promise<void> {
     const verifyStr = verify ? '--verify' : '';
-    exec(`forge script ${script.path}:${script.name} -c ${network} ${verifyStr}`, (error, _stdout, _stderr) => {
-        if (error) {
-            throw error;
-        }
-    });
-}
-
-export async function verifyContract(network: number, contract: Contracts): Promise<void> {
-    // TODO load the contructor args path from out
-    exec(`forge verify-contract ${contract.path} ${contract.address} -c ${network}`, (error, _stdout, _stderr) => {
+    exec(`forge script ${script.path}:${script.name} --rpc-url ${rpcUrl} --broadcast ${verifyStr}`, (error, _stdout, _stderr) => {
         if (error) {
             throw error;
         }

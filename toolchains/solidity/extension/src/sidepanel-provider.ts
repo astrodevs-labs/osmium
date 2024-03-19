@@ -5,7 +5,7 @@ import { ContractRepository } from "./actions/ContractRepository";
 import { EnvironmentRepository } from './actions/EnvironmentRepository';
 import { Interact } from "./actions/Interact";
 import { WalletRepository } from "./actions/WalletRepository";
-import { Contracts, Environment, Script, getContracts, getEnvironments, getScripts } from "./actions/deploy";
+import { Contracts, DeployScriptArgs, Environment, Script, deployContract, deployScript, getContracts, getEnvironments, getScripts } from "./actions/deploy";
 
 enum MessageType {
   GET_WALLETS = "GET_WALLETS",
@@ -25,6 +25,10 @@ enum MessageType {
   EDIT_WALLETS = 'EDIT_WALLETS',
   EDIT_CONTRACTS = 'EDIT_CONTRACTS',
   EDIT_ENVIRONMENT = 'EDIT_ENVIRONMENT',
+  DEPLOY_SCRIPT = 'DEPLOY_SCRIPT',
+  DEPLOY_SCRIPT_RESPONSE = 'DEPLOY_SCRIPT_RESPONSE',
+  DEPLOY_CONTRACT = 'DEPLOY_CONTRACT',
+  DEPLOY_CONTRACT_RESPONSE = 'DEPLOY_CONTRACT_RESPONSE',
 }
 
 type Message = {
@@ -280,6 +284,24 @@ export class SidePanelProvider implements vscode.WebviewViewProvider {
             if (!environmentName) return;
             await this._environmentRepository.deleteEnvironment(environmentName);
           }
+          break;
+
+        case MessageType.DEPLOY_SCRIPT:
+          const deployScriptArgs: DeployScriptArgs = message.data;
+          const deployScriptResponse = await deployScript(deployScriptArgs.rpcUrl, deployScriptArgs.script, deployScriptArgs.verify);
+          await this._view.webview.postMessage({
+            type: MessageType.DEPLOY_SCRIPT_RESPONSE,
+            response: deployScriptResponse,
+          });
+          break;
+
+        case MessageType.DEPLOY_CONTRACT:
+          const deployContractArgs = message.data;
+          const deployContractResponse = deployContract(deployContractArgs.rpcUrl, deployContractArgs.contract, deployContractArgs.verify, deployContractArgs.cstrArgs);
+          await this._view.webview.postMessage({
+            type: MessageType.DEPLOY_CONTRACT_RESPONSE,
+            response: deployContractResponse,
+          });
           break;
       }
     });
